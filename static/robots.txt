@@ -1,0 +1,36 @@
+# AIBTC.VIP Robots.txt
+# https://aibtc.vip
+
+User-agent: *
+
+# Allow public pages
+Allow: /
+Allow: /index.html
+Allow: /login.html
+Allow: /leaderboard.html
+Allow: /public.html
+
+# Disallow private/authenticated pages
+Disallow: /settings.html
+Disallow: /admin.html
+Disallow: /statistics.html
+Disallow: /referral.html
+Disallow: /exchange.html
+
+# Disallow API endpoints
+Disallow: /api/
+
+# Disallow static resources that don't need indexing
+Disallow: /static/js/
+Disallow: /static/vendor/
+Disallow: /static/locales/
+
+# Allow important static resources
+Allow: /static/favicon.png
+Allow: /static/og-image.png
+
+# Sitemap location
+Sitemap: https://aibtc.vip/static/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1

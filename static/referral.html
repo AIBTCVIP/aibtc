@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">AIBTC.VIP - Referral</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Invite friends to trade on AIBTC.VIP and earn generous referral rewards.">
+    <meta name="keywords" content="crypto referral, trading rewards, invite friends, referral program, Bitcoin trading">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    
+    <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+    <style>
+      html, body { background-color: #0f172a; margin: 0; }
+      body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+      [v-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/static/css/common.css">
+    
+    <!-- 集中版本管理（必须最先加载） -->
+    <script src="/static/js/version.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+    <link rel="preload" href="/static/js/i18n.js" as="script">
+    
+    <script src="/static/vendor/tailwind.min.js" defer></script>
+    <script src="/static/vendor/vue.global.prod.js"></script>
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/nav.js"></script>
+    <style>
+        /* Referral page specific styles */
+        @keyframes gradient-shift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes copy-success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .animate-gradient {
+            background-size: 200% 200%;
+            animation: gradient-shift 5s ease infinite;
+        }
+        .animate-copy { animation: copy-success 0.3s ease; }
+        .hero-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%);
+        }
+        /* 移动端邀请码字体调整 */
+        @media (max-width: 400px) {
+            .referral-code { font-size: 1.75rem !important; letter-spacing: 0.1em !important; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen i18n-loading">
+    <!-- 共享导航栏 -->
+    <div id="shared-nav"></div>
+
+    <div id="app" v-cloak class="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
+        <!-- 顶部标题 -->
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">{{ t('referral.title') }}</h1>
+            <p class="text-slate-400 text-sm md:text-base">{{ t('referral.subtitle') }}</p>
+        </div>
+
+        <!-- 邀请码卡片 - 移动端优化 -->
+        <div class="hero-gradient animate-gradient rounded-xl md:rounded-2xl p-4 md:p-8 mb-6 md:mb-8 shadow-2xl shadow-blue-500/20">
+            <!-- 移动端：垂直布局 -->
+            <div class="flex flex-col gap-5 md:gap-6">
+                <!-- 邀请码区域 -->
+                <div>
+                    <div class="text-white/70 text-xs md:text-sm mb-2 flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        {{ t('referral.myCode') }}
+                    </div>
+                    <div class="flex items-center justify-between gap-3">
+                        <div class="referral-code text-3xl md:text-5xl font-bold text-white tracking-wider font-mono">{{ referralCode }}</div>
+                        <button
+                            @click="copyCode"
+                            :class="['px-4 md:px-5 py-2 md:py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl transition-all flex items-center gap-2 border border-white/20 text-sm md:text-base', copied === 'code' ? 'animate-copy bg-green-500/30' : '']"
+                        >
+                            <svg v-if="copied !== 'code'" class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <svg v-else class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span class="hidden sm:inline">{{ copied === 'code' ? t('referral.copied') : t('referral.copy') }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 邀请链接区域 -->
+                <div>
+                    <div class="text-white/70 text-xs md:text-sm mb-2">{{ t('referral.inviteLink') }}</div>
+                    <div class="flex items-center gap-2">
+                        <input
+                            :value="referralLink"
+                            readonly
+                            class="flex-1 min-w-0 px-3 md:px-4 py-2.5 md:py-3 bg-white/10 border border-white/20 rounded-xl text-white text-xs md:text-sm backdrop-blur-sm truncate"
+                        >
+                        <button
+                            @click="copyLink"
+                            :class="['flex-shrink-0 px-4 md:px-5 py-2.5 md:py-3 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl transition-all border border-white/20', copied === 'link' ? 'animate-copy bg-green-500/30' : '']"
+                        >
+                            <svg v-if="copied !== 'link'" class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                            </svg>
+                            <svg v-else class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 绑定邀请人 / 已绑定显示 -->
+<!--        <div v-if="!stats.referrer_uid" class="glass-card rounded-2xl p-6 mb-8 animate-fade-in" style="animation-delay: 0.15s;">-->
+<!--            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">-->
+<!--                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>-->
+<!--                </svg>-->
+<!--                绑定邀请人-->
+<!--            </h3>-->
+<!--            <div class="flex gap-4">-->
+<!--                <input-->
+<!--                    v-model="bindCode"-->
+<!--                    placeholder="输入邀请码"-->
+<!--                    class="flex-1 px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 transition-all"-->
+<!--                >-->
+<!--                <button-->
+<!--                    @click="bindReferrer"-->
+<!--                    :disabled="!bindCode || binding"-->
+<!--                    class="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 text-white font-medium rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:shadow-none"-->
+<!--                >-->
+<!--                    {{ binding ? '绑定中...' : '绑定' }}-->
+<!--                </button>-->
+<!--            </div>-->
+<!--            <p class="text-slate-500 text-sm mt-3 flex items-center gap-2">-->
+<!--                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>-->
+<!--                </svg>-->
+<!--                绑定后不可更改，请确认邀请码正确-->
+<!--            </p>-->
+<!--        </div>-->
+<!--        <div v-else class="glass-card rounded-2xl p-6 mb-8 animate-fade-in" style="animation-delay: 0.15s;">-->
+<!--            <div class="flex items-center justify-between">-->
+<!--                <div>-->
+<!--                    <div class="text-slate-400 text-sm">我的邀请人</div>-->
+<!--                    <div class="text-white font-mono mt-1 flex items-center gap-2">-->
+<!--                        <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">-->
+<!--                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>-->
+<!--                            </svg>-->
+<!--                        </span>-->
+<!--                        {{ stats.referrer_uid?.slice(0, 8) }}...-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="text-green-400 text-sm flex items-center gap-1">-->
+<!--                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>-->
+<!--                    </svg>-->
+<!--                    已绑定-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <!-- 统计卡片 - 移动端2x2网格优化 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-5">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-500/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-slate-400 text-xs md:text-sm">{{ t('referral.directInvites') }}</div>
+                </div>
+                <div class="text-2xl md:text-3xl font-bold text-white">{{ stats.direct_count || 0 }}</div>
+            </div>
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-5">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-purple-500/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        </svg>
+                    </div>
+                    <div class="text-slate-400 text-xs md:text-sm">{{ t('referral.totalTeam') }}</div>
+                </div>
+                <div class="text-2xl md:text-3xl font-bold text-white">{{ stats.total_team || 0 }}</div>
+            </div>
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-5">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-green-500/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-slate-400 text-xs md:text-sm">{{ t('referral.totalCommission') }}</div>
+                </div>
+                <div class="text-2xl md:text-3xl font-bold text-green-400">{{ formatAmount(stats.total_earned) }}</div>
+            </div>
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-5">
+                <div class="flex items-center gap-2 md:gap-3 mb-2 md:mb-3">
+                    <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-amber-500/20 flex items-center justify-center">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                    </div>
+                    <div class="text-slate-400 text-xs md:text-sm">{{ t('referral.availableBalance') }}</div>
+                </div>
+                <div class="text-2xl md:text-3xl font-bold text-amber-400">{{ formatAmount(stats.available_balance) }}</div>
+            </div>
+        </div>
+
+        <!-- 列表区域 - 移动端单列，PC端双列 -->
+        <!-- 团队层级分布 -->
+<!--        <div class="glass-card rounded-2xl p-6 mb-8 animate-fade-in" style="animation-delay: 0.25s;">-->
+<!--            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">-->
+<!--                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>-->
+<!--                </svg>-->
+<!--                团队层级分布-->
+<!--            </h3>-->
+<!--            <div class="grid grid-cols-5 md:grid-cols-5 lg:grid-cols-15 gap-2">-->
+<!--                <div v-for="level in 15" :key="level" class="text-center p-3 bg-slate-800/50 rounded-xl hover:bg-slate-700/50 transition-colors">-->
+<!--                    <div class="text-slate-500 text-xs mb-1">L{{ level }}</div>-->
+<!--                    <div class="text-white font-bold">{{ stats.level_counts?.[level] || 0 }}</div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <!-- 直接邀请列表 -->
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                <h3 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                    </svg>
+                    {{ t('referral.directInviteList') }}
+                </h3>
+                <div v-if="directReferrals.length > 0" class="space-y-2 md:space-y-3 max-h-72 md:max-h-80 overflow-y-auto hide-scrollbar">
+                    <div
+                        v-for="r in directReferrals"
+                        :key="r.uid"
+                        class="flex justify-between items-center p-3 md:p-4 bg-slate-800/50 rounded-lg md:rounded-xl hover:bg-slate-700/50 transition-colors"
+                    >
+                        <div class="flex items-center gap-2 md:gap-3 min-w-0">
+                            <div class="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 rounded-lg md:rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-medium text-sm md:text-base">
+                                {{ r.username?.charAt(0)?.toUpperCase() || 'U' }}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-white font-mono text-xs md:text-sm truncate">{{ r.uid?.slice(0, 8) }}...</div>
+                                <div class="text-slate-500 text-xs truncate">{{ r.username || t('referral.noNickname') }}</div>
+                            </div>
+                        </div>
+                        <div class="text-slate-400 text-xs md:text-sm flex-shrink-0 ml-2">{{ formatTime(r.referred_at) }}</div>
+                    </div>
+                </div>
+                <div v-else class="text-center py-10 md:py-12">
+                    <div class="w-12 h-12 md:w-14 md:h-14 mx-auto mb-3 rounded-full bg-slate-800 flex items-center justify-center">
+                        <svg class="w-6 h-6 md:w-7 md:h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-slate-500 text-sm">{{ t('referral.noInviteRecords') }}</div>
+                    <p class="text-slate-600 text-xs mt-1">{{ t('referral.goInviteFriends') }}</p>
+                </div>
+            </div>
+
+            <!-- 返佣记录 -->
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                <h3 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                    </svg>
+                    {{ t('referral.commissionHistory') }}
+                </h3>
+                <div v-if="commissions.length > 0" class="space-y-2 md:space-y-3 max-h-72 md:max-h-80 overflow-y-auto hide-scrollbar">
+                    <div
+                        v-for="c in commissions"
+                        :key="c.id"
+                        class="flex justify-between items-center p-3 md:p-4 bg-slate-800/50 rounded-lg md:rounded-xl hover:bg-slate-700/50 transition-colors"
+                    >
+                        <div class="min-w-0">
+                            <div class="text-white text-sm flex items-center gap-1.5 md:gap-2 flex-wrap">
+                                <span class="text-slate-400 text-xs">{{ t('referral.from') }}</span>
+                                <span class="font-mono text-slate-300 text-xs">{{ c.from_uid?.slice(0, 6) }}...</span>
+                                <span class="px-1.5 md:px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full text-[10px] md:text-xs font-medium">L{{ c.level }}</span>
+                            </div>
+                            <div class="text-slate-500 text-xs mt-0.5 md:mt-1">{{ formatTime(c.created_at) }}</div>
+                        </div>
+                        <div class="text-right flex-shrink-0 ml-2">
+                            <div class="text-green-400 font-bold text-sm md:text-base">+{{ parseFloat(c.commission_amount).toFixed(4) }}</div>
+                            <div :class="getStatusClass(c.status)" class="text-[10px] md:text-xs mt-0.5">{{ getStatusText(c.status) }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="text-center py-10 md:py-12">
+                    <div class="w-12 h-12 md:w-14 md:h-14 mx-auto mb-3 rounded-full bg-slate-800 flex items-center justify-center">
+                        <svg class="w-6 h-6 md:w-7 md:h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="text-slate-500 text-sm">{{ t('referral.noCommissionRecords') }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息提示 - 移动端优化位置 -->
+        <Transition
+            enter-active-class="transition ease-out duration-300"
+            enter-from-class="opacity-0 translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition ease-in duration-200"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-2"
+        >
+            <div v-if="message" :class="[
+                'fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-auto px-4 md:px-6 py-3 md:py-4 rounded-xl shadow-2xl flex items-center justify-center md:justify-start gap-2 md:gap-3 z-50',
+                messageType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            ]">
+                <svg v-if="messageType === 'success'" class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <svg v-else class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span class="text-sm md:text-base">{{ message }}</span>
+            </div>
+        </Transition>
+    </div>
+
+    <script>
+    const { createApp, ref, onMounted } = Vue;
+
+    // Initialize I18n first, then create Vue app
+    (async () => {
+        try {
+            await I18n.init({
+                onLocaleChange: () => {
+                    window.location.reload();
+                }
+            });
+        } catch (e) {
+            if (window.SafeLog) SafeLog.error('[Referral] I18n init failed:', e);
+        }
+        
+        // Set page title
+        document.getElementById('page-title').textContent = I18n.t('referral.pageTitle');
+        
+        // Initialize shared navigation
+        initSharedNav({
+            currentPage: 'referral',
+            showPageTitle: true,
+            pageTitle: I18n.t('referral.title')
+        });
+        
+        createApp({
+        setup() {
+            const message = ref('');
+            const messageType = ref('success');
+            const binding = ref(false);
+            const copied = ref(''); // 'code' | 'link' | ''
+
+            const referralCode = ref('');
+            const referralLink = ref('');
+            const bindCode = ref('');
+            const stats = ref({});
+            const directReferrals = ref([]);
+            const commissions = ref([]);
+
+            // i18n translation function
+            const t = (key) => I18n.t(key);
+
+            const showMessage = (msg, type = 'success') => {
+                message.value = msg;
+                messageType.value = type;
+                setTimeout(() => { message.value = ''; }, 3000);
+            };
+
+            // 使用 Auth.apiRequest 的包装函数
+            const apiRequest = async (url, method = 'GET', body = null) => {
+                const options = { method };
+                if (body) options.body = JSON.stringify(body);
+                
+                const resp = await Auth.apiRequest(url, options);
+                const data = await resp.json();
+                
+                if (!resp.ok) {
+                    throw new Error(data.detail || (typeof t === 'function' ? t('error.requestFailed') : 'Request failed'));
+                }
+                return data;
+            };
+
+            const loadData = async () => {
+                try {
+                    const codeData = await apiRequest('/api/referral/code');
+                    referralCode.value = codeData.referral_code;
+                    referralLink.value = codeData.referral_link;
+
+                    const statsData = await apiRequest('/api/referral/stats');
+                    stats.value = statsData;
+
+                    const referralsData = await apiRequest('/api/referral/direct-referrals?limit=20');
+                    directReferrals.value = referralsData.referrals;
+
+                    const commissionsData = await apiRequest('/api/referral/commissions?limit=20');
+                    commissions.value = commissionsData.commissions;
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                }
+            };
+
+            const copyCode = async () => {
+                try {
+                    await navigator.clipboard.writeText(referralCode.value);
+                    copied.value = 'code';
+                    showMessage(t('referral.codeCopied'));
+                    setTimeout(() => { copied.value = ''; }, 2000);
+                } catch (e) {
+                    showMessage(t('referral.copyFailed'), 'error');
+                }
+            };
+
+            const copyLink = async () => {
+                try {
+                    await navigator.clipboard.writeText(referralLink.value);
+                    copied.value = 'link';
+                    showMessage(t('referral.linkCopied'));
+                    setTimeout(() => { copied.value = ''; }, 2000);
+                } catch (e) {
+                    showMessage(t('referral.copyFailed'), 'error');
+                }
+            };
+
+            const bindReferrer = async () => {
+                if (!bindCode.value) return;
+                binding.value = true;
+                try {
+                    await apiRequest('/api/referral/bind', 'POST', {
+                        referral_code: bindCode.value
+                    });
+                    showMessage(t('referral.bindSuccess'));
+                    await loadData();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    binding.value = false;
+                }
+            };
+
+            const formatAmount = (amount) => {
+                const num = parseFloat(amount || 0);
+                if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                }
+                return num.toFixed(2);
+            };
+
+            const getStatusClass = (status) => {
+                const classes = {
+                    'pending': 'text-yellow-400',
+                    'settled': 'text-green-400',
+                    'paid': 'text-blue-400',
+                };
+                return classes[status] || 'text-slate-400';
+            };
+
+            const getStatusText = (status) => {
+                const texts = {
+                    'pending': t('referral.statusPending'),
+                    'settled': t('referral.statusSettled'),
+                    'paid': t('referral.statusPaid'),
+                };
+                return texts[status] || status;
+            };
+
+            const formatTime = (ts) => {
+                if (!ts) return '-';
+                const locale = I18n.locale || 'zh-CN';
+                return new Date(ts).toLocaleDateString(locale);
+            };
+
+            onMounted(async () => {
+                // 显示页面内容（移除加载遮罩）
+                I18n.showContent();
+                
+                const isLoggedIn = await Auth.checkAuth();
+                if (!isLoggedIn) {
+                    Auth.clearUser();
+                    window.location.href = '/login.html';
+                    return;
+                }
+                loadData();
+            });
+
+            return {
+                t,
+                message,
+                messageType,
+                binding,
+                copied,
+                referralCode,
+                referralLink,
+                bindCode,
+                stats,
+                directReferrals,
+                commissions,
+                copyCode,
+                copyLink,
+                bindReferrer,
+                formatAmount,
+                getStatusClass,
+                getStatusText,
+                formatTime,
+            };
+        }
+    }).mount('#app');
+    })();
+    </script>
+</body>
+</html>

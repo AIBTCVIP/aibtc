@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">AIBTC.VIP - Login</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Login to AIBTC.VIP - Professional AI-powered cryptocurrency automated trading system.">
+    <meta name="keywords" content="AIBTC login, AI trading login, crypto trading login, crypto bot login">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://aibtc.vip/login.html">
+    <meta property="og:title" content="AIBTC.VIP - Login">
+    <meta property="og:description" content="Login to AIBTC.VIP AI crypto trading system">
+    <meta property="og:image" content="https://aibtc.vip/static/og-image.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AIBTC.VIP - Login">
+    <meta name="twitter:description" content="Login to AIBTC.VIP AI crypto trading system">
+    <meta name="twitter:image" content="https://aibtc.vip/static/og-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://aibtc.vip/login.html">
+    
+    <!-- Hreflang for multi-language SEO -->
+    <link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/login.html?lang=zh-CN">
+    <link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/login.html?lang=zh-TW">
+    <link rel="alternate" hreflang="en-US" href="https://aibtc.vip/login.html?lang=en-US">
+    <link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/login.html?lang=ja-JP">
+    <link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/login.html?lang=ko-KR">
+    <link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/login.html?lang=es-ES">
+    <link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/login.html?lang=pt-BR">
+    <link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/login.html?lang=ru-RU">
+    <link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/login.html?lang=ar-SA">
+    <link rel="alternate" hreflang="x-default" href="https://aibtc.vip/login.html">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": "AIBTC.VIP Login",
+      "description": "Login to AIBTC.VIP AI crypto trading system",
+      "url": "https://aibtc.vip/login.html",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "AIBTC.VIP",
+        "url": "https://aibtc.vip"
+      }
+    }
+    </script>
+    
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    
+    <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+    <style>
+      html, body { background-color: #0f172a; margin: 0; }
+      body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+      .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+      .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+      [v-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/static/css/common.css">
+    
+    <!-- 集中版本管理（必须最先加载） -->
+    <script src="/static/js/version.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+    <link rel="preload" href="/static/js/i18n.js" as="script">
+    
+    <!-- 固定版本的 CDN 依赖 -->
+    <script src="/static/vendor/tailwind.min.js" defer></script>
+    <script src="/static/vendor/vue.global.prod.js"></script>
+    <!-- i18n 国际化 -->
+    <script src="/static/js/i18n.js"></script>
+    <!-- 认证工具 -->
+    <script src="/static/js/auth.js"></script>
+    <style>
+        /* Login page specific animations (different timing from common.css) */
+        @keyframes fadeIn-login {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn-login 0.6s ease-out forwards; }
+        .animate-fade-in-delay { animation: fadeIn-login 0.6s ease-out 0.2s forwards; opacity: 0; }
+        
+        /* Login page specific styles */
+        .input-glow:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.1);
+        }
+        .bg-grid-pattern {
+            background-image:
+                linear-gradient(rgba(71, 85, 105, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(71, 85, 105, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        /* 下拉菜单防闪烁 */
+        .login-dropdown { opacity: 0; visibility: hidden; }
+        .group:hover > .login-dropdown { opacity: 1; visibility: visible; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen flex items-center justify-center p-4 bg-grid-pattern i18n-loading">
+    <!-- 背景装饰 -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-float" style="animation-delay: -3s;"></div>
+    </div>
+
+    <!-- 语言切换器 -->
+    <div id="lang-switcher" class="fixed top-4 right-4 z-50 opacity-0 transition-opacity duration-300">
+        <div class="relative group">
+            <button class="px-3 py-2 rounded-xl bg-slate-800/80 backdrop-blur-sm border border-slate-700/50 text-sm text-slate-300 hover:text-white hover:bg-slate-700/80 transition-all duration-200 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                </svg>
+                <span id="current-lang-display">中文</span>
+                <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+            <div class="login-dropdown absolute top-full right-0 mt-2 w-44 py-2 bg-slate-800/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-xl transition-all duration-200 max-h-80 overflow-y-auto">
+                <button onclick="setLanguage('zh-CN')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="zh-CN">
+                    <span class="text-base">🇨🇳</span><span>简体中文</span>
+                </button>
+                <button onclick="setLanguage('zh-TW')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="zh-TW">
+                    <span class="text-base">🇹🇼</span><span>繁體中文</span>
+                </button>
+                <button onclick="setLanguage('en-US')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="en-US">
+                    <span class="text-base">🇺🇸</span><span>English</span>
+                </button>
+                <button onclick="setLanguage('ja-JP')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="ja-JP">
+                    <span class="text-base">🇯🇵</span><span>日本語</span>
+                </button>
+                <button onclick="setLanguage('ko-KR')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="ko-KR">
+                    <span class="text-base">🇰🇷</span><span>한국어</span>
+                </button>
+                <button onclick="setLanguage('es-ES')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="es-ES">
+                    <span class="text-base">🇪🇸</span><span>Español</span>
+                </button>
+                <button onclick="setLanguage('pt-BR')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="pt-BR">
+                    <span class="text-base">🇧🇷</span><span>Português</span>
+                </button>
+                <button onclick="setLanguage('ru-RU')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="ru-RU">
+                    <span class="text-base">🇷🇺</span><span>Русский</span>
+                </button>
+                <button onclick="setLanguage('ar-SA')" class="lang-option flex items-center gap-2 px-4 py-2.5 text-sm w-full text-left text-slate-300 hover:text-white hover:bg-slate-700/50 transition-colors" data-lang="ar-SA">
+                    <span class="text-base">🇸🇦</span><span>العربية</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" v-cloak class="w-full max-w-md relative z-10">
+        <!-- Logo -->
+        <div class="text-center mb-8 animate-fade-in">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg shadow-blue-500/30 mb-4 animate-pulse-glow">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-white tracking-tight">AIBTC<span class="text-blue-400">.VIP</span></h1>
+            <p class="text-slate-400 mt-2 text-sm">{{ t('login.subtitle') }}</p>
+        </div>
+
+        <!-- 登录/注册表单 -->
+        <div class="glass-card rounded-2xl shadow-2xl p-8 animate-fade-in-delay">
+            <!-- Tab 切换 -->
+            <div class="flex mb-8 bg-slate-800/50 rounded-xl p-1">
+                <button
+                    @click="switchMode('login')"
+                    :class="[
+                        'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300',
+                        mode === 'login'
+                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                            : 'text-slate-400 hover:text-white'
+                    ]"
+                >
+                    {{ t('login.title') }}
+                </button>
+                <button
+                    @click="switchMode('register')"
+                    :class="[
+                        'flex-1 py-2.5 rounded-lg text-sm font-medium transition-all duration-300',
+                        mode === 'register' || mode === 'register_step2'
+                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                            : 'text-slate-400 hover:text-white',
+                        !registrationEnabled && mode === 'login' ? 'opacity-50' : ''
+                    ]"
+                    :title="!registrationEnabled ? t('login.registerClosedMsg') : ''"
+                >
+                    {{ t('login.registerTitle') }} <span v-if="!registrationEnabled" class="text-xs opacity-70">({{ t('login.registerClosed') }})</span>
+                </button>
+            </div>
+
+            <!-- 错误提示 -->
+            <div v-if="error" class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm flex items-start gap-3">
+                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ error }}</span>
+            </div>
+
+            <!-- 成功提示 -->
+            <div v-if="success" class="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm flex items-start gap-3">
+                <svg class="w-5 h-5 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ success }}</span>
+            </div>
+
+            <!-- 登录表单 -->
+            <form v-if="mode === 'login'" @submit.prevent="handleLogin" class="space-y-5">
+                <!-- 用户名 -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.username') }}</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <input
+                            v-model="username"
+                            type="text"
+                            required
+                            minlength="3"
+                            maxlength="32"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.usernamePlaceholder')"
+                        >
+                    </div>
+                </div>
+
+                <!-- 密码 -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.password') }}</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <input
+                            v-model="password"
+                            type="password"
+                            required
+                            minlength="6"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.passwordPlaceholder')"
+                        >
+                    </div>
+                </div>
+
+                <!-- Google Authenticator 验证码 -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                            {{ t('login.totpCode') }}
+                        </span>
+                    </label>
+                    <input
+                        v-model="totpCode"
+                        type="text"
+                        required
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        class="w-full px-4 py-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white text-center text-2xl tracking-[0.5em] font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                        placeholder="000000"
+                    >
+                    <p class="text-slate-500 text-xs mt-2 text-center">{{ t('login.totpCodeHint') }}</p>
+                </div>
+
+                <!-- 提交按钮 -->
+                <button
+                    type="submit"
+                    :disabled="loading"
+                    class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 disabled:shadow-none flex items-center justify-center gap-2"
+                >
+                    <svg v-if="loading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    {{ loading ? t('login.loggingIn') : t('login.loginButton') }}
+                </button>
+
+                <!-- 忘记密码链接 -->
+                <div class="text-center mt-4">
+                    <button
+                        type="button"
+                        @click="showResetModal = true"
+                        class="text-slate-400 hover:text-blue-400 text-sm transition-colors"
+                    >
+                        {{ t('login.forgotPassword') }}
+                    </button>
+                </div>
+            </form>
+
+            <!-- 注册表单第一步 -->
+            <form v-if="mode === 'register'" @submit.prevent="handleRegisterStep1" class="space-y-5">
+                <!-- 用户名 -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.username') }}</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                            </svg>
+                        </div>
+                        <input
+                            v-model="username"
+                            type="text"
+                            required
+                            minlength="3"
+                            maxlength="32"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.usernameHint')"
+                        >
+                    </div>
+                </div>
+
+                <!-- 邮箱（可选） -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">
+                        {{ t('login.email') }} <span class="text-slate-500 font-normal">({{ t('login.optional') }})</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <input
+                            v-model="email"
+                            type="email"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.emailPlaceholder')"
+                        >
+                    </div>
+                </div>
+
+                <!-- 邀请码（可选） -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {{ t('login.inviteCode') }} <span class="text-slate-500 font-normal">({{ t('login.optional') }})</span>
+                        </span>
+                    </label>
+                    <input
+                        v-model="referralCode"
+                        type="text"
+                        maxlength="16"
+                        class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                        :placeholder="t('login.inviteCodePlaceholder')"
+                    >
+                    <p class="text-slate-500 text-xs mt-2">{{ t('login.inviteCodeHint') }}</p>
+                </div>
+
+                <!-- 密码 -->
+                <div>
+                    <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.password') }}</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                            </svg>
+                        </div>
+                        <input
+                            v-model="password"
+                            type="password"
+                            required
+                            minlength="6"
+                            class="w-full pl-12 pr-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.passwordHint')"
+                        >
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <button
+                    type="submit"
+                    :disabled="loading"
+                    class="w-full py-3.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 disabled:from-slate-600 disabled:to-slate-700 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 disabled:shadow-none flex items-center justify-center gap-2"
+                >
+                    <svg v-if="loading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    {{ loading ? t('login.processing') : t('login.nextStep') }}
+                </button>
+            </form>
+
+            <!-- 注册表单第二步：绑定 Google Authenticator -->
+            <div v-if="mode === 'register_step2'" class="space-y-6">
+                <div class="text-center">
+                    <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-blue-500/20 mb-4">
+                        <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-white text-xl font-semibold mb-2">{{ t('login.bindTotp') }}</h3>
+                    <p class="text-slate-400 text-sm">{{ t('login.bindTotpDesc') }}</p>
+                </div>
+
+                <!-- 二维码 -->
+                <div class="flex justify-center">
+                    <div class="bg-white p-4 rounded-2xl shadow-2xl">
+                        <img :src="'data:image/png;base64,' + qrCodeBase64" alt="TOTP QR Code" class="w-48 h-48">
+                    </div>
+                </div>
+
+                <!-- 手动输入密钥 -->
+                <div class="bg-slate-800/50 rounded-xl p-4">
+                    <p class="text-slate-400 text-sm text-center mb-3">{{ t('login.manualInput') }}</p>
+                    <div class="flex items-center justify-center gap-2">
+                        <code class="flex-1 bg-slate-900/50 px-4 py-3 rounded-lg text-green-400 text-sm font-mono text-center border border-slate-700/50 truncate">{{ totpSecret }}</code>
+                        <button
+                            @click="copySecret"
+                            class="px-4 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg text-white text-sm transition-colors shrink-0"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 验证码输入 -->
+                <form @submit.prevent="handleRegisterStep2" class="space-y-5">
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.enterCodeToComplete') }}</label>
+                        <input
+                            v-model="totpCode"
+                            type="text"
+                            required
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            inputmode="numeric"
+                            class="w-full px-4 py-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white text-center text-2xl tracking-[0.5em] font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            placeholder="000000"
+                        >
+                    </div>
+
+                    <button
+                        type="submit"
+                        :disabled="loading"
+                        class="w-full py-3.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 disabled:from-slate-600 disabled:to-slate-700 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-green-500/30 hover:shadow-green-500/50 disabled:shadow-none flex items-center justify-center gap-2"
+                    >
+                        <svg v-if="loading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        {{ loading ? t('login.verifying') : t('login.completeRegister') }}
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="mt-8 text-center text-sm animate-fade-in-delay" style="animation-delay: 0.4s;">
+            <a href="/" class="text-slate-400 hover:text-white transition-colors">{{ t('login.backHome') }}</a>
+            <span class="text-slate-600 mx-3">·</span>
+            <a href="/leaderboard.html" class="text-slate-400 hover:text-white transition-colors">{{ t('login.leaderboard') }}</a>
+            <span class="text-slate-600 mx-3">·</span>
+            <a href="https://t.me/aibtcchina" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-blue-400 transition-colors">Telegram</a>
+        </div>
+
+        <!-- 重置密码模态框 -->
+        <div v-if="showResetModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div class="glass-card rounded-2xl shadow-2xl p-6 w-full max-w-md animate-fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-2">
+                        <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+                        </svg>
+                        {{ t('login.resetPassword') }}
+                    </h3>
+                    <button @click="closeResetModal" class="text-slate-400 hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 重置错误/成功提示 -->
+                <div v-if="resetError" class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">
+                    {{ resetError }}
+                </div>
+                <div v-if="resetSuccess" class="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-xl text-green-400 text-sm">
+                    {{ resetSuccess }}
+                </div>
+
+                <form @submit.prevent="handleResetPassword" class="space-y-4">
+                    <!-- 用户名 -->
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.username') }}</label>
+                        <input
+                            v-model="resetUsername"
+                            type="text"
+                            required
+                            minlength="3"
+                            maxlength="32"
+                            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.usernamePlaceholder')"
+                        >
+                    </div>
+
+                    <!-- 新密码 -->
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.newPassword') }}</label>
+                        <input
+                            v-model="resetNewPassword"
+                            type="password"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.newPasswordPlaceholder')"
+                        >
+                    </div>
+
+                    <!-- 确认密码 -->
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-2">{{ t('login.confirmNewPassword') }}</label>
+                        <input
+                            v-model="resetConfirmPassword"
+                            type="password"
+                            required
+                            minlength="6"
+                            class="w-full px-4 py-3 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            :placeholder="t('login.confirmPasswordPlaceholder')"
+                        >
+                    </div>
+
+                    <!-- Google Authenticator 验证码 -->
+                    <div>
+                        <label class="block text-slate-300 text-sm font-medium mb-2">
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                </svg>
+                                {{ t('login.totpCode') }}
+                            </span>
+                        </label>
+                        <input
+                            v-model="resetTotpCode"
+                            type="text"
+                            required
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            inputmode="numeric"
+                            class="w-full px-4 py-4 bg-slate-800/50 border border-slate-600/50 rounded-xl text-white text-center text-2xl tracking-[0.5em] font-mono placeholder-slate-500 focus:outline-none focus:border-blue-500/50 input-glow transition-all duration-300"
+                            placeholder="000000"
+                        >
+                    </div>
+
+                    <!-- 提交按钮 -->
+                    <button
+                        type="submit"
+                        :disabled="resetLoading"
+                        class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 disabled:from-slate-600 disabled:to-slate-700 text-white font-medium rounded-xl transition-all duration-300 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 disabled:shadow-none flex items-center justify-center gap-2"
+                    >
+                        <svg v-if="resetLoading" class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        {{ resetLoading ? t('login.resetting') : t('login.resetButton') }}
+                    </button>
+                </form>
+
+                <p class="text-slate-500 text-xs mt-4 text-center">
+                    {{ t('login.resetHint') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const { createApp, ref, onMounted } = Vue;
+
+    // 语言名称映射
+    const langNames = {
+        'zh-CN': '中文',
+        'zh-TW': '繁體',
+        'en-US': 'EN',
+        'ja-JP': '日本語',
+        'ko-KR': '한국어',
+        'es-ES': 'ES',
+        'pt-BR': 'PT',
+        'ru-RU': 'RU',
+        'ar-SA': 'AR'
+    };
+
+    // 切换语言
+    function setLanguage(locale) {
+        I18n.setLocale(locale);
+    }
+
+    // 更新语言显示和高亮
+    function updateLangDisplay() {
+        const currentLocale = I18n.locale || 'zh-CN';
+        const displayEl = document.getElementById('current-lang-display');
+        if (displayEl) {
+            displayEl.textContent = langNames[currentLocale] || currentLocale;
+        }
+        // 高亮当前语言
+        document.querySelectorAll('.lang-option').forEach(btn => {
+            const lang = btn.getAttribute('data-lang');
+            if (lang === currentLocale) {
+                btn.classList.add('bg-blue-500/20', 'text-blue-400');
+                btn.classList.remove('text-slate-300');
+            } else {
+                btn.classList.remove('bg-blue-500/20', 'text-blue-400');
+                btn.classList.add('text-slate-300');
+            }
+        });
+        // 显示语言切换器
+        const langSwitcher = document.getElementById('lang-switcher');
+        if (langSwitcher) {
+            langSwitcher.classList.remove('opacity-0');
+            langSwitcher.classList.add('opacity-100');
+        }
+    }
+
+    // 超时保护：确保页面最终会显示（防止 JS 错误导致页面卡住）
+    setTimeout(() => {
+        if (document.body.classList.contains('i18n-loading')) {
+            if (window.SafeLog) SafeLog.warn('Login page timeout, forcing content display');
+            I18n.showContent();
+        }
+    }, 3000);
+
+    // 初始化 i18n，然后创建 Vue app
+    I18n.init({
+        onLocaleChange: () => {
+            window.location.reload();
+        }
+    }).then(() => {
+        document.getElementById('page-title').textContent = I18n.t('login.pageTitle');
+        updateLangDisplay();
+        
+        // i18n 初始化完成后再创建 Vue app
+        initVueApp();
+    }).catch((err) => {
+        if (window.SafeLog) SafeLog.error('I18n init failed:', err);
+        // 即使 i18n 失败也显示页面
+        I18n.showContent();
+        initVueApp();
+    });
+
+    // 全局翻译函数
+    function t(key, params) {
+        return I18n.t(key, params);
+    }
+    
+    function initVueApp() {
+    createApp({
+        setup() {
+            const mode = ref('login');
+            const username = ref('');
+            const password = ref('');
+            const email = ref('');
+            const referralCode = ref('');
+            const totpCode = ref('');
+            const loading = ref(false);
+            const error = ref('');
+            const success = ref('');
+            const tempToken = ref('');
+            const totpSecret = ref('');
+            const qrCodeBase64 = ref('');
+            const registrationEnabled = ref(true);
+
+            // 重置密码相关
+            const showResetModal = ref(false);
+            const resetUsername = ref('');
+            const resetTotpCode = ref('');
+            const resetNewPassword = ref('');
+            const resetConfirmPassword = ref('');
+            const resetLoading = ref(false);
+            const resetError = ref('');
+            const resetSuccess = ref('');
+
+            const checkRegistrationStatus = async () => {
+                try {
+                    const resp = await fetch('/api/user/system/registration-status');
+                    const data = await resp.json();
+                    registrationEnabled.value = data.registration_enabled;
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('Check registration status failed:', e);
+                }
+            };
+
+            const switchMode = async (newMode) => {
+                error.value = '';
+                success.value = '';
+                totpCode.value = '';
+
+                if (newMode === 'register') {
+                    await checkRegistrationStatus();
+                    if (!registrationEnabled.value) {
+                        error.value = t('login.registerClosedMsg');
+                        return;
+                    }
+                    tempToken.value = '';
+                    totpSecret.value = '';
+                    qrCodeBase64.value = '';
+                }
+                mode.value = newMode;
+            };
+
+            const handleLogin = async () => {
+                error.value = '';
+                success.value = '';
+                loading.value = true;
+
+                try {
+                    const resp = await fetch('/api/user/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            username: username.value,
+                            password: password.value,
+                            totp_code: totpCode.value,
+                        }),
+                    });
+
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        throw new Error(data.detail || t('login.loginFailed'));
+                    }
+
+                    Auth.saveUser(data.uid, data.username);
+
+                    success.value = t('login.loginSuccess');
+
+                    setTimeout(() => {
+                        window.location.href = '/settings.html';
+                    }, 1000);
+
+                } catch (e) {
+                    error.value = e.message;
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const handleRegisterStep1 = async () => {
+                error.value = '';
+                success.value = '';
+                loading.value = true;
+
+                try {
+                    const body = {
+                        username: username.value,
+                        password: password.value,
+                    };
+
+                    if (email.value) {
+                        body.email = email.value;
+                    }
+                    if (referralCode.value) {
+                        body.referral_code = referralCode.value;
+                    }
+
+                    const resp = await fetch('/api/user/register/step1', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
+                    });
+
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        throw new Error(data.detail || t('login.registerFailed'));
+                    }
+
+                    tempToken.value = data.temp_token;
+                    totpSecret.value = data.totp_secret;
+                    qrCodeBase64.value = data.qr_code_base64;
+                    mode.value = 'register_step2';
+                    success.value = t('login.scanQrCode');
+
+                } catch (e) {
+                    error.value = e.message;
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const handleRegisterStep2 = async () => {
+                error.value = '';
+                success.value = '';
+                loading.value = true;
+
+                try {
+                    const resp = await fetch('/api/user/register/step2', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            temp_token: tempToken.value,
+                            totp_code: totpCode.value,
+                        }),
+                    });
+
+                    const data = await resp.json();
+
+                    if (!resp.ok) {
+                        throw new Error(data.detail || t('login.registerFailed'));
+                    }
+
+                    Auth.saveUser(data.uid, data.username);
+
+                    success.value = t('login.registerSuccess');
+
+                    setTimeout(() => {
+                        window.location.href = '/settings.html';
+                    }, 1500);
+
+                } catch (e) {
+                    error.value = e.message;
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const copySecret = async () => {
+                try {
+                    await navigator.clipboard.writeText(totpSecret.value);
+                    success.value = t('login.secretCopied');
+                    setTimeout(() => { success.value = ''; }, 2000);
+                } catch (e) {
+                    error.value = t('login.copyFailed');
+                }
+            };
+
+            const closeResetModal = () => {
+                showResetModal.value = false;
+                resetUsername.value = '';
+                resetTotpCode.value = '';
+                resetNewPassword.value = '';
+                resetConfirmPassword.value = '';
+                resetError.value = '';
+                resetSuccess.value = '';
+            };
+
+            const handleResetPassword = async () => {
+                resetError.value = '';
+                resetSuccess.value = '';
+
+                if (resetNewPassword.value !== resetConfirmPassword.value) {
+                    resetError.value = t('login.passwordMismatch');
+                    return;
+                }
+
+                resetLoading.value = true;
+
+                try {
+                    const resp = await fetch('/api/user/reset-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            username: resetUsername.value,
+                            totp_code: resetTotpCode.value,
+                            new_password: resetNewPassword.value,
+                        }),
+                    });
+
+                    let data;
+                    try {
+                        data = await resp.json();
+                    } catch {
+                        if (resp.status === 404) {
+                            throw new Error(t('login.serviceUnavailable'));
+                        }
+                        throw new Error(t('login.serverError'));
+                    }
+
+                    if (!resp.ok) {
+                        throw new Error(data.detail || t('login.resetFailed'));
+                    }
+
+                    resetSuccess.value = t('login.resetSuccess');
+                    
+                    setTimeout(() => {
+                        closeResetModal();
+                    }, 2000);
+
+                } catch (e) {
+                    if (e.name === 'TypeError' && e.message.includes('fetch')) {
+                        resetError.value = t('login.networkError');
+                    } else {
+                        resetError.value = e.message;
+                    }
+                } finally {
+                    resetLoading.value = false;
+                }
+            };
+
+            onMounted(async () => {
+                // 显示页面内容（移除加载遮罩）
+                I18n.showContent();
+                
+                const isLoggedIn = await Auth.checkAuth();
+                if (isLoggedIn) {
+                    window.location.href = '/settings.html';
+                    return;
+                }
+                await checkRegistrationStatus();
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const rawRefCode = urlParams.get('ref');
+                const REF_CODE_PATTERN = /^[a-zA-Z0-9]{4,32}$/;
+                
+                if (rawRefCode && REF_CODE_PATTERN.test(rawRefCode)) {
+                    referralCode.value = rawRefCode;
+                    if (registrationEnabled.value) {
+                        mode.value = 'register';
+                    }
+                }
+            });
+
+            return {
+                t,
+                mode,
+                username,
+                password,
+                email,
+                referralCode,
+                totpCode,
+                loading,
+                error,
+                success,
+                tempToken,
+                totpSecret,
+                qrCodeBase64,
+                registrationEnabled,
+                switchMode,
+                handleLogin,
+                handleRegisterStep1,
+                handleRegisterStep2,
+                copySecret,
+                showResetModal,
+                resetUsername,
+                resetTotpCode,
+                resetNewPassword,
+                resetConfirmPassword,
+                resetLoading,
+                resetError,
+                resetSuccess,
+                closeResetModal,
+                handleResetPassword,
+            };
+        }
+    }).mount('#app');
+    } // end initVueApp
+    </script>
+</body>
+</html>

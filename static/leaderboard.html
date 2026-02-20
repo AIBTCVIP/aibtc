@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIBTC.VIP - Leaderboard</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Real-time updated rankings of top crypto traders and their profit performance on AIBTC.VIP.">
+    <meta name="keywords" content="crypto trading leaderboard, top traders, trading rankings, profit performance, Bitcoin trading">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://aibtc.vip/leaderboard.html">
+    <meta property="og:title" content="AIBTC.VIP - Trading Leaderboard">
+    <meta property="og:description" content="Real-time updated rankings of top crypto traders.">
+    <meta property="og:image" content="https://aibtc.vip/static/og-image.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AIBTC.VIP - Trading Leaderboard">
+    <meta name="twitter:description" content="Real-time updated rankings of top crypto traders.">
+    <meta name="twitter:image" content="https://aibtc.vip/static/og-image.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://aibtc.vip/leaderboard.html">
+    
+    <!-- Hreflang for multi-language SEO -->
+    <link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/leaderboard.html?lang=zh-CN">
+    <link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/leaderboard.html?lang=zh-TW">
+    <link rel="alternate" hreflang="en-US" href="https://aibtc.vip/leaderboard.html?lang=en-US">
+    <link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/leaderboard.html?lang=ja-JP">
+    <link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/leaderboard.html?lang=ko-KR">
+    <link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/leaderboard.html?lang=es-ES">
+    <link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/leaderboard.html?lang=pt-BR">
+    <link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/leaderboard.html?lang=ru-RU">
+    <link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/leaderboard.html?lang=ar-SA">
+    <link rel="alternate" hreflang="x-default" href="https://aibtc.vip/leaderboard.html">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "AIBTC.VIP Trading Leaderboard",
+      "description": "Real-time rankings of top cryptocurrency traders",
+      "url": "https://aibtc.vip/leaderboard.html",
+      "itemListOrder": "https://schema.org/ItemListOrderDescending",
+      "numberOfItems": 100
+    }
+    </script>
+    
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    
+    <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+    <style>
+      html, body { background-color: #0f172a; margin: 0; }
+      body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+      [v-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/static/css/common.css">
+    
+    <!-- 集中版本管理（必须最先加载） -->
+    <script src="/static/js/version.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+    <link rel="preload" href="/static/js/i18n.js" as="script">
+    
+    <script src="/static/vendor/tailwind.min.js" defer></script>
+    <!-- Vue 只加载一次 -->
+    <script src="/static/vendor/vue.global.prod.js"></script>
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/nav.js"></script>
+    <style>
+        /* Leaderboard specific styles */
+        .shimmer-text {
+            background: linear-gradient(90deg, #fbbf24 0%, #fff 50%, #fbbf24 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+        }
+
+        /* 移动端卡片式排行榜样式 */
+        .rank-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            transition: all 0.3s ease;
+        }
+        .rank-card:active {
+            transform: scale(0.98);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        }
+
+        /* 顶部三名移动端优化 */
+        @media (max-width: 640px) {
+            .podium-container {
+                gap: 0.5rem;
+                padding: 0 0.5rem;
+            }
+            .podium-item {
+                min-width: 0;
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen i18n-loading">
+    <!-- 共享导航栏 -->
+    <div id="shared-nav"></div>
+
+    <div id="app" v-cloak>
+    <div class="container mx-auto px-4 py-6 md:py-8 max-w-5xl">
+        <!-- 顶部标题 -->
+        <div class="text-center mb-6 md:mb-10">
+            <div class="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/30 mb-3 md:mb-4">
+                <svg class="w-7 h-7 md:w-8 md:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl md:text-4xl font-bold text-white mb-2 md:mb-3">{{ t('leaderboard.title') }}</h1>
+            <p class="text-slate-400 text-sm md:text-base">{{ t('leaderboard.subtitle') }}</p>
+        </div>
+
+        <!-- 周期选择 - 移动端优化为可滚动 -->
+        <div class="flex justify-center mb-6 md:mb-10">
+            <div class="inline-flex bg-slate-800/50 rounded-xl md:rounded-2xl p-1 border border-slate-700/50 overflow-x-auto hide-scrollbar max-w-full">
+                <button
+                    v-for="p in periods"
+                    :key="p.value"
+                    @click="changePeriod(p.value)"
+                    :class="[
+                        'px-4 md:px-6 py-2 md:py-2.5 rounded-lg md:rounded-xl text-sm font-medium transition-all duration-300 whitespace-nowrap',
+                        period === p.value
+                            ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30'
+                            : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                    ]"
+                >
+                    {{ p.label }}
+                </button>
+            </div>
+        </div>
+
+        <!-- 前三名展示 - 移动端优化 -->
+        <div v-if="topThree.length > 0" class="flex justify-center items-end podium-container gap-3 sm:gap-4 md:gap-8 mb-6 md:mb-12 px-2">
+            <!-- 第二名 -->
+            <div v-if="topThree[1]" class="text-center podium-item" style="order: 1;">
+                <div class="relative">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 mx-auto mb-2 md:mb-3 rounded-xl md:rounded-2xl silver-gradient flex items-center justify-center shadow-xl animate-glow-silver">
+                        <span class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg">2</span>
+                    </div>
+                    <div class="absolute -top-1 -right-0 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-slate-400 rounded-full flex items-center justify-center">
+                        <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-white font-semibold text-xs sm:text-sm md:text-base lg:text-lg mb-0.5 md:mb-1 truncate max-w-[80px] sm:max-w-[100px] md:max-w-[120px] mx-auto">{{ topThree[1].display_name }}</div>
+                <div class="text-green-400 font-bold text-xs sm:text-sm md:text-base lg:text-lg">{{ formatProfitShort(topThree[1].net_profit) }}</div>
+                <div class="text-slate-500 text-[10px] sm:text-xs">{{ topThree[1].total_trades }} {{ t('leaderboard.tradesUnit') }}</div>
+            </div>
+
+            <!-- 第一名 - 中间最高 -->
+            <div v-if="topThree[0]" class="text-center podium-item" style="order: 2;">
+                <div class="relative animate-float -mt-4 sm:-mt-6 md:-mt-10 lg:-mt-12">
+                    <div class="w-[4.5rem] h-[4.5rem] sm:w-20 sm:h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 mx-auto mb-2 md:mb-3 rounded-xl md:rounded-2xl gold-gradient flex items-center justify-center shadow-2xl animate-glow-gold">
+                        <span class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">1</span>
+                    </div>
+                    <div class="absolute -top-1 right-1 sm:-top-2 sm:right-0 md:right-2 w-6 h-6 sm:w-7 sm:h-7 md:w-9 md:h-9 lg:w-10 lg:h-10 bg-amber-400 rounded-full flex items-center justify-center shadow-lg">
+                        <svg class="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 text-amber-900" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-white font-bold text-sm sm:text-base md:text-lg lg:text-xl mb-0.5 md:mb-1 truncate max-w-[90px] sm:max-w-[120px] md:max-w-[150px] mx-auto">{{ topThree[0].display_name }}</div>
+                <div class="text-green-400 font-bold text-sm sm:text-base md:text-lg lg:text-xl shimmer-text">{{ formatProfitShort(topThree[0].net_profit) }}</div>
+                <div class="text-slate-500 text-[10px] sm:text-xs md:text-sm">{{ topThree[0].total_trades }} {{ t('leaderboard.tradesUnit') }}</div>
+            </div>
+
+            <!-- 第三名 -->
+            <div v-if="topThree[2]" class="text-center podium-item" style="order: 3;">
+                <div class="relative">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-24 lg:h-24 mx-auto mb-2 md:mb-3 rounded-xl md:rounded-2xl bronze-gradient flex items-center justify-center shadow-xl animate-glow-bronze">
+                        <span class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg">3</span>
+                    </div>
+                    <div class="absolute -top-1 -right-0 sm:-right-1 w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 bg-amber-700 rounded-full flex items-center justify-center">
+                        <svg class="w-2.5 h-2.5 sm:w-3 sm:h-3 md:w-4 md:h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-white font-semibold text-xs sm:text-sm md:text-base lg:text-lg mb-0.5 md:mb-1 truncate max-w-[80px] sm:max-w-[100px] md:max-w-[120px] mx-auto">{{ topThree[2].display_name }}</div>
+                <div class="text-green-400 font-bold text-xs sm:text-sm md:text-base lg:text-lg">{{ formatProfitShort(topThree[2].net_profit) }}</div>
+                <div class="text-slate-500 text-[10px] sm:text-xs">{{ topThree[2].total_trades }} {{ t('leaderboard.tradesUnit') }}</div>
+            </div>
+        </div>
+
+        <!-- 排行榜列表 - PC端表格 -->
+        <div class="hidden md:block glass-card rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-slate-700/50">
+                            <th class="px-6 py-4 text-left text-slate-400 font-medium text-sm">{{ t('leaderboard.rank') }}</th>
+                            <th class="px-6 py-4 text-left text-slate-400 font-medium text-sm">{{ t('leaderboard.user') }}</th>
+                            <th class="px-6 py-4 text-right text-slate-400 font-medium text-sm">{{ t('leaderboard.netProfit') }}</th>
+                            <th class="px-6 py-4 text-right text-slate-400 font-medium text-sm">{{ t('leaderboard.trades') }}</th>
+                            <th class="px-6 py-4 text-right text-slate-400 font-medium text-sm">{{ t('leaderboard.winRate') }}</th>
+                            <th class="px-6 py-4 text-center text-slate-400 font-medium text-sm">{{ t('leaderboard.tier') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/30">
+                        <tr
+                            v-for="item in leaderboard"
+                            :key="item.uid"
+                            :class="[
+                                'hover:bg-slate-700/20 transition-colors',
+                                item.rank <= 3 ? 'bg-slate-800/30' : ''
+                            ]"
+                        >
+                            <td class="px-6 py-4">
+                                <div
+                                    v-if="item.rank <= 3"
+                                    :class="[
+                                        'w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm',
+                                        item.rank === 1 ? 'gold-gradient' : '',
+                                        item.rank === 2 ? 'silver-gradient' : '',
+                                        item.rank === 3 ? 'bronze-gradient' : ''
+                                    ]"
+                                >
+                                    {{ item.rank }}
+                                </div>
+                                <span v-else class="text-slate-400 font-medium pl-2">{{ item.rank }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white font-medium">
+                                        {{ item.display_name?.charAt(0)?.toUpperCase() || 'U' }}
+                                    </div>
+                                    <span class="text-white font-medium">{{ item.display_name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span v-if="item.net_profit !== null" :class="[
+                                    'font-bold',
+                                    item.net_profit >= 0 ? 'text-green-400' : 'text-red-400'
+                                ]">
+                                    {{ formatProfit(item.net_profit) }}
+                                </span>
+                                <span v-else class="text-slate-500 text-sm">{{ t('leaderboard.hidden') }}</span>
+                            </td>
+                            <td class="px-6 py-4 text-right text-white">
+                                {{ item.total_trades }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span :class="getWinRateClass(item.win_rate)">
+                                    {{ (parseFloat(item.win_rate || 0) * 100).toFixed(1) }}%
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <span :class="getTierClass(item.tier)">
+                                        {{ getTierLabel(item.tier) }}
+                                    </span>
+                                    <a
+                                        v-if="item.public_token"
+                                        :href="'/dashboard/' + item.public_token"
+                                        target="_blank"
+                                        class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-500/20 hover:bg-blue-500/40 text-blue-400 transition-colors"
+                                        :title="t('leaderboard.viewDashboard')"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 空状态 -->
+            <div v-if="leaderboard.length === 0 && !loading" class="text-center py-20">
+                <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
+                    <svg class="w-8 h-8 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="text-slate-400 text-lg mb-2">{{ t('leaderboard.noData') }}</div>
+                <p class="text-slate-500 text-sm">{{ t('leaderboard.noDataHint') }}</p>
+            </div>
+
+            <!-- 加载状态 -->
+            <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+                <div class="relative">
+                    <div class="w-12 h-12 border-4 border-slate-700 rounded-full"></div>
+                    <div class="absolute top-0 left-0 w-12 h-12 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+                </div>
+                <p class="text-slate-400 mt-4 text-sm">{{ t('common.loading') }}</p>
+            </div>
+        </div>
+
+        <!-- 排行榜列表 - 移动端卡片式 -->
+        <div class="md:hidden space-y-3">
+            <!-- 移动端加载状态 -->
+            <div v-if="loading" class="flex flex-col items-center justify-center py-16">
+                <div class="relative">
+                    <div class="w-10 h-10 border-[3px] border-slate-700 rounded-full"></div>
+                    <div class="absolute top-0 left-0 w-10 h-10 border-[3px] border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+                </div>
+                <p class="text-slate-400 mt-3 text-sm">{{ t('common.loading') }}</p>
+            </div>
+
+            <!-- 移动端空状态 -->
+            <div v-else-if="leaderboard.length === 0" class="text-center py-16">
+                <div class="w-14 h-14 mx-auto mb-3 rounded-full bg-slate-800 flex items-center justify-center">
+                    <svg class="w-7 h-7 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+                <div class="text-slate-400 mb-1">{{ t('leaderboard.noData') }}</div>
+                <p class="text-slate-500 text-sm">{{ t('leaderboard.noDataHint') }}</p>
+            </div>
+
+            <!-- 移动端卡片列表 -->
+            <div
+                v-else
+                v-for="item in leaderboard"
+                :key="item.uid"
+                class="rank-card rounded-xl p-4"
+            >
+                <div class="flex items-center gap-3">
+                    <!-- 排名 -->
+                    <div class="flex-shrink-0">
+                        <div
+                            v-if="item.rank <= 3"
+                            :class="[
+                                'w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white text-lg',
+                                item.rank === 1 ? 'gold-gradient' : '',
+                                item.rank === 2 ? 'silver-gradient' : '',
+                                item.rank === 3 ? 'bronze-gradient' : ''
+                            ]"
+                        >
+                            {{ item.rank }}
+                        </div>
+                        <div v-else class="w-10 h-10 rounded-xl bg-slate-800/80 flex items-center justify-center text-slate-400 font-medium">
+                            {{ item.rank }}
+                        </div>
+                    </div>
+
+                    <!-- 用户信息 -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+                                {{ item.display_name?.charAt(0)?.toUpperCase() || 'U' }}
+                            </div>
+                            <span class="text-white font-medium truncate">{{ item.display_name }}</span>
+                            <span :class="getTierClass(item.tier)" class="flex-shrink-0 text-[10px] px-2 py-0.5">
+                                {{ getTierLabel(item.tier) }}
+                            </span>
+                            <a
+                                v-if="item.public_token"
+                                :href="'/dashboard/' + item.public_token"
+                                target="_blank"
+                                class="flex-shrink-0 inline-flex items-center justify-center w-5 h-5 rounded bg-blue-500/20 text-blue-400"
+                                @click.stop
+                            >
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                </svg>
+                            </a>
+                        </div>
+                        <div class="flex items-center gap-4 text-xs">
+                            <span class="text-slate-500">{{ item.total_trades }} {{ t('leaderboard.tradesLabel') }}</span>
+                            <span :class="getWinRateClass(item.win_rate)">
+                                {{ t('leaderboard.winRate') }} {{ (parseFloat(item.win_rate || 0) * 100).toFixed(0) }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 收益 -->
+                    <div class="flex-shrink-0 text-right">
+                        <div v-if="item.net_profit !== null" :class="[
+                            'font-bold text-base',
+                            item.net_profit >= 0 ? 'text-green-400' : 'text-red-400'
+                        ]">
+                            {{ formatProfitShort(item.net_profit) }}
+                        </div>
+                        <span v-else class="text-slate-500 text-sm">{{ t('leaderboard.hidden') }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的排名（已登录用户） -->
+        <div v-if="myRank" class="mt-6 md:mt-8 glass-card rounded-xl md:rounded-2xl p-4 md:p-6 border-2 border-blue-500/30">
+            <div class="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
+                <svg class="w-4 h-4 md:w-5 md:h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-white font-medium text-sm md:text-base">{{ t('leaderboard.myRank') }}</span>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-4">
+                    <div class="text-slate-400 text-xs md:text-sm mb-1">{{ t('leaderboard.rank') }}</div>
+                    <div class="text-xl md:text-2xl font-bold text-white">{{ t('leaderboard.rankNumber', { rank: myRank.rank }) }}</div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-4">
+                    <div class="text-slate-400 text-xs md:text-sm mb-1">{{ t('leaderboard.profit') }}</div>
+                    <div :class="['text-xl md:text-2xl font-bold', myRank.net_profit >= 0 ? 'text-green-400' : 'text-red-400']">
+                        {{ formatProfitShort(myRank.net_profit) }}
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-4">
+                    <div class="text-slate-400 text-xs md:text-sm mb-1">{{ t('leaderboard.tradeCount') }}</div>
+                    <div class="text-xl md:text-2xl font-bold text-white">{{ myRank.total_trades }}</div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-4">
+                    <div class="text-slate-400 text-xs md:text-sm mb-1">{{ t('leaderboard.winRate') }}</div>
+                    <div :class="['text-xl md:text-2xl font-bold', getWinRateClass(myRank.win_rate)]">
+                        {{ (parseFloat(myRank.win_rate || 0) * 100).toFixed(1) }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部链接 -->
+        <div class="mt-8 md:mt-12 text-center text-xs md:text-sm">
+            <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-2">
+                <a href="/" class="text-slate-400 hover:text-white transition-colors">{{ t('leaderboard.home') }}</a>
+                <span class="text-slate-700 hidden sm:inline">·</span>
+                <a href="/referral.html" class="text-slate-400 hover:text-white transition-colors">{{ t('leaderboard.inviteFriends') }}</a>
+                <span class="text-slate-700 hidden sm:inline">·</span>
+                <a v-if="!isLoggedIn" href="/login.html" class="text-slate-400 hover:text-white transition-colors">{{ t('leaderboard.login') }}</a>
+                <a v-else href="/settings.html" class="text-slate-400 hover:text-white transition-colors">{{ t('leaderboard.settings') }}</a>
+                <span class="text-slate-700 hidden sm:inline">·</span>
+                <a href="https://t.me/aibtcchina" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-blue-400 transition-colors">Telegram</a>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+    const { createApp, ref, computed, onMounted, onUnmounted } = Vue;
+    
+    // Initialize I18n before Vue app mounts
+    (async () => {
+        try {
+            await I18n.init({
+                onLocaleChange: () => {
+                    window.location.reload();
+                }
+            });
+        } catch (e) {
+            if (window.SafeLog) SafeLog.error('[Leaderboard] I18n init failed:', e);
+        }
+        
+        // Initialize shared nav after I18n is ready
+        initSharedNav({
+            currentPage: 'leaderboard'
+        });
+        
+        const t = (key, params) => I18n.t(key, params);
+
+        createApp({
+        setup() {
+            const user = Auth.getUser();
+            const isLoggedIn = ref(!!user?.uid);
+            const loading = ref(true);
+            const period = ref('daily');
+            const leaderboard = ref([]);
+            const myRank = ref(null);
+            const lastUpdate = ref(null);
+            let refreshInterval = null;
+            
+            // Auto refresh interval (milliseconds)
+            const AUTO_REFRESH_INTERVAL = 15000; // 15 seconds
+
+            const periods = computed(() => [
+                { value: 'daily', label: t('leaderboard.daily') },
+                { value: 'weekly', label: t('leaderboard.weekly') },
+                { value: 'monthly', label: t('leaderboard.monthly') },
+                { value: 'all_time', label: t('leaderboard.allTime') }
+            ]);
+
+            const topThree = computed(() => {
+                return leaderboard.value.slice(0, 3);
+            });
+
+            let refreshFailCount = 0;
+            const MAX_FAIL_BEFORE_BACKOFF = 3;
+            
+            const loadLeaderboard = async (showLoading = true) => {
+                if (showLoading) loading.value = true;
+                try {
+                    const resp = await fetch(`/api/referral/leaderboard?period=${period.value}&limit=20&_t=${Date.now()}`);
+                    if (!resp.ok) {
+                        throw new Error(`HTTP ${resp.status}`);
+                    }
+                    const data = await resp.json();
+                    
+                    const newData = data.leaderboard || [];
+                    // 直接赋值，让 Vue 的响应式系统处理差异
+                    leaderboard.value = newData;
+                    lastUpdate.value = new Date();
+                    refreshFailCount = 0;
+                } catch (e) {
+                    refreshFailCount++;
+                    if (window.SafeLog) SafeLog.error('Load leaderboard failed:', e);
+                    // 连续失败多次后降低刷新频率，避免无意义请求
+                    if (refreshFailCount >= MAX_FAIL_BEFORE_BACKOFF) {
+                        stopAutoRefresh();
+                        refreshInterval = setInterval(silentRefresh, AUTO_REFRESH_INTERVAL * 3);
+                    }
+                } finally {
+                    if (showLoading) loading.value = false;
+                }
+            };
+
+            const loadMyRank = async () => {
+                if (!isLoggedIn.value) return;
+
+                try {
+                    const resp = await fetch(`/api/referral/leaderboard/my-rank?period=${period.value}&_t=${Date.now()}`, {
+                        credentials: 'include'
+                    });
+
+                    if (resp.status === 401) {
+                        isLoggedIn.value = false;
+                        Auth.clearUser();
+                        myRank.value = null;
+                        return;
+                    }
+
+                    const data = await resp.json();
+                    if (data.rank) {
+                        myRank.value = data;
+                    } else {
+                        myRank.value = null;
+                    }
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('Load my rank failed:', e);
+                    myRank.value = null;
+                }
+            };
+
+            const changePeriod = async (newPeriod) => {
+                period.value = newPeriod;
+                await Promise.all([loadLeaderboard(), loadMyRank()]);
+            };
+            
+            // 静默刷新（不显示 loading 状态），带并发保护
+            let isRefreshing = false;
+            const silentRefresh = async () => {
+                if (isRefreshing) return;
+                isRefreshing = true;
+                try {
+                    await Promise.all([loadLeaderboard(false), loadMyRank()]);
+                } finally {
+                    isRefreshing = false;
+                }
+            };
+            
+            // 启动自动刷新
+            const startAutoRefresh = () => {
+                if (refreshInterval) clearInterval(refreshInterval);
+                refreshInterval = setInterval(silentRefresh, AUTO_REFRESH_INTERVAL);
+            };
+            
+            // 停止自动刷新
+            const stopAutoRefresh = () => {
+                if (refreshInterval) {
+                    clearInterval(refreshInterval);
+                    refreshInterval = null;
+                }
+            };
+            
+            // 页面可见性变化处理
+            const handleVisibilityChange = () => {
+                if (document.hidden) {
+                    stopAutoRefresh();
+                } else {
+                    // 页面重新可见时立即刷新一次，然后启动定时刷新
+                    // 重置失败计数，恢复正常刷新频率
+                    refreshFailCount = 0;
+                    silentRefresh().then(() => {
+                        startAutoRefresh();
+                    });
+                }
+            };
+
+            const formatProfit = (profit) => {
+                if (profit === null || profit === undefined) return '-';
+                const num = parseFloat(profit);
+                const sign = num >= 0 ? '+' : '';
+                return `${sign}${num.toFixed(2)} USDT`;
+            };
+
+            // 移动端短格式
+            const formatProfitShort = (profit) => {
+                if (profit === null || profit === undefined) return '-';
+                const num = parseFloat(profit);
+                const sign = num >= 0 ? '+' : '';
+                if (Math.abs(num) >= 1000) {
+                    return `${sign}${(num / 1000).toFixed(2)}K`;
+                }
+                return `${sign}${num.toFixed(2)}`;
+            };
+
+            const getWinRateClass = (rate) => {
+                const r = parseFloat(rate || 0);
+                if (r >= 0.6) return 'text-green-400';
+                if (r >= 0.4) return 'text-yellow-400';
+                return 'text-red-400';
+            };
+
+            const getTierClass = (tier) => {
+                const classes = {
+                    'vip': 'px-2 md:px-3 py-0.5 md:py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium border border-purple-500/30',
+                    'pro': 'px-2 md:px-3 py-0.5 md:py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs font-medium border border-blue-500/30',
+                    'basic': 'px-2 md:px-3 py-0.5 md:py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium border border-green-500/30',
+                    'free': 'px-2 md:px-3 py-0.5 md:py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs font-medium border border-slate-500/30',
+                };
+                return classes[tier?.toLowerCase()] || classes['free'];
+            };
+
+            const getTierLabel = (tier) => {
+                const labels = {
+                    'vip': 'VIP',
+                    'pro': 'PRO',
+                    'basic': 'BASIC',
+                    'free': 'FREE',
+                };
+                return labels[tier?.toLowerCase()] || 'FREE';
+            };
+
+            onMounted(async () => {
+                // 显示页面内容（移除加载遮罩）
+                I18n.showContent();
+                
+                // Set page title
+                document.title = t('leaderboard.pageTitle');
+                await Promise.all([loadLeaderboard(), loadMyRank()]);
+                startAutoRefresh();
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+            });
+            
+            onUnmounted(() => {
+                stopAutoRefresh();
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+            });
+
+                return {
+                    isLoggedIn,
+                    loading,
+                    period,
+                    periods,
+                    leaderboard,
+                    topThree,
+                    myRank,
+                    lastUpdate,
+                    changePeriod,
+                    formatProfit,
+                    formatProfitShort,
+                    getWinRateClass,
+                    getTierClass,
+                    getTierLabel,
+                    t,
+                };
+        }
+    }).mount('#app');
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AIBTC.VIP - Public Dashboard</title>
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="View publicly shared crypto trading data and profit performance on AIBTC.VIP.">
+  <meta name="keywords" content="AI trading, crypto bot, public dashboard, trading performance, Bitcoin, cryptocurrency">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aibtc.vip/public.html">
+  <meta property="og:title" content="AIBTC.VIP - Public Dashboard">
+  <meta property="og:description" content="View publicly shared crypto trading data and profit performance.">
+  <meta property="og:image" content="https://aibtc.vip/static/og-image.png">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AIBTC.VIP - Public Dashboard">
+  <meta name="twitter:description" content="View publicly shared crypto trading data and profit performance.">
+  <meta name="twitter:image" content="https://aibtc.vip/static/og-image.png">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://aibtc.vip/public.html">
+  
+  <!-- Hreflang for multi-language SEO -->
+  <link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/public.html?lang=zh-CN">
+  <link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/public.html?lang=zh-TW">
+  <link rel="alternate" hreflang="en-US" href="https://aibtc.vip/public.html?lang=en-US">
+  <link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/public.html?lang=ja-JP">
+  <link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/public.html?lang=ko-KR">
+  <link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/public.html?lang=es-ES">
+  <link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/public.html?lang=pt-BR">
+  <link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/public.html?lang=ru-RU">
+  <link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/public.html?lang=ar-SA">
+  <link rel="alternate" hreflang="x-default" href="https://aibtc.vip/public.html">
+  
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "name": "AIBTC.VIP Public Trading Dashboard",
+    "description": "View publicly shared crypto trading data and profit performance",
+    "url": "https://aibtc.vip/public.html",
+    "mainEntity": {
+      "@type": "Person",
+      "name": "Trader"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "AIBTC.VIP",
+      "url": "https://aibtc.vip"
+    }
+  }
+  </script>
+  
+  <!-- Security -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  
+  <link rel="icon" href="/static/favicon.png" type="image/png">
+  
+  <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+  <style>
+    html, body { background-color: #0f172a; margin: 0; }
+    body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+    [v-cloak] { display: none !important; }
+  </style>
+  
+  <!-- Common CSS -->
+  <link rel="stylesheet" href="/static/css/common.css">
+  
+  <!-- 集中版本管理（必须最先加载） -->
+  <script src="/static/js/version.js"></script>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+  <link rel="preload" href="/static/js/i18n.js" as="script">
+  
+  <script src="/static/vendor/tailwind.min.js" defer></script>
+  
+  <!-- i18n -->
+  <script src="/static/js/i18n.js"></script>
+
+  <!-- Common CSS already includes animations -->
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen i18n-loading">
+  <!-- app.js 会渲染完整的导航栏和内容 -->
+  <div id="app" v-cloak class="container mx-auto px-4 py-8 max-w-7xl"></div>
+
+  <!-- Vue 全局版本 - 本地文件 -->
+  <script src="/static/vendor/vue.global.prod.js"></script>
+
+  <!-- Chart.js - 本地文件 (defer for non-blocking load) -->
+  <script src="/static/vendor/chart.umd.min.js" defer></script>
+
+  <!-- Auth (needed for nav.js compatibility) -->
+  <script src="/static/js/auth.js"></script>
+  
+  <!-- 共享导航组件 -->
+  <script src="/static/js/nav.js"></script>
+
+  <!-- 公开模式配置 -->
+  <script>
+    // 公开模式标志
+    window.PUBLIC_MODE = true;
+    
+    // 从 URL 提取 token: /dashboard/{token}
+    // 安全验证：token 只允许字母数字和连字符，长度 8-64
+    const pathParts = window.location.pathname.split('/');
+    const rawToken = pathParts[pathParts.length - 1] || '';
+    const TOKEN_PATTERN = /^[a-zA-Z0-9\-]{8,64}$/;
+    
+    if (rawToken && TOKEN_PATTERN.test(rawToken)) {
+      window.PUBLIC_TOKEN = rawToken;
+    } else {
+      window.PUBLIC_TOKEN = '';
+      // 无效 token 时静默处理（生产环境不输出日志）
+    }
+    
+    // 公开模式不需要用户信息
+    window.CURRENT_USER = {};
+    
+    // 公开模式不需要 logout 函数，但为了兼容性提供一个空实现
+    function logout() {
+      window.location.href = '/login.html';
+    }
+    
+    // 初始化 i18n 并加载业务代码
+    (async function() {
+      try {
+        await I18n.init({
+          onLocaleChange: () => {
+            I18n.updateSeoMeta('public');
+            window.location.reload();
+          }
+        });
+        I18n.updateSeoMeta('public');
+      } catch (e) {
+        if (window.SafeLog) SafeLog.error('[Public] I18n init failed:', e);
+      }
+      
+      // 加载业务代码（使用集中版本号）
+      loadVersionedScript('/static/app.js');
+    })();
+  </script>
+</body>
+</html>

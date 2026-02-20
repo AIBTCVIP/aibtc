@@ -1,0 +1,2424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIBTC.VIP - Admin</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="AIBTC.VIP Admin Dashboard - System management and user administration.">
+    <meta name="keywords" content="admin, dashboard, system management">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    
+    <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+    <style>
+      html, body { background-color: #0f172a; margin: 0; }
+      body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+      [v-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/static/css/common.css">
+    
+    <!-- 集中版本管理（必须最先加载） -->
+    <script src="/static/js/version.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+    <link rel="preload" href="/static/js/i18n.js" as="script">
+    
+    <script src="/static/vendor/tailwind.min.js" defer></script>
+    <script src="/static/vendor/vue.global.prod.js"></script>
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/nav.js"></script>
+    <style>
+        /* 隐藏滚动条 */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* 移动端标签页滚动 */
+        .tabs-container {
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: x mandatory;
+        }
+        .tabs-container > button {
+            scroll-snap-align: start;
+        }
+        /* 移动端卡片 */
+        .mobile-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.8) 100%);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen i18n-loading">
+    <!-- 顶部导航栏 -->
+    <nav class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
+        <div class="container mx-auto px-4 py-3 md:py-4 max-w-7xl">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-2 md:gap-4">
+                    <a href="/" class="flex items-center gap-2 md:gap-3 group">
+                        <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                            <svg class="w-4 h-4 md:w-5 md:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <span id="admin-title" class="text-lg md:text-xl font-bold text-white hidden sm:inline">Admin</span>
+                        <span id="admin-title-short" class="text-lg font-bold text-white sm:hidden">Admin</span>
+                    </a>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden sm:flex items-center gap-3">
+                    <a href="/" id="admin-back-home" class="px-4 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all text-sm">Back</a>
+                    <button onclick="Auth.logout();" id="admin-logout" class="px-4 py-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-all text-sm">Logout</button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleAdminMobileNav()" class="sm:hidden p-2 rounded-lg hover:bg-slate-800 transition-colors">
+                    <!-- 汉堡菜单图标 -->
+                    <svg id="adminMenuIconOpen" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <!-- 关闭图标（默认隐藏） -->
+                    <svg id="adminMenuIconClose" class="w-6 h-6 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="adminMobileNavMenu" class="hidden sm:hidden pt-4 pb-2 border-t border-slate-700/50 mt-4">
+                <nav class="flex flex-col gap-1">
+                    <a href="/" id="admin-back-home-mobile" class="py-3 px-4 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                        Back
+                    </a>
+                    <button onclick="Auth.logout();" id="admin-logout-mobile" class="py-3 px-4 rounded-lg text-red-400 hover:bg-red-500/10 transition text-left w-full">
+                        Logout
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </nav>
+    <script>
+    function toggleAdminMobileNav() {
+        const menu = document.getElementById('adminMobileNavMenu');
+        const iconOpen = document.getElementById('adminMenuIconOpen');
+        const iconClose = document.getElementById('adminMenuIconClose');
+        const isHidden = menu.classList.contains('hidden');
+        menu.classList.toggle('hidden', !isHidden);
+        // 安全的图标切换（避免 innerHTML）
+        iconOpen.classList.toggle('hidden', isHidden);
+        iconClose.classList.toggle('hidden', !isHidden);
+    }
+    </script>
+
+    <div id="app" v-cloak class="container mx-auto px-4 py-4 md:py-8 max-w-7xl">
+        <!-- 错误提示 -->
+        <div v-if="error" class="mb-4 md:mb-6 p-3 md:p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 flex items-center gap-2 md:gap-3 text-sm">
+            <svg class="w-4 h-4 md:w-5 md:h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ error }}</span>
+        </div>
+
+        <!-- 标签页导航 - 移动端可滚动 -->
+        <div class="mb-4 md:mb-8 bg-slate-800/30 p-1.5 md:p-2 rounded-xl md:rounded-2xl border border-slate-700/30 overflow-x-auto hide-scrollbar">
+            <div class="flex gap-1 md:gap-2 tabs-container min-w-max md:min-w-0 md:flex-wrap">
+                <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key"
+                    :class="['px-3 md:px-5 py-2 md:py-2.5 rounded-lg md:rounded-xl font-medium text-xs md:text-sm transition-all flex items-center gap-1.5 md:gap-2 whitespace-nowrap',
+                        activeTab === tab.key ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-700/50']">
+                    <!-- 安全的 SVG 图标渲染（避免 v-html XSS 风险） -->
+                    <svg v-if="tab.iconType === 'system'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    <svg v-else-if="tab.iconType === 'monitor'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <svg v-else-if="tab.iconType === 'users'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg v-else-if="tab.iconType === 'referral'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <svg v-else-if="tab.iconType === 'commissions'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <svg v-else-if="tab.iconType === 'leaderboard'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                    <svg v-else-if="tab.iconType === 'strategies'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    <svg v-else-if="tab.iconType === 'llmmodels'" class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9h.01M12 9h.01M16 9h.01"/></svg>
+                    <span>{{ tab.label }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 加载状态 -->
+        <div v-if="loading" class="flex flex-col items-center justify-center py-16 md:py-20">
+            <div class="relative">
+                <div class="w-12 h-12 md:w-16 md:h-16 border-4 border-slate-700 rounded-full"></div>
+                <div class="absolute top-0 left-0 w-12 h-12 md:w-16 md:h-16 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+            </div>
+            <p class="text-slate-400 mt-4 md:mt-6 text-sm">{{ t('common.loading') }}</p>
+        </div>
+
+        <div v-else>
+            <!-- ========== 系统状态 ========== -->
+            <div v-if="activeTab === 'system'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- 系统设置 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <h2 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4">{{ t('admin.systemSettings') }}</h2>
+                    <div class="space-y-3 md:space-y-4">
+                        <!-- 用户注册开关 -->
+                        <div class="flex items-center justify-between bg-slate-800/50 p-3 md:p-5 rounded-lg md:rounded-xl gap-3">
+                            <div class="min-w-0">
+                                <div class="text-white font-medium text-sm md:text-base">{{ t('admin.userRegistration') }}</div>
+                                <div class="text-slate-400 text-xs md:text-sm mt-0.5 md:mt-1">{{ t('admin.userRegistrationDesc') }}</div>
+                            </div>
+                            <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                                <span :class="systemSettings.registration_enabled ? 'text-green-400' : 'text-red-400'" class="text-xs md:text-sm font-medium hidden sm:block">
+                                    {{ systemSettings.registration_enabled ? t('admin.opened') : t('admin.closed') }}
+                                </span>
+                                <button @click="toggleRegistration" :disabled="savingSettings"
+                                    :class="['relative inline-flex h-6 w-11 md:h-7 md:w-14 items-center rounded-full transition-colors', systemSettings.registration_enabled ? 'bg-green-500' : 'bg-slate-600']">
+                                    <span :class="['inline-block h-4 w-4 md:h-5 md:w-5 transform rounded-full bg-white transition-transform shadow-lg', systemSettings.registration_enabled ? 'translate-x-6 md:translate-x-8' : 'translate-x-1']"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- 邀请码注册开关 -->
+                        <div class="flex items-center justify-between bg-slate-800/50 p-3 md:p-5 rounded-lg md:rounded-xl gap-3">
+                            <div class="min-w-0">
+                                <div class="text-white font-medium text-sm md:text-base">{{ t('admin.inviteCodeRegistration') }}</div>
+                                <div class="text-slate-400 text-xs md:text-sm mt-0.5 md:mt-1">{{ t('admin.inviteCodeRegistrationDesc') }}</div>
+                            </div>
+                            <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                                <span :class="systemSettings.require_invite_code ? 'text-amber-400' : 'text-slate-400'" class="text-xs md:text-sm font-medium hidden sm:block">
+                                    {{ systemSettings.require_invite_code ? t('admin.required') : t('admin.optional') }}
+                                </span>
+                                <button @click="toggleInviteCode" :disabled="savingSettings"
+                                    :class="['relative inline-flex h-6 w-11 md:h-7 md:w-14 items-center rounded-full transition-colors', systemSettings.require_invite_code ? 'bg-amber-500' : 'bg-slate-600']">
+                                    <span :class="['inline-block h-4 w-4 md:h-5 md:w-5 transform rounded-full bg-white transition-transform shadow-lg', systemSettings.require_invite_code ? 'translate-x-6 md:translate-x-8' : 'translate-x-1']"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据修复工具 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4 md:mb-6 gap-3">
+                        <div>
+                            <h2 class="text-base md:text-lg font-semibold text-white">{{ t('admin.dataRepairTool') }}</h2>
+                            <p class="text-slate-400 text-xs md:text-sm mt-1">{{ t('admin.dataRepairToolDesc') }}</p>
+                        </div>
+                        <button @click="scanAbnormalTrades" :disabled="dataRepairLoading"
+                            class="px-3 md:px-4 py-1.5 md:py-2 bg-slate-700 hover:bg-slate-600 disabled:bg-slate-600 text-white rounded-lg md:rounded-xl text-xs md:text-sm transition-all">
+                            {{ t('admin.scan') }}
+                        </button>
+                    </div>
+                    
+                    <!-- 扫描结果统计 -->
+                    <div v-if="dataRepairScanResult" class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4 md:mb-6">
+                        <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-5">
+                            <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.totalAbnormal') }}</div>
+                            <div class="text-lg md:text-xl font-bold text-yellow-400">{{ dataRepairScanResult.total_abnormal || 0 }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-5">
+                            <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.returned') }}</div>
+                            <div class="text-lg md:text-xl font-bold text-white">{{ dataRepairScanResult.returned_count || 0 }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-5">
+                            <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.repairable') }}</div>
+                            <div class="text-lg md:text-xl font-bold text-green-400">{{ dataRepairScanResult.repairable_count || 0 }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-5">
+                            <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.notRepairable') }}</div>
+                            <div class="text-lg md:text-xl font-bold text-red-400">{{ (dataRepairScanResult.returned_count || 0) - (dataRepairScanResult.repairable_count || 0) }}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- 修复控制 -->
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-4">
+                        <div class="flex items-center gap-2 flex-1 md:flex-none">
+                            <input v-model="dataRepairUid" type="text" :placeholder="t('admin.uidPlaceholder')"
+                                class="flex-1 md:w-48 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <button @click="previewRepair" :disabled="dataRepairLoading"
+                            class="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            {{ t('admin.previewRepair') }}
+                        </button>
+                        <button @click="executeRepair" :disabled="dataRepairLoading || !dataRepairPreviewResult"
+                            class="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            {{ t('admin.executeRepair') }}
+                        </button>
+                    </div>
+                    
+                    <!-- 预览/执行结果 -->
+                    <div v-if="dataRepairPreviewResult" class="bg-slate-800/30 rounded-lg p-4 mb-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span :class="dataRepairPreviewResult.dry_run ? 'text-amber-400' : 'text-green-400'" class="font-medium">
+                                {{ dataRepairPreviewResult.dry_run ? t('admin.previewResult') : t('admin.repairCompleted') }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div class="text-slate-400">{{ t('admin.repaired') }}: <span class="text-green-400">{{ dataRepairPreviewResult.repaired_count }}</span></div>
+                            <div class="text-slate-400">{{ t('admin.skipped') }}: <span class="text-yellow-400">{{ dataRepairPreviewResult.skipped_count }}</span></div>
+                            <div class="text-slate-400">{{ t('admin.errors') }}: <span class="text-red-400">{{ dataRepairPreviewResult.error_count }}</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 异常记录列表 -->
+                    <div v-if="dataRepairScanResult?.records?.length" class="mt-4">
+                        <h3 class="text-sm font-medium text-slate-400 mb-3">{{ t('admin.abnormalRecords') }} ({{ dataRepairScanResult.records.length }})</h3>
+                        <div class="space-y-2 max-h-64 overflow-y-auto">
+                            <div v-for="record in dataRepairScanResult.records" :key="record.id" 
+                                class="bg-slate-800/30 rounded-lg px-3 py-2 text-xs md:text-sm">
+                                <div class="flex items-center justify-between mb-1">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-white font-mono">{{ record.uid?.slice(0, 12) }}...</span>
+                                        <span class="text-slate-400">{{ record.symbol }}</span>
+                                        <span :class="record.side === 'LONG' ? 'text-green-400' : 'text-red-400'">{{ record.side }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span :class="record.can_repair ? 'text-green-400' : 'text-red-400'" class="text-xs">
+                                            {{ record.can_repair ? t('admin.canRepair') : t('admin.cannotRepair') }}
+                                        </span>
+                                        <button v-if="record.can_repair" @click="repairSingleRecord(record.id)" 
+                                            class="text-blue-400 hover:text-blue-300 text-xs">{{ t('admin.fix') }}</button>
+                                    </div>
+                                </div>
+                                <div v-if="record.issues?.length" class="text-slate-500 text-xs">
+                                    {{ t('admin.issues') }}: {{ record.issues.join(', ') }}
+                                </div>
+                                <div v-if="record.unfixable?.length" class="text-red-400 text-xs mt-1">
+                                    {{ t('admin.unfixable') }}: {{ record.unfixable.join(', ') }}
+                                </div>
+                                <div v-if="record.correct_values && Object.keys(record.correct_values).length" class="text-green-500 text-xs mt-1">
+                                    {{ t('admin.fix') }}: {{ Object.entries(record.correct_values).map(([k,v]) => k + '=' + v).join(', ') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Raw Data 类型修复工具 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex items-center justify-between mb-4 md:mb-6 gap-3">
+                        <div>
+                            <h2 class="text-base md:text-lg font-semibold text-white">{{ t('admin.fixRawDataTypes') }}</h2>
+                            <p class="text-slate-400 text-xs md:text-sm mt-1">{{ t('admin.fixRawDataTypesDesc') }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 修复控制 -->
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3 mb-4">
+                        <div class="flex items-center gap-2 flex-1 md:flex-none">
+                            <input v-model="rawDataTypeFixUid" type="text" :placeholder="t('admin.uidPlaceholder')"
+                                class="flex-1 md:w-48 px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <button @click="previewRawDataTypeFix" :disabled="rawDataTypeFixLoading"
+                            class="px-4 py-2 bg-amber-600 hover:bg-amber-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            {{ t('admin.preview') }}
+                        </button>
+                        <button @click="executeRawDataTypeFix" :disabled="rawDataTypeFixLoading || !rawDataTypeFixResult"
+                            class="px-4 py-2 bg-green-600 hover:bg-green-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            {{ t('admin.executeFix') }}
+                        </button>
+                    </div>
+                    
+                    <!-- 结果显示 -->
+                    <div v-if="rawDataTypeFixResult" class="bg-slate-800/30 rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span :class="rawDataTypeFixResult.dry_run ? 'text-amber-400' : 'text-green-400'" class="font-medium">
+                                {{ rawDataTypeFixResult.dry_run ? t('admin.previewResult') : t('admin.fixCompleted') }}
+                            </span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm mb-3">
+                            <div class="text-slate-400">{{ t('admin.fixed') }}: <span class="text-green-400">{{ rawDataTypeFixResult.fixed_count }}</span></div>
+                            <div class="text-slate-400">{{ t('admin.skipped') }}: <span class="text-yellow-400">{{ rawDataTypeFixResult.skipped_count }}</span></div>
+                            <div class="text-slate-400">{{ t('admin.errors') }}: <span class="text-red-400">{{ rawDataTypeFixResult.error_count }}</span></div>
+                        </div>
+                        
+                        <!-- 修复的记录列表 -->
+                        <div v-if="rawDataTypeFixResult.fixed?.length" class="mt-3">
+                            <h4 class="text-xs text-slate-400 mb-2">{{ t('admin.fixedRecords') }} ({{ rawDataTypeFixResult.fixed.length }})</h4>
+                            <div class="space-y-1 max-h-48 overflow-y-auto">
+                                <div v-for="record in rawDataTypeFixResult.fixed.slice(0, 20)" :key="record.id" 
+                                    class="bg-slate-800/50 rounded px-2 py-1 text-xs">
+                                    <span class="text-white font-mono">{{ record.uid?.slice(0, 8) }}...</span>
+                                    <span class="text-slate-400 ml-2">{{ record.symbol }}</span>
+                                    <span class="text-green-400 ml-2">{{ record.fixed_fields?.join(', ') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 用户管理 ========== -->
+            <div v-if="activeTab === 'users'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-3">
+                        <h2 class="text-base md:text-lg font-semibold text-white">{{ t('admin.users') }} <span class="text-slate-400 text-sm font-normal">({{ userTotal }})</span></h2>
+                        <div class="flex items-center gap-2 w-full md:w-auto">
+                            <input v-model="userSearch" @keyup.enter="searchUsers" type="text" 
+                                :placeholder="t('admin.searchUidOrUsername')" 
+                                class="flex-1 md:w-48 px-3 py-1.5 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm placeholder-slate-400 focus:outline-none focus:border-blue-500">
+                            <button @click="searchUsers" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm transition-all">{{ t('common.search') }}</button>
+                            <button @click="userSearch = ''; searchUsers()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all">{{ t('common.reset') }}</button>
+                        </div>
+                    </div>
+
+                    <!-- PC端表格 -->
+                    <div v-if="users.length" class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-700/50">
+                                    <th class="text-left py-3 px-4">{{ t('admin.username') }}</th>
+                                    <th class="text-left py-3 px-4">UID</th>
+                                    <th class="text-left py-3 px-4">{{ t('admin.status') }}</th>
+                                    <th class="text-left py-3 px-4">{{ t('admin.tier') }}</th>
+                                    <th class="text-left py-3 px-4">AI</th>
+                                    <th class="text-left py-3 px-4">{{ t('admin.runningShort') }}</th>
+                                    <th class="text-left py-3 px-4">{{ t('admin.actions') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/30">
+                                <tr v-for="u in users" :key="u.uid" class="hover:bg-slate-800/30 transition-colors">
+                                    <td class="py-3 px-4 text-white font-medium">{{ u.username }}</td>
+                                    <td class="py-3 px-4 text-slate-400 font-mono text-xs">{{ u.uid }}</td>
+                                    <td class="py-3 px-4">
+                                        <select :value="u.status" @change="updateStatus(u.uid, $event.target.value)"
+                                            class="bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500">
+                                            <option value="active">{{ t('admin.statusActive') }}</option>
+                                            <option value="suspended">{{ t('admin.statusSuspended') }}</option>
+                                            <option value="banned">{{ t('admin.statusBanned') }}</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <select :value="u.tier" @change="updateTier(u.uid, $event.target.value)"
+                                            class="bg-slate-700 text-white text-xs px-3 py-1.5 rounded-lg border border-slate-600 focus:outline-none focus:border-blue-500">
+                                            <option value="free">{{ t('admin.tierFree') }}</option>
+                                            <option value="basic">{{ t('admin.tierBasic') }}</option>
+                                            <option value="pro">{{ t('admin.tierPro') }}</option>
+                                            <option value="vip">VIP</option>
+                                        </select>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span :class="u.ai_enabled ? 'text-green-400' : 'text-slate-500'">{{ u.ai_enabled ? t('admin.enabled') : t('admin.disabled') }}</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <span :class="u.is_running ? 'text-green-400' : 'text-slate-500'">{{ u.is_running ? t('common.yes') : t('common.no') }}</span>
+                                    </td>
+                                    <td class="py-3 px-4">
+                                        <button @click="viewUserReferral(u.uid)" class="text-blue-400 hover:text-blue-300 text-xs">{{ t('admin.referralDetails') }}</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 移动端卡片 -->
+                    <div v-if="users.length" class="md:hidden space-y-3">
+                        <div v-for="u in users" :key="u.uid" class="mobile-card rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <div class="text-white font-medium text-sm">{{ u.username }}</div>
+                                    <div class="text-slate-500 font-mono text-xs">{{ u.uid?.slice(0, 12) }}...</div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span :class="u.is_running ? 'text-green-400' : 'text-slate-500'" class="text-xs">{{ u.is_running ? '●' : '○' }}</span>
+                                    <span :class="u.ai_enabled ? 'text-green-400' : 'text-slate-500'" class="text-xs">AI</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <select :value="u.status" @change="updateStatus(u.uid, $event.target.value)"
+                                    class="bg-slate-700 text-white text-xs px-2 py-1 rounded border border-slate-600 focus:outline-none">
+                                    <option value="active">{{ t('admin.statusActive') }}</option>
+                                    <option value="suspended">{{ t('admin.statusSuspended') }}</option>
+                                    <option value="banned">{{ t('admin.statusBanned') }}</option>
+                                </select>
+                                <select :value="u.tier" @change="updateTier(u.uid, $event.target.value)"
+                                    class="bg-slate-700 text-white text-xs px-2 py-1 rounded border border-slate-600 focus:outline-none">
+                                    <option value="free">{{ t('admin.tierFree') }}</option>
+                                    <option value="basic">{{ t('admin.tierBasic') }}</option>
+                                    <option value="pro">{{ t('admin.tierPro') }}</option>
+                                    <option value="vip">VIP</option>
+                                </select>
+                                <button @click="viewUserReferral(u.uid)" class="text-blue-400 text-xs">{{ t('admin.referralDetails') }}</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="!users.length" class="text-slate-500 text-center py-6 md:py-8 text-sm">{{ t('admin.noUsers') }}</div>
+                    
+                    <!-- 分页控件 -->
+                    <div v-if="userTotalPages > 1" class="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
+                        <div class="text-slate-400 text-xs md:text-sm">
+                            {{ t('admin.pageInfo', { current: userPage, total: userTotalPages, count: userTotal }) }}
+                        </div>
+                        <div class="flex items-center gap-1 md:gap-2">
+                            <button @click="goToUserPage(1)" :disabled="userPage <= 1"
+                                class="px-2 md:px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs md:text-sm transition-all">{{ t('admin.firstPage') }}</button>
+                            <button @click="goToUserPage(userPage - 1)" :disabled="userPage <= 1"
+                                class="px-2 md:px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs md:text-sm transition-all">{{ t('admin.prevPage') }}</button>
+                            <span class="px-2 text-slate-400 text-xs md:text-sm">{{ userPage }}</span>
+                            <button @click="goToUserPage(userPage + 1)" :disabled="userPage >= userTotalPages"
+                                class="px-2 md:px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs md:text-sm transition-all">{{ t('admin.nextPage') }}</button>
+                            <button @click="goToUserPage(userTotalPages)" :disabled="userPage >= userTotalPages"
+                                class="px-2 md:px-3 py-1 bg-slate-700 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded text-xs md:text-sm transition-all">{{ t('admin.lastPage') }}</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 返佣设置 ========== -->
+            <div v-if="activeTab === 'referral'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- 返佣统计 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                    <div class="glass-card rounded-xl md:rounded-2xl p-3 md:p-5">
+                        <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.totalUsers') }}</div>
+                        <div class="text-xl md:text-2xl font-bold text-white">{{ referralStats.total_users || 0 }}</div>
+                    </div>
+                    <div class="glass-card rounded-xl md:rounded-2xl p-3 md:p-5">
+                        <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.hasReferrer') }}</div>
+                        <div class="text-xl md:text-2xl font-bold text-white">{{ referralStats.referred_users || 0 }}</div>
+                        <div class="text-slate-500 text-xs mt-0.5">{{ ((referralStats.referral_rate || 0) * 100).toFixed(1) }}%</div>
+                    </div>
+                    <div class="glass-card rounded-xl md:rounded-2xl p-3 md:p-5">
+                        <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.totalCommission') }}</div>
+                        <div class="text-xl md:text-2xl font-bold text-green-400">{{ formatAmount(referralStats.total_commission) }}</div>
+                    </div>
+                    <div class="glass-card rounded-xl md:rounded-2xl p-3 md:p-5">
+                        <div class="text-slate-400 text-xs md:text-sm mb-1 md:mb-2">{{ t('admin.pendingSettlement') }}</div>
+                        <div class="text-xl md:text-2xl font-bold text-yellow-400">{{ formatAmount(referralStats.pending_commission) }}</div>
+                    </div>
+                </div>
+
+                <!-- 15层返佣比例设置 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 mb-4 md:mb-6">
+                        <h2 class="text-base md:text-lg font-semibold text-white">{{ t('admin.commissionRatesConfig') }}</h2>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="toggleAllRates(true)"
+                                class="px-2.5 md:px-3 py-1.5 md:py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs md:text-sm transition-all">
+                                {{ t('admin.enableAll') }}
+                            </button>
+                            <button @click="toggleAllRates(false)"
+                                class="px-2.5 md:px-3 py-1.5 md:py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs md:text-sm transition-all">
+                                {{ t('admin.disableAll') }}
+                            </button>
+                            <button @click="settleAll" :disabled="settling"
+                                class="px-2.5 md:px-3 py-1.5 md:py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 text-white rounded-lg text-xs md:text-sm transition-all">
+                                {{ settling ? t('admin.settling') : t('admin.settleAll') }}
+                            </button>
+                            <button @click="saveAllRates" :disabled="savingRates"
+                                class="px-2.5 md:px-3 py-1.5 md:py-2 bg-green-500 hover:bg-green-600 disabled:bg-slate-600 text-white rounded-lg text-xs md:text-sm transition-all">
+                                {{ savingRates ? t('admin.saving') : t('admin.saveConfig') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- PC端表格 -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-700/50">
+                                    <th class="text-left py-3 w-20">{{ t('admin.level') }}</th>
+                                    <th class="text-left py-3 w-32">{{ t('admin.commissionRate') }}</th>
+                                    <th class="text-left py-3 w-32">{{ t('admin.minAmount') }}</th>
+                                    <th class="text-left py-3 w-24">{{ t('admin.status') }}</th>
+                                    <th class="text-left py-3">{{ t('admin.description') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/30">
+                                <tr v-for="rate in rates" :key="rate.level" class="hover:bg-slate-800/30">
+                                    <td class="py-3"><span class="text-white font-medium">L{{ rate.level }}</span></td>
+                                    <td class="py-3">
+                                        <input v-model.number="rate.rate_percent" type="number" step="0.01" min="0" max="100"
+                                            class="w-24 px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-right focus:outline-none focus:border-blue-500">
+                                    </td>
+                                    <td class="py-3">
+                                        <input v-model.number="rate.min_amount" type="number" step="0.01" min="0"
+                                            class="w-24 px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white text-right focus:outline-none focus:border-blue-500">
+                                    </td>
+                                    <td class="py-3">
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input v-model="rate.is_enabled" type="checkbox" class="sr-only">
+                                            <div :class="['w-10 h-6 rounded-full transition-colors', rate.is_enabled ? 'bg-green-500' : 'bg-slate-600']">
+                                                <div :class="['w-4 h-4 mt-1 ml-1 rounded-full bg-white transition-transform', rate.is_enabled ? 'translate-x-4' : '']"></div>
+                                            </div>
+                                        </label>
+                                    </td>
+                                    <td class="py-3 text-slate-400">{{ getLevelDescription(rate.level) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 移动端网格 -->
+                    <div class="md:hidden grid grid-cols-3 gap-2">
+                        <div v-for="rate in rates" :key="rate.level" class="mobile-card rounded-lg p-2.5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-white font-medium text-sm">L{{ rate.level }}</span>
+                                <label class="cursor-pointer">
+                                    <input v-model="rate.is_enabled" type="checkbox" class="sr-only">
+                                    <div :class="['w-8 h-5 rounded-full transition-colors', rate.is_enabled ? 'bg-green-500' : 'bg-slate-600']">
+                                        <div :class="['w-3 h-3 mt-1 ml-1 rounded-full bg-white transition-transform', rate.is_enabled ? 'translate-x-3' : '']"></div>
+                                    </div>
+                                </label>
+                            </div>
+                            <input v-model.number="rate.rate_percent" type="number" step="0.01" min="0" max="100" placeholder="%"
+                                class="w-full px-2 py-1.5 bg-slate-800 border border-slate-600 rounded text-white text-xs text-right focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== 返佣记录 ========== -->
+            <div v-if="activeTab === 'commissions'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row gap-3 md:gap-4 md:justify-between md:items-center mb-4 md:mb-6">
+                        <h3 class="text-base md:text-lg font-semibold text-white">{{ t('admin.commissionRecords') }}</h3>
+                        <div class="flex flex-wrap gap-2 md:gap-3">
+                            <select v-model="commissionFilter.status" @change="loadCommissions"
+                                class="px-3 md:px-4 py-1.5 md:py-2 bg-slate-800 border border-slate-600 rounded-lg md:rounded-xl text-white text-xs md:text-sm focus:outline-none focus:border-blue-500">
+                                <option value="">{{ t('admin.allStatus') }}</option>
+                                <option value="pending">{{ t('admin.statusPending') }}</option>
+                                <option value="settled">{{ t('admin.statusSettled') }}</option>
+                                <option value="paid">{{ t('admin.statusPaid') }}</option>
+                            </select>
+                            <input v-model="commissionFilter.uid" @keyup.enter="loadCommissions" :placeholder="t('admin.userId')"
+                                class="px-3 md:px-4 py-1.5 md:py-2 bg-slate-800 border border-slate-600 rounded-lg md:rounded-xl text-white w-24 md:w-32 text-xs md:text-sm focus:outline-none focus:border-blue-500">
+                            <button @click="loadCommissions" class="px-3 md:px-4 py-1.5 md:py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg md:rounded-xl text-xs md:text-sm transition-all">{{ t('common.search') }}</button>
+                        </div>
+                    </div>
+
+                    <!-- PC端表格 -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-700/50">
+                                    <th class="text-left py-3 px-3">ID</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.beneficiary') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.sourceUser') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.level') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.sourceAmount') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.commissionRateShort') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.commissionAmount') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.status') }}</th>
+                                    <th class="text-left py-3 px-3">{{ t('admin.time') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/30">
+                                <tr v-for="c in commissions" :key="c.id" class="hover:bg-slate-800/30">
+                                    <td class="py-3 px-3 text-slate-400">{{ c.id }}</td>
+                                    <td class="py-3 px-3 text-white font-mono text-xs">{{ c.uid?.slice(0, 8) }}...</td>
+                                    <td class="py-3 px-3 text-white font-mono text-xs">{{ c.from_uid?.slice(0, 8) }}...</td>
+                                    <td class="py-3 px-3"><span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs">L{{ c.level }}</span></td>
+                                    <td class="py-3 px-3 text-white">{{ parseFloat(c.source_amount).toFixed(2) }}</td>
+                                    <td class="py-3 px-3 text-slate-400">{{ (parseFloat(c.commission_rate) * 100).toFixed(2) }}%</td>
+                                    <td class="py-3 px-3 text-green-400 font-medium">{{ parseFloat(c.commission_amount).toFixed(4) }}</td>
+                                    <td class="py-3 px-3"><span :class="getStatusClass(c.status)">{{ getStatusText(c.status) }}</span></td>
+                                    <td class="py-3 px-3 text-slate-400 text-xs">{{ formatDateTime(c.created_at) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 移动端卡片 -->
+                    <div class="md:hidden space-y-2">
+                        <div v-for="c in commissions" :key="c.id" class="mobile-card rounded-lg p-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-xs">L{{ c.level }}</span>
+                                    <span class="text-slate-400 text-xs">#{{ c.id }}</span>
+                                </div>
+                                <span :class="getStatusClass(c.status)">{{ getStatusText(c.status) }}</span>
+                            </div>
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-slate-400 text-xs">{{ c.uid?.slice(0, 8) }}... ← {{ c.from_uid?.slice(0, 8) }}...</span>
+                                <span class="text-green-400 font-bold">+{{ parseFloat(c.commission_amount).toFixed(4) }}</span>
+                            </div>
+                            <div class="text-slate-500 text-xs">{{ formatDateTime(c.created_at) }}</div>
+                        </div>
+                    </div>
+
+                    <div v-if="commissions.length === 0" class="text-slate-500 text-center py-6 md:py-8 text-sm">{{ t('admin.noCommissionRecords') }}</div>
+                </div>
+            </div>
+
+            <!-- ========== 排行榜 ========== -->
+            <div v-if="activeTab === 'leaderboard'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- 对账控制面板 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 mb-4">
+                        <div>
+                            <h3 class="text-base md:text-lg font-semibold text-white mb-1">{{ t('admin.leaderboardReconcile') }}</h3>
+                            <p class="text-slate-400 text-xs md:text-sm">{{ t('admin.leaderboardReconcileDesc') }}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button @click="loadReconcileStatus"
+                                class="px-3 py-1.5 md:py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs md:text-sm transition-all">
+                                {{ t('admin.refreshStatus') }}
+                            </button>
+                            <button @click="reconcileAll" :disabled="reconciling"
+                                class="px-3 py-1.5 md:py-2 bg-amber-500 hover:bg-amber-600 disabled:bg-slate-600 text-white rounded-lg text-xs md:text-sm transition-all">
+                                {{ reconciling ? t('admin.reconciling') : t('admin.reconcileNow') }}
+                            </button>
+                        </div>
+                    </div>
+                    <!-- 对账状态 -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-slate-800/50 rounded-lg p-3">
+                            <div class="text-slate-400 text-xs mb-1">{{ t('admin.reconcileService') }}</div>
+                            <div :class="reconcileStatus.is_running ? 'text-green-400' : 'text-red-400'" class="font-medium">
+                                {{ reconcileStatus.is_running ? t('admin.running') : t('admin.notRunning') }}
+                            </div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-3">
+                            <div class="text-slate-400 text-xs mb-1">{{ t('admin.reconcileInterval') }}</div>
+                            <div class="text-white font-medium">{{ Math.round(reconcileStatus.reconcile_interval_s / 60) || 60 }} {{ t('common.minutes') }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-3">
+                            <div class="text-slate-400 text-xs mb-1">{{ t('admin.lastReconcile') }}</div>
+                            <div class="text-white font-medium">{{ reconcileStatus.last_reconcile_time ? formatDateTime(reconcileStatus.last_reconcile_time) : t('admin.never') }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex justify-between items-center mb-4 md:mb-6 gap-3">
+                        <h3 class="text-base md:text-lg font-semibold text-white">{{ t('admin.profitLeaderboard') }}</h3>
+                        <select v-model="leaderboardPeriod" @change="loadLeaderboard"
+                            class="px-3 md:px-4 py-1.5 md:py-2 bg-slate-800 border border-slate-600 rounded-lg md:rounded-xl text-white text-xs md:text-sm focus:outline-none focus:border-blue-500">
+                            <option value="daily">{{ t('leaderboard.daily') }}</option>
+                            <option value="weekly">{{ t('leaderboard.weekly') }}</option>
+                            <option value="monthly">{{ t('leaderboard.monthly') }}</option>
+                            <option value="all_time">{{ t('leaderboard.allTime') }}</option>
+                        </select>
+                    </div>
+
+                    <!-- PC端表格 -->
+                    <div class="hidden md:block overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-700/50">
+                                    <th class="text-left py-3 px-4">{{ t('leaderboard.rank') }}</th>
+                                    <th class="text-left py-3 px-4">{{ t('admin.user') }}</th>
+                                    <th class="text-right py-3 px-4">{{ t('admin.netProfit') }}</th>
+                                    <th class="text-right py-3 px-4">{{ t('admin.tradeCount') }}</th>
+                                    <th class="text-right py-3 px-4">{{ t('leaderboard.winRate') }}</th>
+                                    <th class="text-center py-3 px-4">{{ t('admin.tier') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/30">
+                                <tr v-for="item in leaderboard" :key="item.uid" :class="['hover:bg-slate-800/30', item.rank <= 3 ? 'bg-slate-800/20' : '']">
+                                    <td class="py-3 px-4" :class="getRankClass(item.rank)">{{ item.rank }}</td>
+                                    <td class="py-3 px-4 text-white font-medium">{{ item.display_name }}</td>
+                                    <td class="py-3 px-4 text-right">
+                                        <span :class="item.net_profit >= 0 ? 'text-green-400' : 'text-red-400'" class="font-bold">
+                                            {{ item.net_profit >= 0 ? '+' : '' }}{{ parseFloat(item.net_profit).toFixed(2) }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-right text-white">{{ item.total_trades }}</td>
+                                    <td class="py-3 px-4 text-right">
+                                        <span :class="parseFloat(item.win_rate) >= 0.5 ? 'text-green-400' : 'text-red-400'">
+                                            {{ (parseFloat(item.win_rate || 0) * 100).toFixed(1) }}%
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-4 text-center"><span :class="getTierClass(item.tier)">{{ item.tier?.toUpperCase() || 'FREE' }}</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 移动端卡片 -->
+                    <div class="md:hidden space-y-2">
+                        <div v-for="item in leaderboard" :key="item.uid" :class="['mobile-card rounded-lg p-3', item.rank <= 3 ? 'border-l-2 border-yellow-500' : '']">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span :class="getRankClass(item.rank)" class="text-sm">{{ item.rank }}</span>
+                                    <span class="text-white font-medium text-sm">{{ item.display_name }}</span>
+                                    <span :class="getTierClass(item.tier)" class="text-[10px]">{{ item.tier?.toUpperCase() || 'FREE' }}</span>
+                                </div>
+                                <span :class="item.net_profit >= 0 ? 'text-green-400' : 'text-red-400'" class="font-bold text-sm">
+                                    {{ item.net_profit >= 0 ? '+' : '' }}{{ parseFloat(item.net_profit).toFixed(2) }}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-4 text-xs text-slate-400">
+                                <span>{{ item.total_trades }} {{ t('admin.trades') }}</span>
+                                <span :class="parseFloat(item.win_rate) >= 0.5 ? 'text-green-400' : 'text-red-400'">
+                                    {{ t('leaderboard.winRate') }} {{ (parseFloat(item.win_rate || 0) * 100).toFixed(0) }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div v-if="leaderboard.length === 0" class="text-slate-500 text-center py-6 md:py-8 text-sm">{{ t('admin.noLeaderboardData') }}</div>
+                </div>
+            </div>
+
+            <!-- ========== 监控面板 ========== -->
+            <div v-if="activeTab === 'monitor'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- 控制栏 -->
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h2 class="text-lg md:text-xl font-semibold text-white">{{ t('admin.systemMonitor') }}</h2>
+                    <div class="flex items-center gap-2">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" v-model="monitorAutoRefresh" @change="toggleMonitorAutoRefresh" class="sr-only">
+                            <div :class="['w-10 h-6 rounded-full transition-colors', monitorAutoRefresh ? 'bg-green-500' : 'bg-slate-600']">
+                                <div :class="['w-4 h-4 mt-1 ml-1 rounded-full bg-white transition-transform', monitorAutoRefresh ? 'translate-x-4' : '']"></div>
+                            </div>
+                            <span class="text-slate-400 text-sm">{{ t('admin.autoRefresh') }}</span>
+                        </label>
+                        <button @click="loadMonitorData" :disabled="monitorLoading"
+                            class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                            {{ monitorLoading ? t('common.loading') : t('common.refresh') }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 系统资源卡片 -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="text-slate-400 text-xs mb-2">{{ t('admin.cpuUsage') }}</div>
+                        <div class="text-2xl font-bold text-white">{{ monitorData.system?.cpu_percent || 0 }}%</div>
+                        <div class="mt-2 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-blue-500 transition-all" :style="{width: (monitorData.system?.cpu_percent || 0) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="text-slate-400 text-xs mb-2">{{ t('admin.memoryUsage') }}</div>
+                        <div class="text-2xl font-bold text-white">{{ monitorData.system?.memory_mb || 0 }} MB</div>
+                        <div class="text-slate-500 text-xs mt-1">{{ monitorData.system?.memory_percent || 0 }}% {{ t('admin.used') }}</div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="text-slate-400 text-xs mb-2">{{ t('admin.activeThreads') }}</div>
+                        <div class="text-2xl font-bold text-white">{{ monitorData.system?.threads || 0 }}</div>
+                    </div>
+                    <div class="glass-card rounded-xl p-4">
+                        <div class="text-slate-400 text-xs mb-2">{{ t('admin.userContexts') }}</div>
+                        <div class="text-2xl font-bold text-white">
+                            {{ monitorData.contexts?.running_contexts || 0 }}
+                            <span class="text-slate-500 text-sm">/ {{ monitorData.contexts?.total_contexts || 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 调度器和连接状态 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- 调度器状态 -->
+                    <div class="glass-card rounded-xl p-4 md:p-6">
+                        <h3 class="text-base font-semibold text-white mb-4">{{ t('admin.schedulerStatus') }}</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.runStatus') }}</span>
+                                <span :class="monitorData.scheduler?.is_running ? 'text-green-400' : 'text-red-400'" class="font-medium">
+                                    {{ monitorData.scheduler?.is_running ? t('admin.running') : t('admin.stopped') }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.registeredUsers') }}</span>
+                                <span class="text-white font-medium">{{ monitorData.scheduler?.registered_users || 0 }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.totalExecutions') }}</span>
+                                <span class="text-white font-medium">{{ monitorData.scheduler?.total_runs || 0 }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.successFailed') }}</span>
+                                <span>
+                                    <span class="text-green-400">{{ monitorData.scheduler?.success_runs || 0 }}</span>
+                                    <span class="text-slate-500"> / </span>
+                                    <span class="text-red-400">{{ monitorData.scheduler?.failed_runs || 0 }}</span>
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.lastCycleDuration') }}</span>
+                                <span class="text-white font-medium">{{ (monitorData.scheduler?.last_cycle_duration || 0).toFixed(1) }}s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 连接状态 -->
+                    <div class="glass-card rounded-xl p-4 md:p-6">
+                        <h3 class="text-base font-semibold text-white mb-4">{{ t('admin.connectionStatus') }}</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.dbConnectionPool') }}</span>
+                                <span :class="monitorData.db_pool?.status === 'running' ? 'text-green-400' : 'text-yellow-400'" class="font-medium">
+                                    {{ monitorData.db_pool?.status || 'unknown' }}
+                                </span>
+                            </div>
+                            <div v-if="monitorData.db_pool?.pool_size" class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.poolSize') }}</span>
+                                <span class="text-white">{{ monitorData.db_pool?.checked_out || 0 }} / {{ monitorData.db_pool?.pool_size || 0 }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.redisStatus') }}</span>
+                                <span :class="monitorData.redis?.status === 'connected' ? 'text-green-400' : 'text-red-400'" class="font-medium">
+                                    {{ monitorData.redis?.status || 'unknown' }}
+                                </span>
+                            </div>
+                            <div v-if="monitorData.redis?.connected_clients" class="flex justify-between items-center">
+                                <span class="text-slate-400">{{ t('admin.redisClients') }}</span>
+                                <span class="text-white">{{ monitorData.redis?.connected_clients || 0 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LLM 调用统计 -->
+                <div class="glass-card rounded-xl p-4 md:p-6">
+                    <h3 class="text-base font-semibold text-white mb-4">{{ t('admin.llmCallStats') }}</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-white">{{ monitorData.llm?.total_calls || 0 }}</div>
+                            <div class="text-slate-400 text-xs mt-1">{{ t('admin.totalCalls') }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-green-400">{{ monitorData.llm?.success_calls || 0 }}</div>
+                            <div class="text-slate-400 text-xs mt-1">{{ t('admin.success') }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-red-400">{{ monitorData.llm?.failed_calls || 0 }}</div>
+                            <div class="text-slate-400 text-xs mt-1">{{ t('admin.failed') }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-white">
+                                {{ monitorData.llm?.total_calls > 0 ? ((monitorData.llm?.success_calls / monitorData.llm?.total_calls) * 100).toFixed(1) : 0 }}%
+                            </div>
+                            <div class="text-slate-400 text-xs mt-1">{{ t('admin.successRate') }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活跃用户列表 -->
+                <div class="glass-card rounded-xl p-4 md:p-6">
+                    <h3 class="text-base font-semibold text-white mb-4">{{ t('admin.activeUsers') }} ({{ monitorData.active_users?.length || 0 }})</h3>
+                    <div v-if="monitorData.active_users?.length" class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-700/50">
+                                    <th class="text-left py-2 px-3">UID</th>
+                                    <th class="text-left py-2 px-3">{{ t('admin.status') }}</th>
+                                    <th class="text-left py-2 px-3">{{ t('admin.exchange') }}</th>
+                                    <th class="text-left py-2 px-3">{{ t('admin.errorCount') }}</th>
+                                    <th class="text-left py-2 px-3">{{ t('admin.lastActive') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700/30">
+                                <tr v-for="u in monitorData.active_users" :key="u.uid" class="hover:bg-slate-800/30">
+                                    <td class="py-2 px-3 text-white font-mono text-xs">{{ u.uid }}</td>
+                                    <td class="py-2 px-3">
+                                        <span :class="u.is_running ? 'text-green-400' : 'text-slate-500'">
+                                            {{ u.is_running ? t('admin.running') : t('admin.stopped') }}
+                                        </span>
+                                    </td>
+                                    <td class="py-2 px-3 text-slate-300">{{ u.exchanges?.join(', ') || '-' }}</td>
+                                    <td class="py-2 px-3" :class="u.error_count > 0 ? 'text-yellow-400' : 'text-slate-400'">{{ u.error_count }}</td>
+                                    <td class="py-2 px-3 text-slate-400">{{ formatTime(u.last_active) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div v-else class="text-slate-500 text-center py-6 text-sm">{{ t('admin.noActiveUsers') }}</div>
+                </div>
+            </div>
+
+            <!-- ========== 策略模板管理 ========== -->
+            <div v-if="activeTab === 'strategies'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- 预设列表（未选中预设时显示） -->
+                <div v-if="!selectedPreset" class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-3">
+                        <h2 class="text-base md:text-lg font-semibold text-white">{{ t('admin.strategyPresetManagement') }}</h2>
+                        <button @click="loadStrategyPresets" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                            {{ t('common.refresh') }}
+                        </button>
+                    </div>
+
+                    <!-- 预设卡片列表 -->
+                    <div v-if="strategyPresets.length" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                        <div v-for="preset in strategyPresets" :key="preset.preset_name" 
+                            @click="selectPreset(preset.preset_name)"
+                            class="mobile-card rounded-lg p-4 cursor-pointer transition-all hover:border-blue-500/50 hover:bg-blue-500/5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-white font-medium">{{ preset.preset_name }}</span>
+                                <span class="text-slate-500 text-xs">{{ preset.category_count }} {{ t('admin.categories') }}</span>
+                            </div>
+                            <div class="text-slate-400 text-xs overflow-hidden" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">{{ preset.description || t('admin.noDescription') }}</div>
+                            <div class="text-slate-500 text-xs mt-2">{{ t('admin.updated') }}: {{ formatDateTime(preset.updated_at) }}</div>
+                        </div>
+                    </div>
+                    <div v-else class="text-slate-500 text-center py-8 text-sm">{{ t('admin.noStrategyPresets') }}</div>
+                </div>
+
+                <!-- 选中预设的详情编辑（选中预设后显示） -->
+                <div v-if="selectedPreset" class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-3">
+                        <div>
+                            <h2 class="text-base md:text-lg font-semibold text-white">{{ selectedPreset }}</h2>
+                            <p class="text-slate-400 text-sm mt-1">{{ selectedPresetDescription }}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <!-- 整个预设的启用/禁用开关 -->
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <span class="text-slate-400 text-sm">{{ t('admin.enableAll') }}</span>
+                                <input type="checkbox" v-model="presetEnabled" @change="togglePresetEnabled" class="sr-only">
+                                <div :class="['w-10 h-6 rounded-full transition-colors', presetEnabled ? 'bg-green-500' : 'bg-slate-600']">
+                                    <div :class="['w-4 h-4 mt-1 ml-1 rounded-full bg-white transition-transform', presetEnabled ? 'translate-x-4' : '']"></div>
+                                </div>
+                            </label>
+                            <button @click="closePresetEditor" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                                {{ t('admin.backToList') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 加载中 -->
+                    <div v-if="loadingPreset" class="text-center py-8 text-slate-400">{{ t('common.loading') }}</div>
+
+                    <!-- 分类标签页 -->
+                    <template v-else-if="strategyTemplates.length">
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            <button v-for="tpl in strategyTemplates" :key="tpl.category"
+                                @click="selectedCategory = tpl.category"
+                                :class="['px-3 py-1.5 rounded-lg text-xs md:text-sm transition-all',
+                                    selectedCategory === tpl.category ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600',
+                                    !tpl.is_enabled ? 'opacity-50' : '']">
+                                {{ getCategoryLabel(tpl.category) }}
+                                <span v-if="!tpl.is_enabled" class="ml-1 text-xs">({{ t('admin.disabled') }})</span>
+                            </button>
+                        </div>
+
+                        <!-- 编辑区域 -->
+                        <div v-if="currentTemplate" class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-medium">{{ getCategoryLabel(currentTemplate.category) }}</span>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <span class="text-slate-400 text-sm">{{ t('admin.enableCategory') }}</span>
+                                    <input v-model="currentTemplate.is_enabled" type="checkbox" class="sr-only">
+                                    <div :class="['w-10 h-6 rounded-full transition-colors', currentTemplate.is_enabled ? 'bg-green-500' : 'bg-slate-600']">
+                                        <div :class="['w-4 h-4 mt-1 ml-1 rounded-full bg-white transition-transform', currentTemplate.is_enabled ? 'translate-x-4' : '']"></div>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <!-- 内容编辑器 -->
+                            <textarea v-model="currentTemplate.content" 
+                                class="w-full h-96 md:h-[500px] px-4 py-3 bg-slate-800 border border-slate-600 rounded-xl text-white text-sm font-mono focus:outline-none focus:border-blue-500 resize-y"
+                                :placeholder="t('admin.enterTemplateContent')"></textarea>
+                            
+                            <!-- 操作按钮 -->
+                            <div class="flex flex-col md:flex-row justify-between gap-3">
+                                <!-- 左侧：同步到用户按钮 -->
+                                <div class="flex items-center gap-2">
+                                    <button @click="showPresetUsage" 
+                                        class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-sm transition-all flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                        </svg>
+                                        {{ t('admin.usageStatus') }}
+                                    </button>
+                                    <button @click="syncPresetToUsers" :disabled="syncingPreset"
+                                        class="px-3 py-2 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                        </svg>
+                                        {{ syncingPreset ? t('admin.syncing') : t('admin.syncToUsers') }}
+                                    </button>
+                                </div>
+                                <!-- 右侧：保存按钮 -->
+                                <div class="flex items-center gap-3">
+                                    <button @click="resetCurrentTemplate" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                                        {{ t('common.reset') }}
+                                    </button>
+                                    <button @click="saveCurrentTemplate" :disabled="savingTemplate"
+                                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                                        {{ savingTemplate ? t('admin.saving') : t('admin.saveChanges') }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- ========== LLM 模型管理 ========== -->
+            <div v-if="activeTab === 'llmmodels'" class="space-y-4 md:space-y-6 animate-fade-in">
+                <!-- 模型列表 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-6 gap-3">
+                        <div>
+                            <h2 class="text-base md:text-lg font-semibold text-white">LLM 模型配置</h2>
+                            <p class="text-slate-400 text-sm mt-1">管理各提供商的模型参数、定价和状态</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button @click="refreshLLMModelsCache" :disabled="refreshingLLMCache"
+                                class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all flex items-center gap-1">
+                                <svg class="w-4 h-4" :class="{'animate-spin': refreshingLLMCache}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                                </svg>
+                                {{ refreshingLLMCache ? '刷新中...' : '刷新缓存' }}
+                            </button>
+                            <button @click="openLLMModelModal()" class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm transition-all flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                添加模型
+                            </button>
+                            <button @click="loadLLMModels" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                                刷新列表
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 筛选器 -->
+                    <div class="flex flex-wrap gap-3 mb-4">
+                        <select v-model="llmModelFilter.provider" @change="loadLLMModels" class="px-3 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm">
+                            <option value="">全部提供商</option>
+                            <option v-for="p in llmProviders" :key="p" :value="p">{{ p }}</option>
+                        </select>
+                        <select v-model="llmModelFilter.status" @change="loadLLMModels" class="px-3 py-1.5 bg-slate-800 border border-slate-600 rounded-lg text-white text-sm">
+                            <option value="">全部状态</option>
+                            <option value="enabled">已启用</option>
+                            <option value="disabled">已禁用</option>
+                        </select>
+                    </div>
+
+                    <!-- 模型表格 -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-700">
+                                    <th class="text-left py-3 px-2">提供商</th>
+                                    <th class="text-left py-3 px-2">模型ID</th>
+                                    <th class="text-left py-3 px-2">显示名称</th>
+                                    <th class="text-center py-3 px-2">Temp</th>
+                                    <th class="text-center py-3 px-2">Top P</th>
+                                    <th class="text-center py-3 px-2">Max Tokens</th>
+                                    <th class="text-center py-3 px-2">价格($/M)</th>
+                                    <th class="text-center py-3 px-2">状态</th>
+                                    <th class="text-center py-3 px-2">排序</th>
+                                    <th class="text-center py-3 px-2">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="model in llmModels" :key="model.id" class="border-b border-slate-700/50 hover:bg-slate-800/30">
+                                    <td class="py-3 px-2">
+                                        <span class="px-2 py-0.5 bg-slate-700 rounded text-xs">{{ model.provider }}</span>
+                                    </td>
+                                    <td class="py-3 px-2 text-white font-mono text-xs">{{ model.model_id }}</td>
+                                    <td class="py-3 px-2 text-white">
+                                        {{ model.display_name }}
+                                        <span v-if="model.is_recommended" class="ml-1 text-yellow-400">★</span>
+                                    </td>
+                                    <td class="py-3 px-2 text-center text-slate-300">{{ model.temperature }}</td>
+                                    <td class="py-3 px-2 text-center text-slate-300">{{ model.top_p }}</td>
+                                    <td class="py-3 px-2 text-center text-slate-300">{{ formatNumber(model.max_tokens) }}</td>
+                                    <td class="py-3 px-2 text-center text-slate-300">
+                                        <span class="text-green-400">${{ model.input_price }}</span> / 
+                                        <span class="text-orange-400">${{ model.output_price }}</span>
+                                    </td>
+                                    <td class="py-3 px-2 text-center">
+                                        <span :class="model.is_enabled ? 'text-green-400' : 'text-red-400'">
+                                            {{ model.is_enabled ? '启用' : '禁用' }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 px-2 text-center text-slate-400">{{ model.display_order }}</td>
+                                    <td class="py-3 px-2 text-center">
+                                        <div class="flex items-center justify-center gap-1">
+                                            <button @click="openLLMModelModal(model)" class="p-1 hover:bg-slate-700 rounded" title="编辑">
+                                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                </svg>
+                                            </button>
+                                            <button @click="toggleLLMModelStatus(model)" class="p-1 hover:bg-slate-700 rounded" :title="model.is_enabled ? '禁用' : '启用'">
+                                                <svg v-if="model.is_enabled" class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                                </svg>
+                                                <svg v-else class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr v-if="!llmModels.length">
+                                    <td colspan="10" class="py-8 text-center text-slate-500">暂无模型数据</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LLM 模型编辑弹窗 -->
+            <div v-if="llmModelModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div class="bg-slate-800 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <div class="p-6 border-b border-slate-700">
+                        <h3 class="text-lg font-semibold text-white">{{ llmModelModal.isEdit ? '编辑模型' : '添加模型' }}</h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- 基本信息 -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-1">提供商 *</label>
+                                <select v-model="llmModelModal.form.provider" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                    <option value="">选择提供商</option>
+                                    <option value="anthropic">anthropic</option>
+                                    <option value="openai">openai</option>
+                                    <option value="deepseek">deepseek</option>
+                                    <option value="gemini">gemini</option>
+                                    <option value="grok">grok</option>
+                                    <option value="openrouter">openrouter</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-1">模型ID *</label>
+                                <input v-model="llmModelModal.form.model_id" type="text" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm" placeholder="如: claude-sonnet-4-20250514">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-1">显示名称 *</label>
+                                <input v-model="llmModelModal.form.display_name" type="text" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm" placeholder="如: Claude Sonnet 4">
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-1">排序 (越小越靠前)</label>
+                                <input v-model.number="llmModelModal.form.display_order" type="number" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm" placeholder="100">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-1">描述</label>
+                            <input v-model="llmModelModal.form.description" type="text" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm" placeholder="模型描述">
+                        </div>
+
+                        <!-- 参数设置 -->
+                        <div class="border-t border-slate-700 pt-4">
+                            <h4 class="text-white font-medium mb-3">模型参数</h4>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">Temperature</label>
+                                    <input v-model.number="llmModelModal.form.temperature" type="number" step="0.01" min="0" max="2" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">Top P</label>
+                                    <input v-model.number="llmModelModal.form.top_p" type="number" step="0.01" min="0" max="1" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">Max Tokens</label>
+                                    <input v-model.number="llmModelModal.form.max_tokens" type="number" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mt-3">
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">上下文窗口</label>
+                                    <input v-model.number="llmModelModal.form.context_window" type="number" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">备注</label>
+                                    <input v-model="llmModelModal.form.notes" type="text" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm" placeholder="内部备注">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 定价 -->
+                        <div class="border-t border-slate-700 pt-4">
+                            <h4 class="text-white font-medium mb-3">定价 ($/百万tokens)</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">输入价格</label>
+                                    <input v-model.number="llmModelModal.form.input_price" type="number" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-slate-400 text-sm mb-1">输出价格</label>
+                                    <input v-model.number="llmModelModal.form.output_price" type="number" step="0.01" class="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white text-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 能力开关 -->
+                        <div class="border-t border-slate-700 pt-4">
+                            <h4 class="text-white font-medium mb-3">模型能力</h4>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="llmModelModal.form.supports_vision" type="checkbox" class="w-4 h-4 rounded bg-slate-700 border-slate-600">
+                                    <span class="text-slate-300 text-sm">视觉能力</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="llmModelModal.form.supports_function_call" type="checkbox" class="w-4 h-4 rounded bg-slate-700 border-slate-600">
+                                    <span class="text-slate-300 text-sm">函数调用</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="llmModelModal.form.supports_streaming" type="checkbox" class="w-4 h-4 rounded bg-slate-700 border-slate-600">
+                                    <span class="text-slate-300 text-sm">流式输出</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="llmModelModal.form.supports_json_mode" type="checkbox" class="w-4 h-4 rounded bg-slate-700 border-slate-600">
+                                    <span class="text-slate-300 text-sm">JSON模式</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 状态开关 -->
+                        <div class="border-t border-slate-700 pt-4">
+                            <div class="flex flex-wrap gap-6">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="llmModelModal.form.is_enabled" type="checkbox" class="w-4 h-4 rounded bg-slate-700 border-slate-600">
+                                    <span class="text-slate-300 text-sm">启用模型</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input v-model="llmModelModal.form.is_recommended" type="checkbox" class="w-4 h-4 rounded bg-slate-700 border-slate-600">
+                                    <span class="text-slate-300 text-sm">推荐模型 ★</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 border-t border-slate-700 flex justify-end gap-3">
+                        <button @click="llmModelModal.show = false" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm transition-all">取消</button>
+                        <button @click="saveLLMModel" :disabled="savingLLMModel" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                            {{ savingLLMModel ? '保存中...' : '保存' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 预设使用情况弹窗 -->
+        <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
+            leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="presetUsageModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div class="glass-card rounded-2xl p-5 md:p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">{{ t('admin.presetUsageStatus') }} - {{ selectedPreset }}</h3>
+                        <button @click="presetUsageModal.show = false" class="text-slate-400 hover:text-white text-xl">&times;</button>
+                    </div>
+                    
+                    <div v-if="presetUsageModal.loading" class="text-center py-8 text-slate-400">{{ t('common.loading') }}</div>
+                    
+                    <div v-else-if="presetUsageModal.data" class="space-y-4">
+                        <!-- 统计概览 -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-800/50 rounded-xl p-4 text-center">
+                                <div class="text-3xl font-bold text-cyan-400">{{ presetUsageModal.data.total_users }}</div>
+                                <div class="text-slate-400 text-sm mt-1">{{ t('admin.usersUsingPreset') }}</div>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-xl p-4 text-center">
+                                <div class="text-3xl font-bold text-purple-400">{{ presetUsageModal.data.total_strategies }}</div>
+                                <div class="text-slate-400 text-sm mt-1">{{ t('admin.totalStrategies') }}</div>
+                            </div>
+                        </div>
+                        
+                        <!-- 策略列表 -->
+                        <div class="bg-slate-800/50 rounded-xl p-4">
+                            <div class="text-slate-400 text-xs mb-3">{{ t('admin.strategiesUsingPreset') }}</div>
+                            <div v-if="presetUsageModal.data.strategies?.length" class="space-y-2 max-h-64 overflow-y-auto">
+                                <div v-for="s in presetUsageModal.data.strategies" :key="s.strategy_id" 
+                                    class="flex items-center justify-between py-2 px-3 bg-slate-700/30 rounded-lg">
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-white text-sm truncate">{{ s.name }}</div>
+                                        <div class="text-slate-500 text-xs font-mono">{{ s.uid.slice(0, 12) }}...</div>
+                                    </div>
+                                    <div class="flex items-center gap-2 ml-3">
+                                        <span v-if="s.has_overrides" class="px-2 py-0.5 bg-yellow-500/20 text-yellow-400 text-xs rounded">{{ t('admin.hasModifications') }}</span>
+                                        <span v-else class="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs rounded">{{ t('admin.original') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-else class="text-slate-500 text-center py-4 text-sm">{{ t('admin.noUsersUsingPreset') }}</div>
+                        </div>
+                        
+                        <!-- 同步操作 -->
+                        <div class="flex flex-col md:flex-row gap-3 pt-2">
+                            <button @click="syncPresetToUsers" :disabled="syncingPreset"
+                                class="flex-1 px-4 py-2.5 bg-purple-600 hover:bg-purple-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                                {{ syncingPreset ? t('admin.syncing') : t('admin.syncToUnmodifiedUsers') }}
+                            </button>
+                            <button @click="forceSyncPresetToUsers" :disabled="syncingPreset"
+                                class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-500 disabled:bg-slate-600 text-white rounded-lg text-sm transition-all">
+                                {{ syncingPreset ? t('admin.syncing') : t('admin.forceSyncToAllUsers') }}
+                            </button>
+                        </div>
+                        <p class="text-slate-500 text-xs text-center">
+                            {{ t('admin.syncDescription') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- 邀请详情弹窗 -->
+        <Transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100"
+            leave-active-class="transition ease-in duration-150" leave-from-class="opacity-100" leave-to-class="opacity-0">
+            <div v-if="referralModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div class="glass-card rounded-2xl p-5 md:p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-white">{{ t('admin.referralDetails') }}</h3>
+                        <button @click="closeReferralModal" class="text-slate-400 hover:text-white text-xl">&times;</button>
+                    </div>
+                    
+                    <div v-if="referralModal.loading" class="text-center py-8 text-slate-400">{{ t('common.loading') }}</div>
+                    
+                    <div v-else-if="referralModal.data" class="space-y-4">
+                        <!-- 用户信息 -->
+                        <div class="bg-slate-800/50 rounded-xl p-4">
+                            <div class="text-slate-400 text-xs mb-2">{{ t('admin.userInfo') }}</div>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div><span class="text-slate-500">UID:</span> <span class="text-white font-mono text-xs">{{ referralModal.uid }}</span></div>
+                                <div><span class="text-slate-500">{{ t('admin.username') }}:</span> <span class="text-white">{{ referralModal.data.user_info?.username || '-' }}</span></div>
+                                <div><span class="text-slate-500">{{ t('admin.inviteCode') }}:</span> <span class="text-cyan-400 font-mono">{{ referralModal.data.user_info?.invite_code || '-' }}</span></div>
+                                <div><span class="text-slate-500">{{ t('admin.referrer') }}:</span> <span class="text-white">{{ referralModal.data.user_info?.referrer_uid?.slice(0,8) || t('common.none') }}{{ referralModal.data.user_info?.referrer_uid ? '...' : '' }}</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 团队统计 -->
+                        <div class="bg-slate-800/50 rounded-xl p-4">
+                            <div class="text-slate-400 text-xs mb-2">{{ t('admin.teamStats') }}</div>
+                            <div class="grid grid-cols-3 gap-3 text-center">
+                                <div>
+                                    <div class="text-2xl font-bold text-white">{{ referralModal.data.team_stats?.direct_count || 0 }}</div>
+                                    <div class="text-slate-500 text-xs">{{ t('admin.directReferrals') }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-white">{{ referralModal.data.team_stats?.indirect_count || 0 }}</div>
+                                    <div class="text-slate-500 text-xs">{{ t('admin.indirectReferrals') }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-2xl font-bold text-white">{{ (referralModal.data.team_stats?.direct_count || 0) + (referralModal.data.team_stats?.indirect_count || 0) }}</div>
+                                    <div class="text-slate-500 text-xs">{{ t('admin.teamTotal') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 佣金余额 -->
+                        <div class="bg-slate-800/50 rounded-xl p-4">
+                            <div class="text-slate-400 text-xs mb-2">{{ t('admin.commissionBalance') }}</div>
+                            <div class="grid grid-cols-3 gap-3 text-center">
+                                <div>
+                                    <div class="text-xl font-bold text-green-400">{{ parseFloat(referralModal.data.balance?.total_earned || 0).toFixed(2) }}</div>
+                                    <div class="text-slate-500 text-xs">{{ t('admin.totalEarned') }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xl font-bold text-cyan-400">{{ parseFloat(referralModal.data.balance?.available_balance || 0).toFixed(2) }}</div>
+                                    <div class="text-slate-500 text-xs">{{ t('admin.availableBalance') }}</div>
+                                </div>
+                                <div>
+                                    <div class="text-xl font-bold text-yellow-400">{{ parseFloat(referralModal.data.balance?.frozen_balance || 0).toFixed(2) }}</div>
+                                    <div class="text-slate-500 text-xs">{{ t('admin.frozenBalance') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 邀请明细 -->
+                        <div class="bg-slate-800/50 rounded-xl p-4">
+                            <div class="text-slate-400 text-xs mb-2">{{ t('admin.referralList') }}</div>
+                            <div v-if="referralModal.data.direct_referrals?.length" class="space-y-2 max-h-48 overflow-y-auto">
+                                <div v-for="(ref, idx) in referralModal.data.direct_referrals" :key="ref.uid" 
+                                    class="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-slate-500 text-xs w-5">{{ idx + 1 }}</span>
+                                        <div>
+                                            <div class="text-white text-sm">{{ ref.username || t('admin.notSet') }}</div>
+                                            <div class="text-slate-500 text-xs font-mono">{{ ref.uid?.slice(0, 12) }}...</div>
+                                        </div>
+                                    </div>
+                                    <div class="text-slate-400 text-xs">{{ formatDateTime(ref.referred_at) }}</div>
+                                </div>
+                            </div>
+                            <div v-else class="text-slate-500 text-center py-4 text-sm">{{ t('admin.noReferralRecords') }}</div>
+                        </div>
+                    </div>
+                    
+                    <div v-else class="text-center py-8 text-slate-500">{{ t('common.noData') }}</div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- 消息提示 -->
+        <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 translate-y-2" enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-2">
+            <div v-if="message" :class="['fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 md:w-auto px-4 md:px-6 py-3 md:py-4 rounded-xl shadow-2xl flex items-center justify-center md:justify-start gap-2 z-50 text-sm', messageType === 'success' ? 'bg-green-500' : 'bg-red-500', 'text-white']">
+                {{ message }}
+            </div>
+        </Transition>
+    </div>
+
+    <script>
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+
+    // Initialize I18n before Vue app mounts
+    (async () => {
+        try {
+            await I18n.init({
+                onLocaleChange: () => {
+                    window.location.reload();
+                }
+            });
+        } catch (e) {
+            if (window.SafeLog) SafeLog.error('[Admin] I18n init failed:', e);
+        }
+        
+        // 设置动态页面标题
+        document.title = I18n.t('admin.pageTitle');
+        
+        // 更新顶部导航栏文本
+        document.getElementById('admin-title').textContent = I18n.t('admin.title');
+        document.getElementById('admin-title-short').textContent = I18n.t('admin.titleShort');
+        document.getElementById('admin-back-home').textContent = I18n.t('admin.backHome');
+        document.getElementById('admin-logout').textContent = I18n.t('nav.logout');
+        document.getElementById('admin-back-home-mobile').textContent = I18n.t('admin.backHome');
+        document.getElementById('admin-logout-mobile').textContent = I18n.t('admin.logoutFull');
+        
+        createApp({
+        setup() {
+            const loading = ref(true);
+            const error = ref('');
+            const message = ref('');
+            const messageType = ref('success');
+
+            // i18n translation function
+            const t = (key, params) => I18n.t(key, params);
+
+            const validTabs = ['system', 'users', 'referral', 'commissions', 'leaderboard', 'monitor', 'strategies', 'llmmodels'];
+            const getTabFromHash = () => {
+                const hash = window.location.hash.slice(1);
+                return validTabs.includes(hash) ? hash : 'system';
+            };
+            const activeTab = ref(getTabFromHash());
+
+            const tabs = computed(() => [
+                { key: 'system', label: t('admin.systemTab'), iconType: 'system' },
+                { key: 'monitor', label: t('admin.monitorTab'), iconType: 'monitor' },
+                { key: 'users', label: t('admin.usersTab'), iconType: 'users' },
+                { key: 'referral', label: t('admin.referralTab'), iconType: 'referral' },
+                { key: 'commissions', label: t('admin.recordsTab'), iconType: 'commissions' },
+                { key: 'leaderboard', label: t('admin.leaderboardTab'), iconType: 'leaderboard' },
+                { key: 'strategies', label: t('admin.strategiesTab'), iconType: 'strategies' },
+                { key: 'llmmodels', label: 'LLM Models', iconType: 'llmmodels' },
+            ]);
+
+            const systemSettings = ref({ registration_enabled: true, require_invite_code: false });
+            const savingSettings = ref(false);
+            const stats = ref({});
+            const users = ref([]);
+            const userSearch = ref('');
+            const userPage = ref(1);
+            const userPageSize = ref(20);
+            const userTotal = ref(0);
+            const userTotalPages = ref(1);
+            const rates = ref([]);
+            const referralStats = ref({});
+            const savingRates = ref(false);
+            const settling = ref(false);
+            const commissions = ref([]);
+            const commissionFilter = ref({ status: '', uid: '' });
+            const leaderboard = ref([]);
+            const leaderboardPeriod = ref('daily');
+            const reconciling = ref(false);
+            const reconcileStatus = ref({ is_running: false, reconcile_interval_s: 3600, last_reconcile_time: null });
+            
+            // 监控面板数据
+            const monitorData = ref({
+                system: { cpu_percent: 0, memory_mb: 0, memory_percent: 0, threads: 0 },
+                scheduler: { is_running: false, registered_users: 0, total_runs: 0 },
+                contexts: { total_contexts: 0, running_contexts: 0 },
+                db_pool: { status: 'unknown' },
+                redis: { status: 'unknown' },
+                llm: { total_calls: 0, success_calls: 0, failed_calls: 0 },
+                active_users: []
+            });
+            const monitorLoading = ref(false);
+            const monitorAutoRefresh = ref(false);
+            let monitorInterval = null;
+            
+            // 邀请详情弹窗
+            const referralModal = ref({
+                show: false,
+                loading: false,
+                uid: '',
+                data: null,
+            });
+            
+            // 策略模板管理
+            const strategyPresets = ref([]);
+            const selectedPreset = ref(null);
+            const selectedPresetDescription = ref('');
+            const strategyTemplates = ref([]);
+            const selectedCategory = ref(null);
+            const savingTemplate = ref(false);
+            const loadingPreset = ref(false);
+            const presetEnabled = ref(true);
+            const originalTemplates = ref({});  // 用于重置
+            
+            // 预设同步功能
+            const presetUsageModal = ref({ show: false, loading: false, data: null });
+            const syncingPreset = ref(false);
+            
+            // 数据修复工具
+            const dataRepairLoading = ref(false);
+            const dataRepairUid = ref('');
+            const dataRepairScanResult = ref(null);
+            const dataRepairPreviewResult = ref(null);
+            
+            // Raw Data 类型修复工具
+            const rawDataTypeFixLoading = ref(false);
+            const rawDataTypeFixUid = ref('');
+            const rawDataTypeFixResult = ref(null);
+            
+            // LLM 模型管理
+            const llmModels = ref([]);
+            const llmProviders = ref(['anthropic', 'openai', 'deepseek', 'gemini', 'grok', 'openrouter']);
+            const llmModelFilter = ref({ provider: '', status: '' });
+            const refreshingLLMCache = ref(false);
+            const savingLLMModel = ref(false);
+            const llmModelModal = ref({
+                show: false,
+                isEdit: false,
+                form: {
+                    id: null,
+                    provider: '',
+                    model_id: '',
+                    display_name: '',
+                    description: '',
+                    temperature: 0.1,
+                    top_p: 0.9,
+                    max_tokens: 8192,
+                    context_window: 128000,
+                    input_price: 0,
+                    output_price: 0,
+                    supports_vision: false,
+                    supports_function_call: true,
+                    supports_streaming: true,
+                    supports_json_mode: false,
+                    is_enabled: true,
+                    is_recommended: false,
+                    display_order: 100,
+                    notes: ''
+                }
+            });
+
+            const showMessage = (msg, type = 'success') => {
+                message.value = msg;
+                messageType.value = type;
+                setTimeout(() => { message.value = ''; }, 3000);
+            };
+
+            // 使用 Auth.apiRequest 的包装函数
+            const apiRequest = async (url, method = 'GET', body = null) => {
+                const options = { method };
+                if (body) options.body = JSON.stringify(body);
+                
+                const resp = await Auth.apiRequest(url, options);
+                const data = await resp.json();
+                
+                if (!resp.ok) throw new Error(data.detail || t('error.requestFailed'));
+                return data;
+            };
+
+            const formatTime = (ts) => {
+                if (!ts) return '-';
+                const d = new Date(ts);
+                const locale = I18n.locale || 'zh-CN';
+                return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+            };
+
+            const formatDateTime = (ts) => {
+                if (!ts) return '-';
+                const locale = I18n.locale || 'zh-CN';
+                return new Date(ts).toLocaleString(locale, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+            };
+
+            const formatAmount = (amount) => {
+                const num = parseFloat(amount || 0);
+                if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+                return num.toFixed(2);
+            };
+            
+            const formatNumber = (num) => {
+                const n = parseFloat(num || 0);
+                return n.toFixed(2);
+            };
+
+            const loadStats = async () => {
+                try { stats.value = await apiRequest('/api/admin/stats'); } catch (e) { error.value = e.message; }
+            };
+            
+            // 数据修复函数
+            const scanAbnormalTrades = async () => {
+                dataRepairLoading.value = true;
+                dataRepairScanResult.value = null;
+                dataRepairPreviewResult.value = null;
+                try {
+                    let url = '/api/admin/data-repair/scan?limit=100';
+                    if (dataRepairUid.value) {
+                        url += '&uid=' + encodeURIComponent(dataRepairUid.value);
+                    }
+                    const data = await apiRequest(url);
+                    dataRepairScanResult.value = data;
+                    if (data.total_abnormal === 0) {
+                        showMessage('No abnormal records found');
+                    } else {
+                        showMessage(`Found ${data.total_abnormal} abnormal records, ${data.repairable_count} repairable`);
+                    }
+                } catch (e) {
+                    showMessage('Scan failed: ' + e.message, 'error');
+                } finally {
+                    dataRepairLoading.value = false;
+                }
+            };
+            
+            const previewRepair = async () => {
+                dataRepairLoading.value = true;
+                dataRepairPreviewResult.value = null;
+                try {
+                    const body = { dry_run: true };
+                    if (dataRepairUid.value) {
+                        body.uid = dataRepairUid.value;
+                    }
+                    const data = await apiRequest('/api/admin/data-repair/fix', 'POST', body);
+                    dataRepairPreviewResult.value = data;
+                    showMessage(`Preview: ${data.repaired_count} records can be repaired`);
+                } catch (e) {
+                    showMessage('Preview failed: ' + e.message, 'error');
+                } finally {
+                    dataRepairLoading.value = false;
+                }
+            };
+            
+            const executeRepair = async () => {
+                if (!confirm('Are you sure you want to repair the data? This action cannot be undone.')) {
+                    return;
+                }
+                dataRepairLoading.value = true;
+                try {
+                    const body = { dry_run: false };
+                    if (dataRepairUid.value) {
+                        body.uid = dataRepairUid.value;
+                    }
+                    const data = await apiRequest('/api/admin/data-repair/fix', 'POST', body);
+                    dataRepairPreviewResult.value = data;
+                    showMessage(`Repair completed: ${data.repaired_count} records fixed`);
+                    // 刷新扫描结果
+                    await scanAbnormalTrades();
+                } catch (e) {
+                    showMessage('Repair failed: ' + e.message, 'error');
+                } finally {
+                    dataRepairLoading.value = false;
+                }
+            };
+            
+            const repairSingleRecord = async (recordId) => {
+                dataRepairLoading.value = true;
+                try {
+                    const data = await apiRequest(`/api/admin/data-repair/fix-single/${recordId}`, 'POST');
+                    showMessage(`Record ${recordId} repaired successfully`);
+                    // 刷新扫描结果
+                    await scanAbnormalTrades();
+                } catch (e) {
+                    showMessage('Repair failed: ' + e.message, 'error');
+                } finally {
+                    dataRepairLoading.value = false;
+                }
+            };
+            
+            // Raw Data 类型修复函数
+            const previewRawDataTypeFix = async () => {
+                rawDataTypeFixLoading.value = true;
+                rawDataTypeFixResult.value = null;
+                try {
+                    const body = { dry_run: true };
+                    if (rawDataTypeFixUid.value) {
+                        body.uid = rawDataTypeFixUid.value;
+                    }
+                    const data = await apiRequest('/api/admin/data-repair/fix-raw-data-types', 'POST', body);
+                    rawDataTypeFixResult.value = data;
+                } catch (e) {
+                    showMessage('Preview failed: ' + e.message, 'error');
+                } finally {
+                    rawDataTypeFixLoading.value = false;
+                }
+            };
+            
+            const executeRawDataTypeFix = async () => {
+                if (!confirm('Are you sure to fix raw_data types? This will update database records.')) return;
+                rawDataTypeFixLoading.value = true;
+                try {
+                    const body = { dry_run: false };
+                    if (rawDataTypeFixUid.value) {
+                        body.uid = rawDataTypeFixUid.value;
+                    }
+                    const data = await apiRequest('/api/admin/data-repair/fix-raw-data-types', 'POST', body);
+                    rawDataTypeFixResult.value = data;
+                    showMessage(`Fixed ${data.fixed_count} records successfully`);
+                } catch (e) {
+                    showMessage('Fix failed: ' + e.message, 'error');
+                } finally {
+                    rawDataTypeFixLoading.value = false;
+                }
+            };
+            
+            // 监控面板函数
+            const loadMonitorData = async () => {
+                monitorLoading.value = true;
+                try {
+                    const data = await apiRequest('/api/admin/monitor');
+                    monitorData.value = data;
+                } catch (e) {
+                    showMessage(t('admin.loadMonitorFailed') + ': ' + e.message, 'error');
+                } finally {
+                    monitorLoading.value = false;
+                }
+            };
+
+            const toggleMonitorAutoRefresh = () => {
+                if (monitorAutoRefresh.value) {
+                    // 开启自动刷新，每5秒刷新一次
+                    loadMonitorData();
+                    monitorInterval = setInterval(loadMonitorData, 5000);
+                } else {
+                    // 关闭自动刷新
+                    if (monitorInterval) {
+                        clearInterval(monitorInterval);
+                        monitorInterval = null;
+                    }
+                }
+            };
+
+            const loadUsers = async () => {
+                try {
+                    const params = new URLSearchParams({
+                        page: userPage.value,
+                        page_size: userPageSize.value,
+                    });
+                    if (userSearch.value.trim()) {
+                        params.append('search', userSearch.value.trim());
+                    }
+                    const data = await apiRequest(`/api/admin/users?${params}`);
+                    users.value = data.users || [];
+                    userTotal.value = data.total || 0;
+                    userTotalPages.value = data.total_pages || 1;
+                } catch (e) { showMessage(e.message, 'error'); }
+            };
+            
+            const searchUsers = () => {
+                userPage.value = 1;
+                loadUsers();
+            };
+            
+            const goToUserPage = (page) => {
+                if (page < 1 || page > userTotalPages.value) return;
+                userPage.value = page;
+                loadUsers();
+            };
+
+            const loadSystemSettings = async () => {
+                try { systemSettings.value = await apiRequest('/api/admin/settings'); } catch (e) { if (window.SafeLog) SafeLog.error(e); }
+            };
+
+            const toggleRegistration = async () => {
+                savingSettings.value = true;
+                try {
+                    await apiRequest('/api/admin/settings', 'PUT', { registration_enabled: !systemSettings.value.registration_enabled });
+                    systemSettings.value.registration_enabled = !systemSettings.value.registration_enabled;
+                    showMessage(t('admin.settingsUpdated'));
+                } catch (e) { showMessage(e.message, 'error'); }
+                finally { savingSettings.value = false; }
+            };
+
+            const toggleInviteCode = async () => {
+                savingSettings.value = true;
+                try {
+                    await apiRequest('/api/admin/settings', 'PUT', { require_invite_code: !systemSettings.value.require_invite_code });
+                    systemSettings.value.require_invite_code = !systemSettings.value.require_invite_code;
+                    showMessage(t('admin.settingsUpdated'));
+                } catch (e) { showMessage(e.message, 'error'); }
+                finally { savingSettings.value = false; }
+            };
+
+            const updateStatus = async (uid, status) => {
+                try {
+                    await apiRequest(`/api/admin/users/${uid}/status`, 'PUT', { status });
+                    showMessage(t('admin.statusUpdated'));
+                } catch (e) { showMessage(e.message, 'error'); }
+            };
+
+            const updateTier = async (uid, tier) => {
+                try {
+                    await apiRequest(`/api/admin/users/${uid}/tier`, 'PUT', { tier });
+                    showMessage(t('admin.tierUpdated'));
+                } catch (e) { showMessage(e.message, 'error'); }
+            };
+
+            const viewUserReferral = async (uid) => {
+                referralModal.value.show = true;
+                referralModal.value.loading = true;
+                referralModal.value.uid = uid;
+                referralModal.value.data = null;
+                try {
+                    const data = await apiRequest(`/api/admin/users/${uid}/referral`);
+                    referralModal.value.data = data;
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    referralModal.value.show = false;
+                } finally {
+                    referralModal.value.loading = false;
+                }
+            };
+            
+            const closeReferralModal = () => {
+                referralModal.value.show = false;
+                referralModal.value.data = null;
+            };
+
+            const loadRates = async () => {
+                try {
+                    const data = await apiRequest('/api/admin/referral/rates');
+                    rates.value = (data.rates || []).map(r => ({ 
+                        ...r, 
+                        rate_percent: parseFloat((r.rate * 100).toFixed(2)),
+                        is_enabled: Boolean(r.is_enabled)  // 确保转为布尔值（0 -> false, 1 -> true）
+                    }));
+                } catch (e) { showMessage(e.message, 'error'); }
+            };
+
+            const toggleAllRates = (enabled) => { rates.value.forEach(r => { r.is_enabled = enabled; }); };
+
+            const loadReferralStats = async () => {
+                try { referralStats.value = await apiRequest('/api/admin/referral/stats'); } catch (e) { showMessage(e.message, 'error'); }
+            };
+
+            const saveAllRates = async () => {
+                savingRates.value = true;
+                try {
+                    // 验证并转换数据
+                    const ratesData = rates.value.map(r => {
+                        const ratePct = parseFloat(r.rate_percent) || 0;
+                        if (ratePct < 0 || ratePct > 100) {
+                            throw new Error(t('admin.rateRangeError', { level: r.level }));
+                        }
+                        return {
+                            level: r.level,
+                            rate: ratePct / 100,
+                            min_amount: parseFloat(r.min_amount) || 0,
+                            is_enabled: Boolean(r.is_enabled)  // 确保是布尔值
+                        };
+                    });
+                    await apiRequest('/api/admin/referral/rates', 'PUT', { rates: ratesData });
+                    showMessage(t('admin.ratesSaved'));
+                    await loadRates();
+                } catch (e) { showMessage(e.message || String(e), 'error'); }
+                finally { savingRates.value = false; }
+            };
+
+            const settleAll = async () => {
+                settling.value = true;
+                try {
+                    const data = await apiRequest('/api/admin/referral/settle', 'POST');
+                    showMessage(data.message);
+                    await loadReferralStats();
+                    await loadCommissions();
+                } catch (e) { showMessage(e.message, 'error'); }
+                finally { settling.value = false; }
+            };
+
+            const getLevelDescription = (level) => {
+                const d = { 
+                    1: t('admin.levelDesc1'), 
+                    2: t('admin.levelDesc2'), 
+                    3: t('admin.levelDesc3') 
+                };
+                return d[level] || t('admin.levelDescN', { level });
+            };
+
+            const loadCommissions = async () => {
+                try {
+                    let url = '/api/admin/referral/commissions?limit=100';
+                    if (commissionFilter.value.status) url += `&status=${commissionFilter.value.status}`;
+                    if (commissionFilter.value.uid) url += `&uid=${commissionFilter.value.uid}`;
+                    const data = await apiRequest(url);
+                    commissions.value = data.commissions || [];
+                } catch (e) { showMessage(e.message, 'error'); }
+            };
+
+            const getStatusClass = (status) => {
+                const c = { 'pending': 'px-2 py-0.5 bg-yellow-500/20 text-yellow-400 rounded-full text-xs', 'settled': 'px-2 py-0.5 bg-green-500/20 text-green-400 rounded-full text-xs', 'paid': 'px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded-full text-xs', 'cancelled': 'px-2 py-0.5 bg-red-500/20 text-red-400 rounded-full text-xs' };
+                return c[status] || 'text-slate-400';
+            };
+
+            const getStatusText = (status) => {
+                const t_map = { 
+                    'pending': t('admin.statusPending'), 
+                    'settled': t('admin.statusSettled'), 
+                    'paid': t('admin.statusPaid'), 
+                    'cancelled': t('admin.statusCancelled') 
+                };
+                return t_map[status] || status;
+            };
+
+            const loadLeaderboard = async () => {
+                try { const data = await apiRequest(`/api/referral/leaderboard?period=${leaderboardPeriod.value}&limit=100`); leaderboard.value = data.leaderboard || []; } catch (e) { showMessage(e.message, 'error'); }
+            };
+
+            const loadReconcileStatus = async () => {
+                try {
+                    reconcileStatus.value = await apiRequest('/api/admin/leaderboard/reconcile-status');
+                } catch (e) { 
+                    if (window.SafeLog) SafeLog.error('Load reconcile status failed:', e);
+                }
+            };
+
+            const reconcileAll = async () => {
+                if (reconciling.value) return;
+                
+                if (!confirm(t('admin.confirmReconcile'))) {
+                    return;
+                }
+                
+                reconciling.value = true;
+                try {
+                    const data = await apiRequest('/api/admin/leaderboard/reconcile', 'POST');
+                    showMessage(t('admin.reconcileComplete', { count: data.users_processed }));
+                    await loadLeaderboard();
+                    await loadReconcileStatus();
+                } catch (e) { 
+                    showMessage(e.message || t('admin.reconcileFailed'), 'error'); 
+                } finally { 
+                    reconciling.value = false; 
+                }
+            };
+
+            const getRankClass = (rank) => {
+                if (rank === 1) return 'text-lg md:text-xl font-bold text-yellow-400';
+                if (rank === 2) return 'text-base md:text-lg font-bold text-slate-300';
+                if (rank === 3) return 'text-base md:text-lg font-bold text-orange-400';
+                return 'text-white';
+            };
+
+            const getTierClass = (tier) => {
+                const c = { 'vip': 'px-1.5 md:px-2 py-0.5 md:py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs', 'pro': 'px-1.5 md:px-2 py-0.5 md:py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs', 'basic': 'px-1.5 md:px-2 py-0.5 md:py-1 bg-green-500/20 text-green-400 rounded-full text-xs', 'free': 'px-1.5 md:px-2 py-0.5 md:py-1 bg-slate-500/20 text-slate-400 rounded-full text-xs' };
+                return c[tier?.toLowerCase()] || c['free'];
+            };
+
+            // ========== 策略模板管理函数 ==========
+            const currentTemplate = computed(() => {
+                if (!selectedCategory.value || !strategyTemplates.value.length) return null;
+                return strategyTemplates.value.find(t => t.category === selectedCategory.value);
+            });
+
+            const loadStrategyPresets = async () => {
+                try {
+                    const data = await apiRequest('/api/admin/strategy-templates');
+                    strategyPresets.value = data.presets || [];
+                } catch (e) {
+                    showMessage(t('admin.loadPresetsFailed') + ': ' + e.message, 'error');
+                }
+            };
+
+            const selectPreset = async (presetName) => {
+                selectedPreset.value = presetName;
+                selectedCategory.value = null;
+                loadingPreset.value = true;
+                try {
+                    const data = await apiRequest(`/api/admin/strategy-templates/${encodeURIComponent(presetName)}`);
+                    strategyTemplates.value = data.templates || [];
+                    selectedPresetDescription.value = data.description || '';
+                    // 计算整体启用状态（所有分类都启用才算启用）
+                    presetEnabled.value = strategyTemplates.value.every(t => t.is_enabled);
+                    // 保存原始数据用于重置
+                    originalTemplates.value = {};
+                    data.templates.forEach(t => {
+                        originalTemplates.value[t.category] = { ...t };
+                    });
+                    // 默认选中第一个分类
+                    if (strategyTemplates.value.length > 0) {
+                        selectedCategory.value = strategyTemplates.value[0].category;
+                    }
+                } catch (e) {
+                    showMessage(t('admin.loadStrategyDetailsFailed') + ': ' + e.message, 'error');
+                    selectedPreset.value = null;
+                } finally {
+                    loadingPreset.value = false;
+                }
+            };
+
+            const getCategoryLabel = (category) => {
+                const labels = {
+                    'role': t('admin.categoryRole'),
+                    'risk_rules': t('admin.categoryRiskRules'),
+                    'entry_conditions': t('admin.categoryEntryConditions'),
+                    'exit_conditions': t('admin.categoryExitConditions'),
+                    'position_sizing': t('admin.categoryPositionSizing'),
+                    'market_preferences': t('admin.categoryMarketPreferences'),
+                    'adaptive_rules': t('admin.categoryAdaptiveRules')
+                };
+                return labels[category] || category;
+            };
+
+            const resetCurrentTemplate = () => {
+                if (!selectedCategory.value || !originalTemplates.value[selectedCategory.value]) return;
+                const original = originalTemplates.value[selectedCategory.value];
+                const tpl = strategyTemplates.value.find(t => t.category === selectedCategory.value);
+                if (tpl) {
+                    tpl.content = original.content;
+                    tpl.is_enabled = original.is_enabled;
+                }
+                showMessage(t('admin.resetToOriginal'));
+            };
+
+            const closePresetEditor = () => {
+                selectedPreset.value = null;
+                selectedCategory.value = null;
+                strategyTemplates.value = [];
+                selectedPresetDescription.value = '';
+                originalTemplates.value = {};
+                presetEnabled.value = true;
+            };
+
+            const togglePresetEnabled = async () => {
+                if (!selectedPreset.value) return;
+                
+                savingTemplate.value = true;
+                try {
+                    // 批量更新所有分类的启用状态
+                    for (const tpl of strategyTemplates.value) {
+                        await apiRequest(
+                            `/api/admin/strategy-templates/${encodeURIComponent(selectedPreset.value)}/${encodeURIComponent(tpl.category)}`,
+                            'PUT',
+                            {
+                                content: tpl.content,
+                                is_enabled: presetEnabled.value
+                            }
+                        );
+                        tpl.is_enabled = presetEnabled.value;
+                    }
+                    // 更新原始数据
+                    for (const cat in originalTemplates.value) {
+                        originalTemplates.value[cat].is_enabled = presetEnabled.value;
+                    }
+                    showMessage(presetEnabled.value ? t('admin.strategyEnabled') : t('admin.strategyDisabled'));
+                } catch (e) {
+                    // 回滚状态
+                    presetEnabled.value = !presetEnabled.value;
+                    showMessage(t('admin.operationFailed') + ': ' + e.message, 'error');
+                } finally {
+                    savingTemplate.value = false;
+                }
+            };
+
+            const saveCurrentTemplate = async () => {
+                if (!selectedPreset.value || !selectedCategory.value || !currentTemplate.value) return;
+                
+                savingTemplate.value = true;
+                try {
+                    await apiRequest(
+                        `/api/admin/strategy-templates/${encodeURIComponent(selectedPreset.value)}/${encodeURIComponent(selectedCategory.value)}`,
+                        'PUT',
+                        {
+                            content: currentTemplate.value.content,
+                            is_enabled: currentTemplate.value.is_enabled
+                        }
+                    );
+                    // 更新原始数据
+                    originalTemplates.value[selectedCategory.value] = { ...currentTemplate.value };
+                    showMessage(t('admin.templateSaved'));
+                } catch (e) {
+                    showMessage(t('admin.saveFailed') + ': ' + e.message, 'error');
+                } finally {
+                    savingTemplate.value = false;
+                }
+            };
+
+            // 预设同步功能
+            const showPresetUsage = async () => {
+                if (!selectedPreset.value) return;
+                presetUsageModal.value = { show: true, loading: true, data: null };
+                try {
+                    const data = await apiRequest(`/api/admin/strategy-templates/${encodeURIComponent(selectedPreset.value)}/usage`);
+                    presetUsageModal.value.data = data;
+                } catch (e) {
+                    showMessage(t('admin.getUsageFailed') + ': ' + e.message, 'error');
+                    presetUsageModal.value.show = false;
+                } finally {
+                    presetUsageModal.value.loading = false;
+                }
+            };
+
+            const syncPresetToUsers = async () => {
+                if (!selectedPreset.value) return;
+                syncingPreset.value = true;
+                try {
+                    const data = await apiRequest(
+                        `/api/admin/strategy-templates/${encodeURIComponent(selectedPreset.value)}/sync-to-users`,
+                        'POST'
+                    );
+                    showMessage(t('admin.syncComplete', { updated: data.updated_count, skipped: data.skipped_count }));
+                    if (presetUsageModal.value.show) await showPresetUsage(); // 刷新弹窗数据
+                } catch (e) {
+                    showMessage(t('admin.syncFailed') + ': ' + e.message, 'error');
+                } finally {
+                    syncingPreset.value = false;
+                }
+            };
+
+            const forceSyncPresetToUsers = async () => {
+                if (!selectedPreset.value) return;
+                if (!confirm(t('admin.confirmForceSync', { name: selectedPreset.value }))) return;
+                syncingPreset.value = true;
+                try {
+                    const data = await apiRequest(
+                        `/api/admin/strategy-templates/${encodeURIComponent(selectedPreset.value)}/force-sync-to-users`,
+                        'POST'
+                    );
+                    showMessage(t('admin.forceSyncComplete', { count: data.updated_count }));
+                    if (presetUsageModal.value.show) await showPresetUsage(); // 刷新弹窗数据
+                } catch (e) {
+                    showMessage(t('admin.forceSyncFailed') + ': ' + e.message, 'error');
+                } finally {
+                    syncingPreset.value = false;
+                }
+            };
+
+            // ========== LLM 模型管理函数 ==========
+            const loadLLMModels = async () => {
+                try {
+                    let url = '/api/admin/llm-models?include_disabled=true';
+                    if (llmModelFilter.value.provider) {
+                        url += `&provider=${llmModelFilter.value.provider}`;
+                    }
+                    const data = await apiRequest(url);
+                    let models = data.models || [];
+                    // 根据状态筛选
+                    if (llmModelFilter.value.status === 'enabled') {
+                        models = models.filter(m => m.is_enabled);
+                    } else if (llmModelFilter.value.status === 'disabled') {
+                        models = models.filter(m => !m.is_enabled);
+                    }
+                    llmModels.value = models;
+                } catch (e) {
+                    showMessage('加载模型列表失败: ' + e.message, 'error');
+                }
+            };
+
+            const openLLMModelModal = (model = null) => {
+                if (model) {
+                    // 编辑模式
+                    llmModelModal.value.isEdit = true;
+                    llmModelModal.value.form = {
+                        id: model.id,
+                        provider: model.provider || '',
+                        model_id: model.model_id || '',
+                        display_name: model.display_name || '',
+                        description: model.description || '',
+                        temperature: model.temperature ?? 0.1,
+                        top_p: model.top_p ?? 0.9,
+                        max_tokens: model.max_tokens ?? 8192,
+                        context_window: model.context_window ?? 128000,
+                        input_price: model.input_price ?? 0,
+                        output_price: model.output_price ?? 0,
+                        supports_vision: model.supports_vision ?? false,
+                        supports_function_call: model.supports_function_call ?? true,
+                        supports_streaming: model.supports_streaming ?? true,
+                        supports_json_mode: model.supports_json_mode ?? false,
+                        is_enabled: model.is_enabled ?? true,
+                        is_recommended: model.is_recommended ?? false,
+                        display_order: model.display_order ?? 100,
+                        notes: model.notes || ''
+                    };
+                } else {
+                    // 新增模式
+                    llmModelModal.value.isEdit = false;
+                    llmModelModal.value.form = {
+                        id: null,
+                        provider: '',
+                        model_id: '',
+                        display_name: '',
+                        description: '',
+                        temperature: 0.1,
+                        top_p: 0.9,
+                        max_tokens: 8192,
+                        context_window: 128000,
+                        input_price: 0,
+                        output_price: 0,
+                        supports_vision: false,
+                        supports_function_call: true,
+                        supports_streaming: true,
+                        supports_json_mode: false,
+                        is_enabled: true,
+                        is_recommended: false,
+                        display_order: 100,
+                        notes: ''
+                    };
+                }
+                llmModelModal.value.show = true;
+            };
+
+            const saveLLMModel = async () => {
+                const form = llmModelModal.value.form;
+                if (!form.provider || !form.model_id || !form.display_name) {
+                    showMessage('请填写必填字段：提供商、模型ID、显示名称', 'error');
+                    return;
+                }
+                
+                savingLLMModel.value = true;
+                try {
+                    const payload = {
+                        provider: form.provider,
+                        model_id: form.model_id,
+                        display_name: form.display_name,
+                        description: form.description || null,
+                        temperature: parseFloat(form.temperature) || 0.1,
+                        top_p: parseFloat(form.top_p) || 0.9,
+                        max_tokens: parseInt(form.max_tokens) || 8192,
+                        context_window: parseInt(form.context_window) || 128000,
+                        input_price: parseFloat(form.input_price) || 0,
+                        output_price: parseFloat(form.output_price) || 0,
+                        supports_vision: Boolean(form.supports_vision),
+                        supports_function_call: Boolean(form.supports_function_call),
+                        supports_streaming: Boolean(form.supports_streaming),
+                        supports_json_mode: Boolean(form.supports_json_mode),
+                        is_enabled: Boolean(form.is_enabled),
+                        is_recommended: Boolean(form.is_recommended),
+                        display_order: parseInt(form.display_order) || 100,
+                        notes: form.notes || null
+                    };
+                    
+                    if (llmModelModal.value.isEdit && form.id) {
+                        // 更新
+                        await apiRequest(`/api/admin/llm-models/${form.id}`, 'PUT', payload);
+                        showMessage('模型更新成功');
+                    } else {
+                        // 新增
+                        await apiRequest('/api/admin/llm-models', 'POST', payload);
+                        showMessage('模型添加成功');
+                    }
+                    
+                    llmModelModal.value.show = false;
+                    await loadLLMModels();
+                } catch (e) {
+                    showMessage('保存失败: ' + e.message, 'error');
+                } finally {
+                    savingLLMModel.value = false;
+                }
+            };
+
+            const toggleLLMModelStatus = async (model) => {
+                try {
+                    const newStatus = !model.is_enabled;
+                    await apiRequest(`/api/admin/llm-models/${model.id}`, 'PUT', {
+                        ...model,
+                        is_enabled: newStatus
+                    });
+                    model.is_enabled = newStatus;
+                    showMessage(newStatus ? '模型已启用' : '模型已禁用');
+                } catch (e) {
+                    showMessage('操作失败: ' + e.message, 'error');
+                }
+            };
+
+            const refreshLLMModelsCache = async () => {
+                refreshingLLMCache.value = true;
+                try {
+                    await apiRequest('/api/admin/llm-models/refresh-cache', 'POST');
+                    showMessage('缓存已刷新');
+                } catch (e) {
+                    showMessage('刷新缓存失败: ' + e.message, 'error');
+                } finally {
+                    refreshingLLMCache.value = false;
+                }
+            };
+
+            const logout = () => { Auth.logout(); };
+
+            watch(activeTab, async (newTab) => {
+                window.location.hash = newTab;
+                if (newTab === 'referral' && rates.value.length === 0) { await loadRates(); await loadReferralStats(); }
+                if (newTab === 'commissions' && commissions.value.length === 0) await loadCommissions();
+                if (newTab === 'leaderboard') {
+                    if (leaderboard.value.length === 0) await loadLeaderboard();
+                    await loadReconcileStatus();
+                }
+                if (newTab === 'monitor') {
+                    await loadMonitorData();
+                }
+                if (newTab === 'strategies') {
+                    if (strategyPresets.value.length === 0) await loadStrategyPresets();
+                }
+                if (newTab === 'llmmodels') {
+                    if (llmModels.value.length === 0) await loadLLMModels();
+                }
+            });
+
+            window.addEventListener('hashchange', () => {
+                const hash = window.location.hash.slice(1);
+                if (validTabs.includes(hash) && hash !== activeTab.value) {
+                    activeTab.value = hash;
+                }
+            });
+
+            const verifyAdmin = async () => {
+                try { await apiRequest('/api/admin/verify'); return true; } catch (e) { return false; }
+            };
+
+            onMounted(async () => {
+                // 显示页面内容（移除加载遮罩）
+                I18n.showContent();
+                
+                const isAdmin = await verifyAdmin();
+                if (!isAdmin) {
+                    alert(t('admin.requireAdminPermission'));
+                    window.location.href = '/';
+                    return;
+                }
+
+                await loadStats();
+                await loadUsers();
+                await loadSystemSettings();
+
+                const currentTab = activeTab.value;
+                if (currentTab === 'referral') { await loadRates(); await loadReferralStats(); }
+                if (currentTab === 'commissions') await loadCommissions();
+                if (currentTab === 'leaderboard') { await loadLeaderboard(); await loadReconcileStatus(); }
+                if (currentTab === 'monitor') await loadMonitorData();
+                if (currentTab === 'strategies') await loadStrategyPresets();
+                if (currentTab === 'llmmodels') await loadLLMModels();
+
+                loading.value = false;
+            });
+
+            return {
+                loading, error, message, messageType, activeTab, tabs, t,
+                systemSettings, savingSettings, toggleRegistration, toggleInviteCode,
+                stats, users, userSearch, userPage, userTotal, userTotalPages,
+                formatTime, formatDateTime, formatAmount, formatNumber, loadStats, loadUsers, searchUsers, goToUserPage, updateStatus, updateTier,
+                viewUserReferral, referralModal, closeReferralModal,
+                rates, referralStats, savingRates, settling, loadRates, saveAllRates, settleAll, getLevelDescription, toggleAllRates,
+                commissions, commissionFilter, loadCommissions, getStatusClass, getStatusText,
+                leaderboard, leaderboardPeriod, loadLeaderboard, getRankClass, getTierClass,
+                reconciling, reconcileStatus, loadReconcileStatus, reconcileAll,
+                // 监控面板
+                monitorData, monitorLoading, monitorAutoRefresh, loadMonitorData, toggleMonitorAutoRefresh,
+                // 策略模板管理
+                strategyPresets, selectedPreset, selectedPresetDescription, strategyTemplates, selectedCategory,
+                currentTemplate, savingTemplate, loadingPreset, presetEnabled, loadStrategyPresets, selectPreset, getCategoryLabel,
+                resetCurrentTemplate, saveCurrentTemplate, closePresetEditor, togglePresetEnabled,
+                // 预设同步功能
+                presetUsageModal, syncingPreset, showPresetUsage, syncPresetToUsers, forceSyncPresetToUsers,
+                // 数据修复工具
+                dataRepairLoading, dataRepairUid, dataRepairScanResult, dataRepairPreviewResult,
+                scanAbnormalTrades, previewRepair, executeRepair, repairSingleRecord,
+                // Raw Data 类型修复工具
+                rawDataTypeFixLoading, rawDataTypeFixUid, rawDataTypeFixResult,
+                previewRawDataTypeFix, executeRawDataTypeFix,
+                // LLM 模型管理
+                llmModels, llmProviders, llmModelFilter, llmModelModal,
+                refreshingLLMCache, savingLLMModel,
+                loadLLMModels, openLLMModelModal, saveLLMModel, toggleLLMModelStatus, refreshLLMModelsCache,
+                logout,
+            };
+        }
+    }).mount('#app');
+    })();
+    </script>
+</body>
+</html>

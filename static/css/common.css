@@ -1,0 +1,429 @@
+/**
+ * AIBTC.VIP - Common Styles
+ * 
+ * This file contains shared styles used across all pages.
+ * Import this file in all HTML pages to ensure consistency.
+ */
+
+/* ========== CSS Variables ========== */
+:root {
+  /* Colors */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #06b6d4;
+  
+  /* Background */
+  --bg-primary: rgba(30, 41, 59, 0.5);
+  --bg-secondary: rgba(15, 23, 42, 0.7);
+  --bg-card: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.7) 100%);
+  
+  /* Border */
+  --border-color: rgba(71, 85, 105, 0.3);
+  --border-color-hover: rgba(71, 85, 105, 0.5);
+  
+  /* Text */
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-glow-blue: 0 0 20px rgba(59, 130, 246, 0.3);
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-full: 9999px;
+}
+
+/* ========== Anti-FOUC Critical Styles ========== */
+/* 
+ * These styles prevent Flash of Unstyled Content (FOUC).
+ * They provide the dark background BEFORE Tailwind JIT compiles,
+ * and hide content until i18n + Vue are ready.
+ */
+
+/* Dark background fallback - prevents white flash before Tailwind loads */
+html {
+  background-color: #0f172a; /* slate-900 */
+}
+
+body {
+  background-color: #0f172a; /* slate-900 */
+  /* Gradient fallback matching Tailwind's bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 */
+  background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a);
+  min-height: 100vh;
+  margin: 0;
+}
+
+/* i18n loading state - hide content until translations are loaded */
+/* MUST be in CSS (not JS-injected) to prevent race condition */
+/* visibility:hidden prevents compositor flash that opacity:0 alone cannot */
+.i18n-loading {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+.i18n-ready {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.15s ease-in;
+}
+
+/* ========== Base Styles ========== */
+
+/* Vue v-cloak - prevent flash of unstyled content */
+[v-cloak] { 
+  display: none !important; 
+}
+
+/* ========== Glass Card Component ========== */
+.glass-card {
+  background: var(--bg-card);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+}
+
+.glass-card-hover:hover {
+  border-color: var(--border-color-hover);
+  transform: translateY(-2px);
+}
+
+/* ========== Button Components ========== */
+
+/* Primary Button */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(to right, #2563eb, #1d4ed8);
+  box-shadow: var(--shadow-glow-blue);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Secondary Button */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: rgba(71, 85, 105, 0.5);
+  color: white;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(71, 85, 105, 0.7);
+  border-color: var(--border-color-hover);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Danger Button */
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* ========== Input Components ========== */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+.input-field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========== Animations ========== */
+
+/* Fade In */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.animate-fade-in { 
+  animation: fadeIn 0.5s ease-out forwards; 
+}
+
+.animate-fade-in-delay-1 { 
+  animation: fadeIn 0.5s ease-out 0.1s forwards; 
+  opacity: 0; 
+}
+
+.animate-fade-in-delay-2 { 
+  animation: fadeIn 0.5s ease-out 0.2s forwards; 
+  opacity: 0; 
+}
+
+.animate-fade-in-delay-3 { 
+  animation: fadeIn 0.5s ease-out 0.3s forwards; 
+  opacity: 0; 
+}
+
+/* Pulse Status */
+@keyframes pulse-status {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-pulse-status { 
+  animation: pulse-status 2s ease-in-out infinite; 
+}
+
+/* Pulse Glow */
+@keyframes pulse-glow {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.5); 
+  }
+}
+
+.animate-pulse-glow { 
+  animation: pulse-glow 2s ease-in-out infinite; 
+}
+
+/* Float */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float { 
+  animation: float 4s ease-in-out infinite; 
+}
+
+/* Shimmer */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ========== Utility Classes ========== */
+
+/* Hide scrollbar but keep scroll functionality */
+.hide-scrollbar::-webkit-scrollbar { 
+  display: none; 
+}
+
+.hide-scrollbar { 
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
+}
+
+/* Text truncate */
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ========== Loading States ========== */
+.skeleton {
+  background: linear-gradient(90deg, rgba(71, 85, 105, 0.3) 25%, rgba(71, 85, 105, 0.5) 50%, rgba(71, 85, 105, 0.3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ========== Toast Notifications ========== */
+.toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.toast-success {
+  background: rgba(34, 197, 94, 0.9);
+  color: white;
+}
+
+.toast-error {
+  background: rgba(239, 68, 68, 0.9);
+  color: white;
+}
+
+.toast-warning {
+  background: rgba(245, 158, 11, 0.9);
+  color: white;
+}
+
+/* ========== Empty State ========== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: 1rem;
+  border-radius: 50%;
+  background: rgba(71, 85, 105, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-title {
+  color: var(--text-secondary);
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+/* ========== Responsive Helpers ========== */
+@media (max-width: 768px) {
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+  
+  .input-field {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* ========== Leaderboard Gradients ========== */
+.gold-gradient {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+}
+
+.silver-gradient {
+  background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 50%, #64748b 100%);
+}
+
+.bronze-gradient {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 50%, #92400e 100%);
+}
+
+/* Glow animations for leaderboard */
+@keyframes glow-gold {
+  0%, 100% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+  50% { box-shadow: 0 0 40px rgba(251, 191, 36, 0.5); }
+}
+
+@keyframes glow-silver {
+  0%, 100% { box-shadow: 0 0 15px rgba(148, 163, 184, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(148, 163, 184, 0.5); }
+}
+
+@keyframes glow-bronze {
+  0%, 100% { box-shadow: 0 0 15px rgba(217, 119, 6, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(217, 119, 6, 0.5); }
+}
+
+.animate-glow-gold { animation: glow-gold 2s ease-in-out infinite; }
+.animate-glow-silver { animation: glow-silver 2s ease-in-out infinite; }
+.animate-glow-bronze { animation: glow-bronze 2s ease-in-out infinite; }

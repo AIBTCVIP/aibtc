@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIBTC.VIP - Statistics</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Deep analysis of your crypto trading performance with detailed P&L statistics and trend charts on AIBTC.VIP.">
+    <meta name="keywords" content="trading statistics, crypto analytics, P&L analysis, trading performance, profit charts">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    
+    <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+    <style>
+      html, body { background-color: #0f172a; margin: 0; }
+      body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+      [v-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/static/css/common.css">
+    
+    <!-- 集中版本管理（必须最先加载） -->
+    <script src="/static/js/version.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+    <link rel="preload" href="/static/js/i18n.js" as="script">
+    
+    <script src="/static/vendor/tailwind.min.js" defer></script>
+    <script src="/static/vendor/vue.global.prod.js"></script>
+    <script src="/static/vendor/chart.umd.min.js" defer></script>
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/nav.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Statistics page specific styles */
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: linear-gradient(145deg, rgba(17, 24, 39, 0.9) 0%, rgba(10, 15, 26, 0.95) 100%);
+            --border-subtle: rgba(55, 65, 81, 0.5);
+            --border-glow: rgba(59, 130, 246, 0.3);
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --accent-green: #10b981;
+            --accent-green-glow: rgba(16, 185, 129, 0.15);
+            --accent-red: #ef4444;
+            --accent-red-glow: rgba(239, 68, 68, 0.15);
+            --accent-blue: #3b82f6;
+            --accent-blue-glow: rgba(59, 130, 246, 0.15);
+            --accent-amber: #f59e0b;
+        }
+        
+        * {
+            font-family: 'Noto Sans SC', 'JetBrains Mono', system-ui, sans-serif;
+        }
+        
+        body {
+            background: var(--bg-primary);
+            background-image: 
+                radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+        
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Statistics page uses fadeInUp with 20px (different from common.css 10px) */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-fade-in { animation: fadeInUp 0.5s ease-out forwards; }
+        .animate-fade-in-delay-1 { animation: fadeInUp 0.5s ease-out 0.1s forwards; opacity: 0; }
+        .animate-fade-in-delay-2 { animation: fadeInUp 0.5s ease-out 0.2s forwards; opacity: 0; }
+        .animate-fade-in-delay-3 { animation: fadeInUp 0.5s ease-out 0.3s forwards; opacity: 0; }
+        
+        /* 卡片样式 */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 30px -10px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* 核心指标卡片 */
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .metric-card:hover::before { opacity: 1; }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-glow);
+        }
+        
+        /* 主要指标卡片 - 带渐变背景 */
+        .metric-card-primary {
+            background: linear-gradient(145deg, rgba(17, 24, 39, 0.95) 0%, rgba(10, 15, 26, 0.98) 100%);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .metric-card-primary.positive {
+            border-color: rgba(16, 185, 129, 0.3);
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.08) 0%, rgba(10, 15, 26, 0.98) 100%);
+        }
+        .metric-card-primary.negative {
+            border-color: rgba(239, 68, 68, 0.3);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.08) 0%, rgba(10, 15, 26, 0.98) 100%);
+        }
+        .metric-card-primary::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* 输入框样式 */
+        .input-field {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            background: rgba(17, 24, 39, 0.8);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px var(--accent-blue-glow);
+        }
+        .input-field:hover:not(:focus) {
+            border-color: rgba(75, 85, 99, 0.8);
+        }
+        
+        /* 日期选择器 - 深色主题 */
+        input[type="date"].input-field {
+            color-scheme: dark;
+        }
+        input[type="date"].input-field::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        input[type="date"].input-field::-webkit-calendar-picker-indicator:hover {
+            opacity: 1;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .btn-ghost {
+            background: rgba(55, 65, 81, 0.3);
+            border: 1px solid transparent;
+            color: var(--text-secondary);
+        }
+        .btn-ghost:hover {
+            background: rgba(55, 65, 81, 0.5);
+            color: var(--text-primary);
+        }
+        .btn-ghost.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--accent-blue);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #2563eb 100%);
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .data-table thead tr {
+            background: rgba(17, 24, 39, 0.5);
+        }
+        .data-table th {
+            padding: 0.875rem 1rem;
+            font-weight: 600;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .data-table td {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid rgba(55, 65, 81, 0.3);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        .data-table tbody tr {
+            transition: background 0.2s;
+        }
+        .data-table tbody tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* 数值颜色 */
+        .value-positive { color: var(--accent-green); }
+        .value-negative { color: var(--accent-red); }
+        .value-neutral { color: var(--text-secondary); }
+        
+        /* 标签样式 */
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.625rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .tag-long {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .tag-short {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        /* 进度条 */
+        .progress-bar {
+            height: 6px;
+            background: rgba(55, 65, 81, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease-out;
+        }
+        
+        /* 分隔线 */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-subtle), transparent);
+        }
+        
+        /* 图表容器 */
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+        
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.5);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(75, 85, 99, 0.8);
+        }
+
+        /* 加载骨架屏 */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(55,65,81,0.3) 25%, rgba(75,85,99,0.3) 50%, rgba(55,65,81,0.3) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        
+        /* 移动端响应式优化 */
+        @media (max-width: 640px) {
+            /* 表格移动端优化 */
+            .data-table th,
+            .data-table td {
+                padding: 0.625rem 0.5rem;
+                font-size: 0.75rem;
+                white-space: nowrap;
+            }
+            .data-table th {
+                font-size: 0.625rem;
+            }
+            
+            /* 主要指标卡片移动端 */
+            .metric-card-primary {
+                padding: 1rem;
+                border-radius: 12px;
+            }
+            .metric-card-primary .text-3xl {
+                font-size: 1.5rem;
+            }
+            
+            /* 小指标卡片移动端 */
+            .metric-card {
+                padding: 0.875rem;
+            }
+            .metric-card .text-lg {
+                font-size: 0.9375rem;
+            }
+            
+            /* 图表容器移动端 */
+            .chart-container {
+                height: 220px;
+            }
+            
+            /* 卡片内边距移动端 */
+            .card.p-5 {
+                padding: 1rem;
+            }
+            
+            /* 标签移动端 */
+            .tag {
+                padding: 0.125rem 0.375rem;
+                font-size: 0.625rem;
+            }
+            
+            /* 按钮移动端 */
+            .btn {
+                padding: 0.375rem 0.625rem;
+                font-size: 0.75rem;
+            }
+            
+            /* 筛选区域移动端 */
+            .input-field {
+                padding: 0.5rem 0.625rem;
+                font-size: 0.8125rem;
+            }
+            
+            /* 隐藏移动端不重要的列 */
+            .hide-mobile {
+                display: none !important;
+            }
+            
+            /* 页面标题移动端 */
+            .page-title {
+                font-size: 1.25rem;
+            }
+            
+            /* 分页移动端 */
+            .pagination-text {
+                display: none;
+            }
+        }
+        
+        /* 平板端响应式 */
+        @media (max-width: 768px) and (min-width: 641px) {
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem 0.625rem;
+                font-size: 0.8125rem;
+            }
+            
+            .hide-tablet {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-100 i18n-loading">
+    <div id="app" v-cloak>
+        <!-- 导航栏 -->
+        <div id="shared-nav"></div>
+
+        <!-- 主内容 -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+            <!-- 页面标题 -->
+            <div class="mb-8 animate-fade-in">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-600/10 flex items-center justify-center border border-blue-500/20">
+                        <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-white">{{ t('statistics.title') }}</h1>
+                        <p class="text-gray-500 text-sm mt-0.5">{{ t('statistics.subtitle') }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选区域 -->
+            <div class="card p-5 mb-6 animate-fade-in-delay-1">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <!-- 开始日期 -->
+                    <div>
+                        <label class="block text-gray-500 text-xs font-medium mb-1.5 uppercase tracking-wide">{{ t('statistics.startDate') }}</label>
+                        <input type="date" v-model="filters.startDate" @change="loadData" class="input-field mono">
+                    </div>
+                    <!-- 结束日期 -->
+                    <div>
+                        <label class="block text-gray-500 text-xs font-medium mb-1.5 uppercase tracking-wide">{{ t('statistics.endDate') }}</label>
+                        <input type="date" v-model="filters.endDate" @change="loadData" class="input-field mono">
+                    </div>
+                    <!-- 交易所 -->
+                    <div>
+                        <label class="block text-gray-500 text-xs font-medium mb-1.5 uppercase tracking-wide">{{ t('statistics.exchange') }}</label>
+                        <select v-model="filters.exchange" @change="loadData" class="input-field">
+                            <option value="">{{ t('statistics.allExchanges') }}</option>
+                            <option v-for="ex in availableExchanges" :key="ex" :value="ex">{{ ex.toUpperCase() }}</option>
+                        </select>
+                    </div>
+                    <!-- 币种 -->
+                    <div>
+                        <label class="block text-gray-500 text-xs font-medium mb-1.5 uppercase tracking-wide">{{ t('statistics.symbol') }}</label>
+                        <select v-model="filters.symbol" @change="loadData" class="input-field">
+                            <option value="">{{ t('statistics.allSymbols') }}</option>
+                            <option v-for="sym in availableSymbols" :key="sym" :value="sym">{{ sym }}</option>
+                        </select>
+                    </div>
+                    <!-- 盈亏 -->
+                    <div>
+                        <label class="block text-gray-500 text-xs font-medium mb-1.5 uppercase tracking-wide">{{ t('statistics.pnlLabel') }}</label>
+                        <select v-model="filters.pnlFilter" @change="loadData" class="input-field">
+                            <option value="all">{{ t('common.all') }}</option>
+                            <option value="profit">{{ t('statistics.profitOnly') }}</option>
+                            <option value="loss">{{ t('statistics.lossOnly') }}</option>
+                        </select>
+                    </div>
+                    <!-- 方向 -->
+                    <div>
+                        <label class="block text-gray-500 text-xs font-medium mb-1.5 uppercase tracking-wide">{{ t('statistics.direction') }}</label>
+                        <select v-model="filters.sideFilter" @change="loadData" class="input-field">
+                            <option value="all">{{ t('statistics.allDirections') }}</option>
+                            <option value="long">{{ t('statistics.longOnly') }}</option>
+                            <option value="short">{{ t('statistics.shortOnly') }}</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- 快捷时间选择 + 刷新 -->
+                <div class="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-gray-800">
+                    <span class="text-gray-600 text-xs mr-1 hidden sm:inline">{{ t('statistics.quickSelect') }}</span>
+                    <button @click="setDateRange(7)" :class="['btn btn-ghost', activeDays === 7 && 'active']">{{ t('statistics.days7') }}</button>
+                    <button @click="setDateRange(30)" :class="['btn btn-ghost', activeDays === 30 && 'active']">{{ t('statistics.days30') }}</button>
+                    <button @click="setDateRange(90)" :class="['btn btn-ghost', activeDays === 90 && 'active']">{{ t('statistics.days90') }}</button>
+                    <button @click="setDateRange(365)" :class="['btn btn-ghost hidden sm:inline-block', activeDays === 365 && 'active']">{{ t('statistics.year1') }}</button>
+                    <button @click="setDateRange(0)" :class="['btn btn-ghost', activeDays === 0 && 'active']">{{ t('common.all') }}</button>
+                    <div class="flex-1"></div>
+                    <button @click="loadData" :disabled="loading" class="btn btn-primary flex items-center gap-1 sm:gap-2">
+                        <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        <span class="hidden sm:inline">{{ loading ? t('common.loading') : t('statistics.refreshData') }}</span>
+                        <span class="sm:hidden">{{ loading ? '...' : t('common.refresh') }}</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 加载状态 -->
+            <div v-if="loading" class="space-y-6">
+                <!-- 骨架屏 - 主要指标 -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div v-for="i in 4" :key="i" class="metric-card-primary">
+                        <div class="skeleton h-4 w-20 mb-3"></div>
+                        <div class="skeleton h-8 w-32 mb-2"></div>
+                        <div class="skeleton h-3 w-24"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 统计内容 -->
+            <div v-else class="space-y-6">
+                <!-- 核心指标 - 4大卡片 -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in-delay-2">
+                    <!-- 总交易数 -->
+                    <div class="metric-card-primary">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-gray-500 text-sm">{{ t('statistics.totalTrades') }}</span>
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold text-white mono">{{ summary.total_trades }}</div>
+                        <div class="text-xs text-gray-600 mt-1">{{ t('statistics.completedTrades') }}</div>
+                    </div>
+                    
+                    <!-- 胜率 -->
+                    <div class="metric-card-primary">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-gray-500 text-sm">{{ t('dashboard.winRate') }}</span>
+                            <div class="w-8 h-8 rounded-lg" :class="summary.win_rate >= 50 ? 'bg-green-500/10' : 'bg-red-500/10'" style="display:flex;align-items:center;justify-content:center;">
+                                <svg class="w-4 h-4" :class="summary.win_rate >= 50 ? 'text-green-400' : 'text-red-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mono" :class="summary.win_rate >= 50 ? 'value-positive' : 'value-negative'">
+                            {{ summary.win_rate }}<span class="text-xl">%</span>
+                        </div>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="progress-bar flex-1">
+                                <div class="progress-fill bg-green-500" :style="{width: summary.win_rate + '%'}"></div>
+                            </div>
+                            <span class="text-xs text-gray-600">{{ summary.winning_trades }}{{ t('dashboard.win') }} / {{ summary.losing_trades }}{{ t('dashboard.loss') }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- 总盈亏 -->
+                    <div class="metric-card-primary" :class="summary.total_pnl >= 0 ? 'positive' : 'negative'">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-gray-500 text-sm">{{ t('statistics.totalPnl') }}</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="summary.total_pnl >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'">
+                                <svg class="w-4 h-4" :class="summary.total_pnl >= 0 ? 'text-green-400' : 'text-red-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mono" :class="summary.total_pnl >= 0 ? 'value-positive' : 'value-negative'">
+                            {{ summary.total_pnl >= 0 ? '+' : '' }}{{ summary.total_pnl }}
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">{{ t('common.usdt') }}</div>
+                    </div>
+                    
+                    <!-- 盈亏比 -->
+                    <div class="metric-card-primary">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-gray-500 text-sm">{{ t('statistics.profitFactor') }}</span>
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="summary.profit_factor >= 1 ? 'bg-green-500/10' : 'bg-amber-500/10'">
+                                <svg class="w-4 h-4" :class="summary.profit_factor >= 1 ? 'text-green-400' : 'text-amber-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="text-3xl font-bold mono" :class="summary.profit_factor >= 1 ? 'value-positive' : 'value-negative'">
+                            {{ summary.profit_factor }}
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">Profit Factor</div>
+                    </div>
+                </div>
+
+                <!-- 详细统计 - 6小卡片 -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-fade-in-delay-3">
+                    <div class="metric-card">
+                        <div class="text-gray-500 text-xs mb-1">{{ t('statistics.totalProfit') }}</div>
+                        <div class="text-lg font-semibold value-positive mono">+{{ summary.total_profit }}</div>
+                        <div class="text-xs text-gray-600">{{ t('common.usdt') }}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-gray-500 text-xs mb-1">{{ t('statistics.totalLoss') }}</div>
+                        <div class="text-lg font-semibold value-negative mono">-{{ summary.total_loss }}</div>
+                        <div class="text-xs text-gray-600">{{ t('common.usdt') }}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-gray-500 text-xs mb-1">{{ t('statistics.largestWin') }}</div>
+                        <div class="text-lg font-semibold value-positive mono">+{{ summary.max_profit }}</div>
+                        <div class="text-xs text-gray-600">{{ t('common.usdt') }}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-gray-500 text-xs mb-1">{{ t('statistics.largestLoss') }}</div>
+                        <div class="text-lg font-semibold value-negative mono">{{ summary.max_loss }}</div>
+                        <div class="text-xs text-gray-600">{{ t('common.usdt') }}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-gray-500 text-xs mb-1">{{ t('statistics.avgPnl') }}</div>
+                        <div class="text-lg font-semibold mono" :class="summary.avg_pnl >= 0 ? 'value-positive' : 'value-negative'">
+                            {{ summary.avg_pnl >= 0 ? '+' : '' }}{{ summary.avg_pnl }}
+                        </div>
+                        <div class="text-xs text-gray-600">{{ t('common.usdt') }}</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="text-gray-500 text-xs mb-1">{{ t('statistics.avgHoldTime') }}</div>
+                        <div class="text-lg font-semibold text-white mono">{{ formatDuration(summary.avg_duration_minutes) }}</div>
+                    </div>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- 盈亏趋势图 -->
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white font-semibold flex items-center gap-2">
+                                <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                                </svg>
+                                {{ t('statistics.pnlTrend') }}
+                            </h3>
+                            <span class="text-xs text-gray-600">{{ t('statistics.dailyAndCumulative') }}</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="pnlChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- 币种分布图 -->
+                    <div class="card p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white font-semibold flex items-center gap-2">
+                                <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/>
+                                </svg>
+                                {{ t('statistics.symbolPerformanceTop10') }}
+                            </h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="symbolChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 币种统计表格 -->
+                <div class="card overflow-hidden">
+                    <div class="p-5 border-b border-gray-800">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                            </svg>
+                            {{ t('statistics.bySymbol') }}
+                        </h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-left">{{ t('statistics.symbol') }}</th>
+                                    <th class="text-center">{{ t('statistics.tradeCount') }}</th>
+                                    <th class="text-center hide-mobile">{{ t('dashboard.winRate') }}</th>
+                                    <th class="text-right">{{ t('statistics.totalPnl') }}</th>
+                                    <th class="text-right hide-mobile">{{ t('statistics.avgPnl') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="item in bySymbol" :key="item.symbol">
+                                    <td class="text-left font-medium text-white">{{ item.symbol }}</td>
+                                    <td class="text-center mono">{{ item.trades }}</td>
+                                    <td class="text-center hide-mobile">
+                                        <span class="mono" :class="item.win_rate >= 50 ? 'value-positive' : 'value-negative'">{{ item.win_rate }}%</span>
+                                    </td>
+                                    <td class="text-right mono" :class="item.total_pnl >= 0 ? 'value-positive' : 'value-negative'">
+                                        {{ item.total_pnl >= 0 ? '+' : '' }}{{ item.total_pnl }}
+                                    </td>
+                                    <td class="text-right mono hide-mobile" :class="item.avg_pnl >= 0 ? 'value-positive' : 'value-negative'">
+                                        {{ item.avg_pnl >= 0 ? '+' : '' }}{{ item.avg_pnl }}
+                                    </td>
+                                </tr>
+                                <tr v-if="bySymbol.length === 0">
+                                    <td colspan="5" class="text-center text-gray-600 py-8">{{ t('common.noData') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 交易记录列表 -->
+                <div class="card overflow-hidden">
+                    <div class="p-5 border-b border-gray-800 flex items-center justify-between">
+                        <h3 class="text-white font-semibold flex items-center gap-2">
+                            <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+                            </svg>
+                            {{ t('statistics.tradeRecords') }}
+                        </h3>
+                        <div class="text-sm text-gray-500">
+                            {{ t('common.total') }} <span class="text-white font-medium">{{ pagination.total }}</span> {{ t('statistics.records') }}
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th class="text-left hide-mobile">{{ t('statistics.closeTime') }}</th>
+                                    <th class="text-left hide-mobile hide-tablet">{{ t('statistics.exchange') }}</th>
+                                    <th class="text-left">{{ t('statistics.symbol') }}</th>
+                                    <th class="text-center">{{ t('dashboard.side') }}</th>
+                                    <th class="text-right hide-mobile">{{ t('dashboard.entryPrice') }}</th>
+                                    <th class="text-right hide-mobile">{{ t('statistics.exitPrice') }}</th>
+                                    <th class="text-right hide-mobile hide-tablet">{{ t('statistics.quantity') }}</th>
+                                    <th class="text-right">{{ t('dashboard.netPnl') }}</th>
+                                    <th class="text-right hide-mobile">{{ t('statistics.holdTime') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="trade in trades" :key="trade.cycleId">
+                                    <td class="text-left text-gray-400 mono text-xs hide-mobile">{{ formatTime(trade.closeTimeMs) }}</td>
+                                    <td class="text-left uppercase hide-mobile hide-tablet">{{ trade.exchange }}</td>
+                                    <td class="text-left font-medium text-white">{{ trade.symbol }}</td>
+                                    <td class="text-center">
+                                        <span :class="['tag', trade.side === 'LONG' ? 'tag-long' : 'tag-short']">
+                                            {{ trade.side === 'LONG' ? t('dashboard.long') : t('dashboard.short') }}
+                                        </span>
+                                    </td>
+                                    <td class="text-right mono hide-mobile">{{ trade.entryPrice }}</td>
+                                    <td class="text-right mono hide-mobile">{{ trade.exitPrice }}</td>
+                                    <td class="text-right mono hide-mobile hide-tablet">{{ trade.qty }}</td>
+                                    <td class="text-right mono font-medium" :class="parseFloat(trade.netPnl) >= 0 ? 'value-positive' : 'value-negative'">
+                                        {{ parseFloat(trade.netPnl) >= 0 ? '+' : '' }}{{ parseFloat(trade.netPnl).toFixed(2) }}
+                                    </td>
+                                    <td class="text-right text-gray-500 text-xs hide-mobile">{{ formatDuration(trade.durationMinutes) }}</td>
+                                </tr>
+                                <tr v-if="trades.length === 0">
+                                    <td colspan="9" class="text-center text-gray-600 py-8">{{ t('statistics.noTradeRecords') }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 分页 -->
+                    <div class="p-4 border-t border-gray-800 flex items-center justify-center gap-2 sm:gap-3">
+                        <button @click="prevPage" :disabled="pagination.page <= 1" 
+                                class="btn btn-ghost disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            <span class="pagination-text">{{ t('dashboard.prevPage') }}</span>
+                        </button>
+                        <span class="text-gray-500 text-sm px-2 sm:px-4 mono">
+                            {{ pagination.page }} <span class="text-gray-700">/</span> {{ pagination.total_pages }}
+                        </span>
+                        <button @click="nextPage" :disabled="pagination.page >= pagination.total_pages"
+                                class="btn btn-ghost disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1">
+                            <span class="pagination-text">{{ t('dashboard.nextPage') }}</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        // 等待 I18n 初始化完成后再创建 Vue app
+        (async function() {
+            if (window.I18n) {
+                try {
+                    await window.I18n.init({
+                        onLocaleChange: () => {
+                            window.location.reload();
+                        }
+                    });
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('[Statistics] I18n init failed:', e);
+                }
+            }
+            
+            // 初始化导航
+            if (window.initSharedNav) {
+                window.initSharedNav({
+                    currentPage: 'statistics'
+                });
+            }
+
+        createApp({
+            data() {
+                return {
+                    loading: true,
+                    activeDays: 30,
+                    filters: {
+                        startDate: '',
+                        endDate: '',
+                        exchange: '',
+                        symbol: '',
+                        pnlFilter: 'all',
+                        sideFilter: 'all'
+                    },
+                    summary: {
+                        total_trades: 0,
+                        winning_trades: 0,
+                        losing_trades: 0,
+                        win_rate: 0,
+                        total_pnl: 0,
+                        total_profit: 0,
+                        total_loss: 0,
+                        profit_factor: 0,
+                        avg_pnl: 0,
+                        max_profit: 0,
+                        max_loss: 0,
+                        avg_duration_minutes: 0,
+                        total_fees: 0,
+                        total_funding: 0
+                    },
+                    bySymbol: [],
+                    byDate: [],
+                    trades: [],
+                    pagination: {
+                        page: 1,
+                        page_size: 50,
+                        total: 0,
+                        total_pages: 0
+                    },
+                    availableExchanges: [],
+                    availableSymbols: [],
+                    pnlChart: null,
+                    symbolChart: null
+                };
+            },
+            methods: {
+                // i18n helper
+                t(key, params) {
+                    return window.t ? window.t(key, params) : key;
+                },
+                setDateRange(days) {
+                    this.activeDays = days;
+                    const end = new Date();
+                    this.filters.endDate = end.toISOString().split('T')[0];
+                    
+                    if (days > 0) {
+                        const start = new Date();
+                        start.setDate(start.getDate() - days);
+                        this.filters.startDate = start.toISOString().split('T')[0];
+                    } else {
+                        this.filters.startDate = '';
+                    }
+                    
+                    this.pagination.page = 1;
+                    this.loadData();
+                },
+                async loadData() {
+                    this.loading = true;
+                    
+                    try {
+                        const params = new URLSearchParams();
+                        if (this.filters.startDate) params.append('start_date', this.filters.startDate);
+                        if (this.filters.endDate) params.append('end_date', this.filters.endDate);
+                        if (this.filters.exchange) params.append('exchanges', this.filters.exchange);
+                        if (this.filters.symbol) params.append('symbols', this.filters.symbol);
+                        params.append('pnl_filter', this.filters.pnlFilter);
+                        params.append('side_filter', this.filters.sideFilter);
+                        params.append('page', this.pagination.page);
+                        params.append('page_size', this.pagination.page_size);
+                        
+                        const resp = await fetch(`/api/statistics?${params.toString()}`, {
+                            credentials: 'include'
+                        });
+                        
+                        if (resp.status === 401) {
+                            window.location.href = '/login.html';
+                            return;
+                        }
+                        
+                        const data = await resp.json();
+                        
+                        this.summary = data.summary || this.summary;
+                        this.bySymbol = data.by_symbol || [];
+                        this.byDate = data.by_date || [];
+                        this.trades = data.trades || [];
+                        this.pagination = data.pagination || this.pagination;
+                        
+                        // 更新可用筛选选项
+                        if (data.filters) {
+                            this.availableExchanges = data.filters.available_exchanges || [];
+                            this.availableSymbols = data.filters.available_symbols || [];
+                        }
+                        
+                        // 渲染图表
+                        this.$nextTick(() => {
+                            this.renderPnlChart();
+                            this.renderSymbolChart();
+                        });
+                        
+                    } catch (e) {
+                        if (window.SafeLog) SafeLog.error(this.t('statistics.loadFailed') + ':', e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                renderPnlChart() {
+                    const canvas = document.getElementById('pnlChart');
+                    if (!canvas) return;
+                    
+                    if (this.pnlChart) {
+                        this.pnlChart.destroy();
+                    }
+                    
+                    const labels = this.byDate.map(d => d.date);
+                    const pnlData = this.byDate.map(d => d.pnl);
+                    const cumulativeData = this.byDate.map(d => d.cumulative_pnl);
+                    
+                    this.pnlChart = new Chart(canvas, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [
+                                {
+                                    label: this.t('statistics.dailyPnl'),
+                                    data: pnlData,
+                                    backgroundColor: pnlData.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)'),
+                                    borderColor: pnlData.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+                                    borderWidth: 1,
+                                    borderRadius: 4,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: this.t('statistics.cumulativePnl'),
+                                    data: cumulativeData,
+                                    type: 'line',
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    borderWidth: 2,
+                                    fill: true,
+                                    tension: 0.4,
+                                    pointRadius: 0,
+                                    pointHoverRadius: 4,
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: { mode: 'index', intersect: false },
+                            plugins: {
+                                legend: { 
+                                    display: true,
+                                    position: 'top',
+                                    align: 'end',
+                                    labels: { 
+                                        color: '#6b7280',
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        padding: 20,
+                                        font: { size: 11 }
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                                    borderColor: 'rgba(55, 65, 81, 0.5)',
+                                    borderWidth: 1,
+                                    titleColor: '#f9fafb',
+                                    bodyColor: '#9ca3af',
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: '#4b5563', maxRotation: 45, font: { size: 10 } },
+                                    grid: { color: 'rgba(55, 65, 81, 0.3)', drawBorder: false }
+                                },
+                                y: {
+                                    position: 'left',
+                                    ticks: { color: '#4b5563', font: { size: 10 } },
+                                    grid: { color: 'rgba(55, 65, 81, 0.3)', drawBorder: false }
+                                },
+                                y1: {
+                                    position: 'right',
+                                    ticks: { color: '#3b82f6', font: { size: 10 } },
+                                    grid: { drawOnChartArea: false, drawBorder: false }
+                                }
+                            }
+                        }
+                    });
+                },
+                renderSymbolChart() {
+                    const canvas = document.getElementById('symbolChart');
+                    if (!canvas) return;
+                    
+                    if (this.symbolChart) {
+                        this.symbolChart.destroy();
+                    }
+                    
+                    // 取前10个币种
+                    const topSymbols = this.bySymbol.slice(0, 10);
+                    const labels = topSymbols.map(s => s.symbol);
+                    const pnlData = topSymbols.map(s => s.total_pnl);
+                    
+                    this.symbolChart = new Chart(canvas, {
+                        type: 'bar',
+                        data: {
+                            labels,
+                            datasets: [{
+                                label: this.t('statistics.totalPnl'),
+                                data: pnlData,
+                                backgroundColor: pnlData.map(v => v >= 0 ? 'rgba(16, 185, 129, 0.7)' : 'rgba(239, 68, 68, 0.7)'),
+                                borderColor: pnlData.map(v => v >= 0 ? '#10b981' : '#ef4444'),
+                                borderWidth: 1,
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            indexAxis: 'y',
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(17, 24, 39, 0.95)',
+                                    borderColor: 'rgba(55, 65, 81, 0.5)',
+                                    borderWidth: 1,
+                                    titleColor: '#f9fafb',
+                                    bodyColor: '#9ca3af',
+                                    padding: 12,
+                                    cornerRadius: 8
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    ticks: { color: '#4b5563', font: { size: 10 } },
+                                    grid: { color: 'rgba(55, 65, 81, 0.3)', drawBorder: false }
+                                },
+                                y: {
+                                    ticks: { color: '#9ca3af', font: { size: 11 } },
+                                    grid: { display: false, drawBorder: false }
+                                }
+                            }
+                        }
+                    });
+                },
+                formatTime(ms) {
+                    if (!ms) return '-';
+                    const d = new Date(parseInt(ms));
+                    const locale = window.I18n ? window.I18n.locale : 'zh-CN';
+                    return d.toLocaleString(locale, { 
+                        month: '2-digit', 
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                },
+                formatDuration(minutes) {
+                    if (!minutes || minutes <= 0) return '-';
+                    if (minutes < 60) return `${Math.round(minutes)}${this.t('statistics.minutesShort')}`;
+                    if (minutes < 1440) return `${Math.round(minutes / 60)}${this.t('statistics.hoursShort')}`;
+                    return `${Math.round(minutes / 1440)}${this.t('statistics.daysShort')}`;
+                },
+                prevPage() {
+                    if (this.pagination.page > 1) {
+                        this.pagination.page--;
+                        this.loadData();
+                    }
+                },
+                nextPage() {
+                    if (this.pagination.page < this.pagination.total_pages) {
+                        this.pagination.page++;
+                        this.loadData();
+                    }
+                }
+            },
+            async mounted() {
+                // 设置动态页面标题
+                if (window.I18n) {
+                    document.title = window.I18n.t('statistics.pageTitle');
+                    window.I18n.showContent();
+                }
+                
+                // 检查登录状态
+                const isLoggedIn = await Auth.checkAuth();
+                if (!isLoggedIn) {
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                // 默认显示近30天
+                this.setDateRange(30);
+            }
+        }).mount('#app');
+        })(); // end async IIFE
+    </script>
+</body>
+</html>

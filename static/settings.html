@@ -1,0 +1,3336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIBTC.VIP - Settings</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Configure your AI trading strategies, exchange APIs and risk parameters on AIBTC.VIP.">
+    <meta name="keywords" content="AI trading settings, crypto bot configuration, trading strategy, API setup">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Security -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
+    <link rel="icon" href="/static/favicon.png" type="image/png">
+    
+    <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+    <style>
+      html, body { background-color: #0f172a; margin: 0; }
+      body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+      [v-cloak] { display: none !important; }
+    </style>
+    
+    <!-- Common CSS -->
+    <link rel="stylesheet" href="/static/css/common.css">
+    
+    <!-- 集中版本管理（必须最先加载） -->
+    <script src="/static/js/version.js"></script>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+    <link rel="preload" href="/static/js/i18n.js" as="script">
+    
+    <script src="/static/vendor/tailwind.min.js" defer></script>
+    <script src="/static/vendor/vue.global.prod.js"></script>
+    <script src="/static/js/i18n.js"></script>
+    <script src="/static/js/auth.js"></script>
+    <script src="/static/js/nav.js"></script>
+    <style>
+        /* Settings page specific styles */
+        .input-style {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background-color: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(71, 85, 105, 0.5);
+            border-radius: 0.75rem;
+            color: white;
+            transition: all 0.3s;
+        }
+        .input-style::placeholder {
+            color: rgb(100, 116, 139);
+        }
+        .input-style:focus {
+            outline: none;
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        .btn-secondary {
+            padding: 0.625rem 1.25rem;
+            background-color: #334155;
+            color: white;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+        .btn-danger {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(to right, #ef4444, #dc2626);
+            color: white;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.2);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+        }
+        .btn-success {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(to right, #22c55e, #059669);
+            color: white;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            transition: all 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.2);
+        }
+        .btn-success:hover {
+            background: linear-gradient(to right, #16a34a, #047857);
+        }
+        /* Select 下拉框样式 */
+        select.input-style {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.75rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen i18n-loading">
+    <!-- 共享导航栏 -->
+    <div id="shared-nav"></div>
+    <script>
+    // Initialize i18n first, then nav
+    I18n.init({
+        onLocaleChange: () => {
+            // 语言变更时刷新页面
+            window.location.reload();
+        }
+    }).then(() => {
+        // 设置动态页面标题
+        document.title = t('settings.pageTitle');
+        initSharedNav({
+            currentPage: 'settings',
+            showPageTitle: true,
+            pageTitle: t('settings.title')
+        });
+    }).catch((e) => {
+        if (window.SafeLog) SafeLog.error('[Settings] I18n init failed:', e);
+    });
+    </script>
+
+    <div id="app" v-cloak class="container mx-auto px-3 md:px-4 py-4 md:py-8 max-w-6xl">
+        <!-- 用户信息头 -->
+        <div class="mb-6 md:mb-8 animate-fade-in">
+            <div class="flex items-center gap-3 md:gap-4">
+                <div class="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl md:text-2xl font-bold shadow-lg shadow-blue-500/20">
+                    {{ username?.charAt(0)?.toUpperCase() || 'U' }}
+                </div>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-white">{{ username }}</h1>
+                    <p class="text-slate-400 text-xs md:text-sm font-mono">{{ uid }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 加载状态 -->
+        <div v-if="loading" class="flex flex-col items-center justify-center py-20">
+            <div class="relative">
+                <div class="w-16 h-16 border-4 border-slate-700 rounded-full"></div>
+                <div class="absolute top-0 left-0 w-16 h-16 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+            </div>
+            <p class="text-slate-400 mt-6">{{ t('settings.loadingConfig') }}</p>
+        </div>
+
+        <!-- 配置内容 - 加载完成后显示 -->
+        <div v-else class="space-y-4 md:space-y-6">
+            <!-- 新手引导卡片 -->
+            <div v-if="showGuide" class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in mb-4 md:mb-6 border border-blue-500/30 bg-gradient-to-r from-blue-500/10 to-purple-500/10">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-base md:text-lg font-semibold text-white">{{ t('settings.quickStart') }}</h3>
+                    </div>
+                    <button @click="dismissGuide" class="text-slate-400 hover:text-white transition-colors flex-shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 流程图 -->
+                <div class="mt-4 flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 text-sm">
+                    <div class="flex items-center gap-2 px-3 py-2 bg-purple-500/20 rounded-lg">
+                        <span class="w-5 h-5 rounded-full bg-purple-500/30 text-purple-400 text-xs flex items-center justify-center font-bold">1</span>
+                        <span class="text-purple-300">{{ t('settings.promptTemplates') }}</span>
+                        <span class="text-slate-500 text-xs">({{ t('settings.guideOptional') }})</span>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <div class="flex items-center gap-2 px-3 py-2 bg-cyan-500/20 rounded-lg">
+                        <span class="w-5 h-5 rounded-full bg-cyan-500/30 text-cyan-400 text-xs flex items-center justify-center font-bold">2</span>
+                        <span class="text-cyan-300">{{ t('settings.llmConfig') }}</span>
+                        <span class="text-slate-500 text-xs">({{ t('settings.guideRequired') }})</span>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <div class="flex items-center gap-2 px-3 py-2 bg-green-500/20 rounded-lg">
+                        <span class="w-5 h-5 rounded-full bg-green-500/30 text-green-400 text-xs flex items-center justify-center font-bold">3</span>
+                        <span class="text-green-300">{{ t('settings.exchangeConfig') }}</span>
+                        <span class="text-slate-500 text-xs">({{ t('settings.guideRequired') }})</span>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-500 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                    <div class="flex items-center gap-2 px-3 py-2 bg-amber-500/20 rounded-lg">
+                        <span class="text-amber-300">{{ t('settings.guideStart') }}</span>
+                    </div>
+                </div>
+                
+                <!-- 说明文字 -->
+                <div class="mt-4 space-y-1.5 text-xs md:text-sm text-slate-400">
+                    <p><span class="text-purple-400">{{ t('settings.promptTemplates') }}</span>: {{ t('settings.guidePromptDesc') }}</p>
+                    <p><span class="text-cyan-400">{{ t('settings.llmConfig') }}</span>: {{ t('settings.guideLlmDesc') }}</p>
+                    <p><span class="text-green-400">{{ t('settings.exchangeConfig') }}</span>: {{ t('settings.guideExchangeDesc') }}</p>
+                </div>
+                
+                <!-- 提示 -->
+                <div class="mt-4 px-3 py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg text-xs md:text-sm text-amber-300/80">
+                    <span class="font-medium">{{ t('settings.guideTip') }}:</span> {{ t('settings.guideReloadTip') }}
+                </div>
+                
+                <!-- 不再显示 -->
+                <div class="mt-4 flex items-center gap-2">
+                    <input type="checkbox" id="dontShowGuide" v-model="dontShowGuideAgain" 
+                           class="w-4 h-4 rounded border-slate-600 bg-slate-700 text-blue-500 focus:ring-blue-500/30">
+                    <label for="dontShowGuide" class="text-xs text-slate-400 cursor-pointer">{{ t('settings.guideDontShow') }}</label>
+                </div>
+            </div>
+
+            <!-- 1. Prompt 模板 -->
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in mb-4 md:mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <h2 class="text-base md:text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                        </svg>
+                        {{ t('settings.promptTemplates') }}
+                        <span v-if="userPresets.length > 0" class="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 bg-purple-500/20 text-purple-400 rounded-full ml-1 md:ml-2">
+                            {{ userPresets.length }} / 5
+                        </span>
+                    </h2>
+                    <div class="flex items-center gap-2">
+                        <button @click="importPreset()" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs md:text-sm rounded-lg transition-colors flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            {{ t('settings.importPreset') }}
+                        </button>
+                        <button @click="openPresetEditor()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white text-xs md:text-sm rounded-lg transition-colors flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            {{ t('settings.newPromptTemplate') }}
+                        </button>
+                    </div>
+                </div>
+                <p class="text-slate-400 text-xs md:text-sm mb-4">
+                    {{ t('settings.promptTemplateDesc') }}
+                </p>
+
+                <!-- 用户预设列表 -->
+                <div v-if="userPresets.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div v-for="preset in userPresets" :key="preset.name"
+                         class="bg-slate-800/50 rounded-lg p-3 border border-slate-700/50 hover:border-purple-500/30 transition-all">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-white font-medium text-sm truncate">{{ preset.name }}</span>
+                            <span class="text-slate-500 text-xs">{{ preset.category_count }} {{ t('settings.categories') }}</span>
+                        </div>
+                        <div class="text-slate-400 text-xs mb-3 truncate">{{ preset.description || t('settings.noDescription') }}</div>
+                        <div class="flex items-center gap-2">
+                            <button @click="exportPreset(preset.name)" 
+                                    class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded transition-colors"
+                                    :title="t('settings.exportPreset')">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                            </button>
+                            <button @click="openPresetEditor(preset.name)" 
+                                    class="flex-1 px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs rounded transition-colors">
+                                {{ t('common.edit') }}
+                            </button>
+                            <button @click="deleteUserPresetDirect(preset.name)" 
+                                    class="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-xs rounded transition-colors">
+                                {{ t('common.delete') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="text-center py-6 text-slate-500 text-sm">
+                    <p>{{ t('settings.noPromptTemplates') }}</p>
+                    <p class="text-xs mt-1">{{ t('settings.clickNewPromptTemplate') }}</p>
+                </div>
+                
+                <!-- 隐藏的文件输入 -->
+                <input type="file" ref="presetFileInput" @change="handlePresetFileImport" accept=".json" class="hidden" aria-label="Import preset file">
+            </div>
+
+            <!-- 2. LLM 配置 -->
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in mb-4 md:mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <h2 class="text-base md:text-lg font-semibold text-white flex items-center gap-2">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                        </svg>
+                        {{ t('settings.llmConfig') }}
+                        <span v-if="aiStrategies.length > 0" class="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded-full ml-1 md:ml-2">
+                            {{ aiStrategies.length }} {{ t('settings.configs') }}
+                        </span>
+                    </h2>
+                    <button @click="openStrategyModal()" class="btn-primary text-xs md:text-sm flex items-center gap-1.5 md:gap-2 w-full sm:w-auto justify-center">
+                        <svg class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        {{ t('settings.newLlmConfig') }}
+                    </button>
+                </div>
+                <p class="text-slate-400 text-xs md:text-sm mb-4">
+                    {{ t('settings.llmConfigDesc') }}
+                </p>
+
+                <!-- LLM 配置列表 -->
+                <div v-if="aiStrategies.length > 0" class="space-y-2 md:space-y-3">
+                    <div v-for="strategy in aiStrategies" :key="strategy.id"
+                         class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-4 border border-slate-700/50 hover:border-cyan-500/30 transition-all">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 md:gap-3">
+                                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                                    <svg class="w-4 h-4 md:w-5 md:h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-white font-medium text-sm md:text-base truncate">{{ strategy.name }}</div>
+                                    <div class="text-[10px] md:text-xs text-slate-500 truncate">
+                                        {{ strategy.llm_provider }} · {{ strategy.llm_model || t('settings.defaultModel') }}
+                                        <span v-if="strategy.has_api_key" class="text-green-400 ml-1 md:ml-2">{{ t('settings.apiConfigured') }}</span>
+                                    </div>
+                                    <div class="text-[10px] md:text-xs text-purple-400 truncate mt-0.5">
+                                        {{ t('settings.strategyPreset') }}: {{ getPresetDisplayName(strategy.strategy_preset) }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 ml-10 sm:ml-0">
+                                <span v-if="getStrategyUsageCount(strategy.id) > 0" class="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-slate-700 text-slate-400 rounded-full whitespace-nowrap">
+                                    {{ getStrategyUsageCount(strategy.id) }} {{ t('settings.exchanges') }}
+                                </span>
+                                <button @click="reloadStrategy(strategy.id)"
+                                        :disabled="strategy.reloading"
+                                        class="px-2 md:px-3 py-1 md:py-1.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-xs md:text-sm rounded-lg transition-colors disabled:opacity-50"
+                                        :title="t('settings.reloadStrategyHint')">
+                                    <svg v-if="strategy.reloading" class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span v-else>{{ t('settings.reloadStrategy') }}</span>
+                                </button>
+                                <button @click="openStrategyModal(strategy)"
+                                        class="px-2 md:px-3 py-1 md:py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs md:text-sm rounded-lg transition-colors">
+                                    {{ t('common.edit') }}
+                                </button>
+                                <button @click="deleteStrategy(strategy.id)"
+                                        :disabled="getStrategyUsageCount(strategy.id) > 0"
+                                        :class="[
+                                            'px-3 py-1.5 text-sm rounded-lg transition-colors',
+                                            getStrategyUsageCount(strategy.id) > 0
+                                                ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                                                : 'bg-red-500/20 hover:bg-red-500/30 text-red-400'
+                                        ]"
+                                        :title="getStrategyUsageCount(strategy.id) > 0 ? t('settings.llmInUse') : t('settings.deleteLlmConfig')">
+                                    {{ t('common.delete') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 空状态 -->
+                <div v-else-if="!strategyModal.show" class="text-center py-8 text-slate-500">
+                    <svg class="w-12 h-12 mx-auto mb-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
+                    <p>{{ t('settings.noLlmConfig') }}</p>
+                    <p class="text-xs mt-1">{{ t('settings.clickNewLlmConfig') }}</p>
+                </div>
+
+                <!-- LLM 配置编辑表单（页面内展开） -->
+                <div v-if="strategyModal.show" class="mt-4 bg-slate-800/50 rounded-xl border border-cyan-500/30 overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-4 bg-slate-800/80 border-b border-slate-700/50">
+                        <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                                <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            {{ strategyModal.isEdit ? t('settings.editLlmConfig') : t('settings.newLlmConfigTitle') }}
+                        </h3>
+                        <button @click="closeStrategyModal" class="text-slate-400 hover:text-white transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="p-5 space-y-4">
+                        <!-- 策略名称 -->
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">{{ t('settings.llmConfigName') }} <span class="text-red-400">*</span></label>
+                            <input v-model="strategyModal.form.name" type="text" class="input-style"
+                                   :placeholder="t('settings.llmConfigNamePlaceholder')">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- LLM 提供商 -->
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">{{ t('settings.llmProvider') }}</label>
+                                <select v-model="strategyModal.form.llm_provider" @change="onProviderChange" class="input-style">
+                                    <option value="anthropic">Claude ({{ t('settings.official') }})</option>
+                                    <option value="openai">OpenAI ({{ t('settings.official') }})</option>
+                                    <option value="deepseek">DeepSeek ({{ t('settings.official') }})</option>
+                                    <option value="openrouter">OpenRouter ({{ t('settings.official') }})</option>
+                                    <option value="grok">Grok ({{ t('settings.official') }})</option>
+                                    <option value="gemini">Gemini ({{ t('settings.official') }})</option>
+                                    <option value="custom">{{ t('settings.thirdPartyLLM') }}</option>
+                                </select>
+                            </div>
+                            <!-- 模型名称 -->
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">{{ t('settings.modelName') }}</label>
+                                <!-- 如果有可用模型列表且不是自定义提供商，显示下拉框 -->
+                                <select v-if="filteredLLMModels.length > 0 && strategyModal.form.llm_provider !== 'custom'" 
+                                        v-model="strategyModal.form.llm_model" 
+                                        @change="onModelChange(true)"
+                                        class="input-style">
+                                    <option v-for="model in filteredLLMModels" :key="model.model_id" :value="model.model_id">
+                                        {{ model.display_name }}{{ model.is_recommended ? ' ★' : '' }}
+                                    </option>
+                                </select>
+                                <!-- 否则显示文本输入框（自定义提供商或无可用模型时） -->
+                                <input v-else 
+                                       v-model="strategyModal.form.llm_model" 
+                                       type="text" 
+                                       class="input-style"
+                                       :placeholder="t('settings.modelNamePlaceholder')">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- API Key -->
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">
+                                    {{ t('settings.apiKeyOptional') }}
+                                    <span class="text-slate-500">{{ t('settings.required') }}</span>
+                                    <span v-if="strategyModal.form.has_api_key" class="text-green-400 ml-2">{{ t('settings.configured') }}</span>
+                                </label>
+                                <input v-model="strategyModal.form.llm_api_key" type="password" class="input-style"
+                                       :placeholder="strategyModal.form.has_api_key ? t('settings.configuredOverwrite') : t('settings.modelNamePlaceholder')">
+                            </div>
+
+                            <!-- Base URL -->
+                            <div>
+                                <label class="block text-slate-400 text-sm mb-2">
+                                    {{ t('settings.baseUrl') }} <span class="text-slate-500">{{ t('settings.baseUrlOptional') }}</span>
+                                </label>
+                                <input v-model="strategyModal.form.llm_base_url" type="text" class="input-style"
+                                       :placeholder="t('settings.baseUrlPlaceholder')">
+                            </div>
+                        </div>
+
+                        <!-- LLM 参数配置 -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-slate-400 text-xs mb-1">
+                                    Temperature
+                                    <span class="text-slate-500">({{ t('settings.optional') }})</span>
+                                </label>
+                                <input v-model.number="strategyModal.form.temperature" type="number" 
+                                       min="0" max="2" step="0.1"
+                                       class="input-style text-sm"
+                                       placeholder="0.1-0.5">
+                                <span class="text-slate-500 text-[10px]">{{ t('settings.temperatureHint') }}</span>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-xs mb-1">
+                                    Top P
+                                    <span class="text-slate-500">({{ t('settings.optional') }})</span>
+                                </label>
+                                <input v-model.number="strategyModal.form.top_p" type="number" 
+                                       min="0" max="1" step="0.05"
+                                       class="input-style text-sm"
+                                       placeholder="0.9">
+                                <span class="text-slate-500 text-[10px]">{{ t('settings.topPHint') }}</span>
+                            </div>
+                            <div>
+                                <label class="block text-slate-400 text-xs mb-1">
+                                    Max Tokens
+                                    <span class="text-slate-500">({{ t('settings.optional') }})</span>
+                                </label>
+                                <input v-model.number="strategyModal.form.max_tokens" type="number" 
+                                       min="1000" max="200000" step="1000"
+                                       class="input-style text-sm"
+                                       placeholder="65536">
+                                <span class="text-slate-500 text-[10px]">{{ t('settings.maxTokensHint') }}</span>
+                            </div>
+                        </div>
+
+                        <!-- 测试连接按钮 -->
+                        <div class="flex items-center gap-4">
+                            <button @click="testLLMConnection" 
+                                    :disabled="strategyModal.testing || !canTestConnection"
+                                    class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2"
+                                    :class="strategyModal.testing ? 'bg-slate-700 text-slate-400 cursor-not-allowed' : 
+                                            canTestConnection ? 'bg-blue-600 hover:bg-blue-500 text-white' : 
+                                            'bg-slate-700 text-slate-500 cursor-not-allowed'">
+                                <svg v-if="strategyModal.testing" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                                {{ strategyModal.testing ? t('settings.testing') : t('settings.testConnection') }}
+                            </button>
+                            
+                            <!-- 测试结果 -->
+                            <div v-if="strategyModal.testResult" class="flex items-center gap-2 text-sm">
+                                <template v-if="strategyModal.testResult.success">
+                                    <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="text-green-400">{{ strategyModal.testResult.message }}</span>
+                                </template>
+                                <template v-else>
+                                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                    <span class="text-red-400">{{ strategyModal.testResult.message }}</span>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- v5.0: 策略配置区域 - 简化版：只选择预设 -->
+                        <div class="border border-slate-700 rounded-lg overflow-hidden">
+                            <!-- 预设选择器 -->
+                            <div class="px-4 py-3 bg-slate-800/50">
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <label class="text-sm font-medium text-slate-300">{{ t('settings.strategyPreset') }}</label>
+                                    <select v-model="strategyModal.form.strategy_preset" 
+                                            class="input-style text-sm py-1.5 flex-1 max-w-xs">
+                                        <!-- 用户自定义预设 -->
+                                        <optgroup v-if="userPresets.length > 0" :label="t('settings.myPresetGroup')">
+                                            <option v-for="preset in userPresets" :key="'user_' + preset.name" :value="preset.name">
+                                                {{ preset.name }}
+                                            </option>
+                                        </optgroup>
+                                        <!-- 系统预设 -->
+                                        <optgroup :label="t('settings.systemPresetGroup')">
+                                            <option v-for="preset in systemPresets" :key="'sys_' + preset.name" :value="preset.name">
+                                                {{ getPresetDisplayName(preset.name) }}
+                                            </option>
+                                        </optgroup>
+                                    </select>
+                                    <span v-if="strategyPresets.length === 0" class="text-xs text-yellow-400">{{ t('settings.loadingPresets') }}</span>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-2">
+                                    {{ t('settings.presetHint') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="flex gap-3 pt-2">
+                            <button @click="closeStrategyModal" class="btn-secondary flex-1">{{ t('common.cancel') }}</button>
+                            <button @click="saveStrategy"
+                                    :disabled="!strategyModal.form.name || strategyModal.saving"
+                                    class="btn-primary flex-1 disabled:opacity-50">
+                                {{ strategyModal.saving ? t('settings.saving') : (strategyModal.isEdit ? t('settings.saveChanges') : t('settings.createLlmConfig')) }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. 执行约束设置（全宽） -->
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in mb-4 md:mb-6">
+                <h2 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                    </svg>
+                    {{ t('settings.executionConstraints') }}
+                </h2>
+                <p class="text-xs md:text-sm text-slate-400 mb-3 md:mb-4">
+                    {{ t('settings.executionConstraintsDesc') }}
+                </p>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-xs md:text-sm mb-0.5">{{ t('settings.maxPositions') }}</label>
+                        <span class="block text-slate-500 text-[10px] mb-1.5">{{ t('settings.maxPositionsHint') }}</span>
+                        <input v-model.number="tradingConfig.max_positions" type="number" min="1" max="50" step="1"
+                            class="input-style text-sm" placeholder="30">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs md:text-sm mb-0.5">{{ t('settings.maxLeverage') }}</label>
+                        <span class="block text-slate-500 text-[10px] mb-1.5">{{ t('settings.maxLeverageHint') }}</span>
+                        <input v-model.number="tradingConfig.default_leverage" type="number" min="1" max="125" step="1"
+                            class="input-style text-sm" placeholder="30">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs md:text-sm mb-0.5">{{ t('settings.positionSizeMultiplier') }}</label>
+                        <span class="block text-slate-500 text-[10px] mb-1.5">{{ t('settings.positionSizeHint') }}</span>
+                        <input v-model.number="tradingConfig.position_size_pct" type="number" min="0.5" max="10" step="0.1"
+                            class="input-style text-sm" placeholder="3">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs md:text-sm mb-0.5">{{ t('settings.minRiskReward') }}</label>
+                        <span class="block text-slate-500 text-[10px] mb-1.5">{{ t('settings.minRiskRewardHint') }}</span>
+                        <input v-model.number="tradingConfig.min_rr_ratio" type="number" min="1" max="10" step="0.5"
+                            class="input-style text-sm" placeholder="3">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs md:text-sm mb-0.5">{{ t('settings.limitOrderDistance') }}</label>
+                        <span class="block text-slate-500 text-[10px] mb-1.5">{{ t('settings.limitOrderDistanceHint') }}</span>
+                        <input v-model.number="tradingConfig.limit_order_min_distance_pct" type="number" min="0.1" max="20" step="0.1"
+                            class="input-style text-sm" placeholder="3">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button @click="saveExecutionConstraints" :disabled="savingConstraints"
+                        class="btn-primary w-full md:w-auto text-sm">
+                        {{ savingConstraints ? t('settings.saving') : t('settings.saveExecutionConstraints') }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. 交易所配置 - 全宽展开式布局 -->
+            <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in mb-4 md:mb-6">
+                <h2 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex flex-wrap items-center gap-2">
+                    <svg class="w-4 h-4 md:w-5 md:h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>{{ t('settings.exchangeConfig') }}</span>
+                    <span class="ml-auto flex items-center gap-1.5 md:gap-2 text-[10px] md:text-xs">
+                        <span v-if="runningExchangeCount > 0" class="px-1.5 md:px-2 py-0.5 md:py-1 bg-green-500/20 text-green-400 rounded-full">
+                            {{ runningExchangeCount }} {{ t('settings.running') }}
+                        </span>
+                        <span v-if="enabledExchangeCount > 0 && enabledExchangeCount !== runningExchangeCount" class="px-1.5 md:px-2 py-0.5 md:py-1 bg-slate-700 text-slate-400 rounded-full">
+                            {{ enabledExchangeCount }} {{ t('settings.enabled') }}
+                        </span>
+                    </span>
+                </h2>
+                <p class="text-slate-400 text-xs md:text-sm mb-2">
+                    {{ t('settings.exchangeConfigDesc') }}
+                </p>
+                <p class="text-slate-500 text-[10px] md:text-xs mb-3 md:mb-4">
+                    {{ t('settings.ipWhitelist') }}: <code class="bg-slate-700/50 px-1 md:px-1.5 py-0.5 rounded text-amber-400">152.53.148.251</code>
+                </p>
+
+                <!-- 交易所列表 - 展开式卡片 -->
+                <div class="space-y-3 md:space-y-4">
+                    <div v-for="ex in exchangeConfigs" :key="ex.exchange"
+                         :class="[
+                             'rounded-lg md:rounded-xl border transition-all',
+                             exchangeTradingStatus[ex.exchange]?.is_running
+                                 ? 'bg-green-500/5 border-green-500/30'
+                                 : 'bg-slate-800/50 border-slate-700/50 hover:border-slate-600/50'
+                         ]">
+                        <!-- 交易所头部 -->
+                        <div class="p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2 md:gap-3">
+                                <!-- 交易所图标 -->
+                                <div :class="[
+                                    'w-10 h-10 md:w-12 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center text-xs md:text-sm font-bold relative flex-shrink-0',
+                                    ex.exchange === 'binance' ? 'bg-yellow-500/20 text-yellow-400' :
+                                    ex.exchange === 'okx' ? 'bg-blue-500/20 text-blue-400' :
+                                    ex.exchange === 'bitget' ? 'bg-cyan-500/20 text-cyan-400' :
+                                    'bg-green-500/20 text-green-400'
+                                ]">
+                                    {{ ex.exchange === 'binance' ? 'BN' : ex.exchange === 'okx' ? 'OKX' : ex.exchange === 'bitget' ? 'BG' : 'HL' }}
+                                    <!-- 运行状态指示点 -->
+                                    <span v-if="exchangeTradingStatus[ex.exchange]?.is_running"
+                                          class="absolute -top-1 -right-1 w-2.5 h-2.5 md:w-3 md:h-3 bg-green-400 rounded-full animate-pulse-status border-2 border-slate-800"></span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="text-white font-medium text-sm md:text-base flex items-center gap-1.5 md:gap-2 flex-wrap">
+                                        {{ ex.display_name }}
+                                        <span v-if="ex.is_testnet" class="text-[10px] md:text-xs px-1 md:px-1.5 py-0.5 bg-amber-500/20 text-amber-400 rounded">{{ t('settings.testnet') }}</span>
+                                    </div>
+                                    <div class="text-[10px] md:text-xs text-slate-500 flex items-center gap-1.5 md:gap-2 mt-0.5">
+                                        <span v-if="ex.is_configured" class="text-green-400">{{ t('settings.apiConfiguredShort') }}</span>
+                                        <span v-else class="text-slate-500">{{ t('settings.notConfigured') }}</span>
+                                        <span v-if="exchangeTradingStatus[ex.exchange]?.is_running" class="text-green-400 font-medium">
+                                            · {{ t('settings.runningStatus') }}
+                                        </span>
+                                        <span v-else-if="ex.is_configured && ex.is_enabled" class="text-slate-400">
+                                            · {{ t('settings.stoppedStatus') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 ml-12 sm:ml-0 flex-wrap">
+                                <!-- 启动/停止按钮 -->
+                                <button v-if="ex.is_configured && ex.is_enabled && !exchangeTradingStatus[ex.exchange]?.is_running && canStartTrading(ex)"
+                                        @click="startExchangeTrading(ex.exchange)"
+                                        :disabled="exchangeActionLoading[ex.exchange]"
+                                        class="px-2.5 md:px-4 py-1.5 md:py-2 bg-green-600 hover:bg-green-500 text-white text-xs md:text-sm rounded-lg transition-colors flex items-center gap-1.5 md:gap-2 disabled:opacity-50">
+                                    <svg v-if="exchangeActionLoading[ex.exchange]" class="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <svg v-else class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                                    </svg>
+                                    <span class="hidden sm:inline">{{ t('settings.startTrading') }}</span>
+                                    <span class="sm:hidden">{{ t('settings.start') }}</span>
+                                </button>
+                                <button v-else-if="ex.is_configured && exchangeTradingStatus[ex.exchange]?.is_running"
+                                        @click="stopExchangeTrading(ex.exchange)"
+                                        :disabled="exchangeActionLoading[ex.exchange]"
+                                        class="px-2.5 md:px-4 py-1.5 md:py-2 bg-red-600 hover:bg-red-500 text-white text-xs md:text-sm rounded-lg transition-colors flex items-center gap-1.5 md:gap-2 disabled:opacity-50">
+                                    <svg v-if="exchangeActionLoading[ex.exchange]" class="w-3.5 h-3.5 md:w-4 md:h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <svg v-else class="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/>
+                                    </svg>
+                                    <span class="hidden sm:inline">{{ t('settings.stopTrading') }}</span>
+                                    <span class="sm:hidden">{{ t('settings.stop') }}</span>
+                                </button>
+                                <!-- 启用开关 -->
+                                <label v-if="ex.is_configured" class="relative cursor-pointer" :title="t('settings.enableDisableExchange')">
+                                    <input type="checkbox" class="sr-only"
+                                           :checked="ex.is_enabled"
+                                           @change="toggleExchange(ex.exchange, $event.target.checked)">
+                                    <div :class="['w-9 h-5 md:w-11 md:h-6 rounded-full transition-colors', ex.is_enabled ? 'bg-green-500' : 'bg-slate-600']"></div>
+                                    <div :class="['absolute top-0.5 md:top-1 left-0.5 md:left-1 w-4 h-4 rounded-full bg-white transition-transform', ex.is_enabled ? 'translate-x-4 md:translate-x-5' : '']"></div>
+                                </label>
+                                <!-- API配置按钮 -->
+                                <button @click="openExchangeModal(ex.exchange)"
+                                        class="px-2 md:px-3 py-1.5 md:py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs md:text-sm rounded-lg transition-colors">
+                                    {{ ex.is_configured ? t('settings.api') : t('settings.configure') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 监控配置区域（展开显示） -->
+                        <div v-if="ex.is_configured && ex.is_enabled" class="border-t border-slate-700/50 p-4 bg-slate-900/30">
+                            <div class="flex flex-col lg:flex-row lg:items-start gap-4">
+                                <!-- AI500 开关 -->
+                                <div class="flex-shrink-0">
+                                    <label class="flex items-center gap-3 cursor-pointer bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+                                        <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-white text-sm font-medium">{{ t('settings.ai500SmartPick') }}</div>
+                                            <div class="text-slate-400 text-xs">{{ t('settings.ai500Desc') }}</div>
+                                        </div>
+                                        <div class="relative ml-2">
+                                            <input type="checkbox" class="sr-only"
+                                                   :checked="ex.ai500_enabled"
+                                                   @change="toggleExchangeAI500(ex.exchange, $event.target.checked)">
+                                            <div :class="['w-10 h-6 rounded-full transition-colors', ex.ai500_enabled ? 'bg-amber-500' : 'bg-slate-600']"></div>
+                                            <div :class="['absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform', ex.ai500_enabled ? 'translate-x-4' : '']"></div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- 自定义币种 -->
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <label class="text-slate-400 text-sm">{{ t('settings.monitorSymbols') }}</label>
+                                        <span :class="['text-xs px-1.5 py-0.5 rounded', (ex.monitor_symbols?.length || 0) >= 20 ? 'bg-red-500/20 text-red-400' : 'bg-slate-700 text-slate-400']">
+                                            {{ ex.monitor_symbols?.length || 0 }}/20
+                                        </span>
+                                        <a href="https://token.aibtc.vip/latest" target="_blank" rel="noopener noreferrer" class="ml-auto text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1">
+                                            {{ t('settings.ai500List') }}
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                        </a>
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <input type="text"
+                                               :value="(ex.monitor_symbols || []).join(', ')"
+                                               @blur="updateExchangeSymbols(ex.exchange, $event.target.value)"
+                                               @keyup.enter="updateExchangeSymbols(ex.exchange, $event.target.value)"
+                                               class="input-style flex-1 text-sm"
+                                               :placeholder="t('settings.symbolsPlaceholder')">
+                                    </div>
+                                    <!-- 快捷币种按钮 -->
+                                    <div class="flex flex-wrap gap-1.5 mt-2">
+                                        <button v-for="symbol in quickSymbols" :key="symbol"
+                                                @click="toggleExchangeSymbol(ex.exchange, symbol)"
+                                                :class="[
+                                                    'px-2 py-1 rounded text-xs font-medium transition-all',
+                                                    (ex.monitor_symbols || []).includes(symbol)
+                                                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                                                        : 'bg-slate-700 text-slate-400 hover:bg-slate-600 hover:text-white'
+                                                ]">
+                                            {{ symbol.replace('USDT', '') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 未配置监控的提示 -->
+                            <div v-if="!hasExchangeMonitorConfig(ex)"
+                                 class="mt-3 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-amber-400 text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                {{ t('settings.enableAi500OrAddSymbols') }}
+                            </div>
+                            <!-- 未配置 LLM 的提示 -->
+                            <div v-else-if="!ex.ai_strategy_id"
+                                 class="mt-3 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-lg text-cyan-400 text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                </svg>
+                                {{ t('settings.selectLlmConfig') }}
+                            </div>
+
+                            <!-- LLM 配置选择 -->
+                            <div class="mt-4 pt-4 border-t border-slate-700/30">
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                                        </svg>
+                                        <span class="text-white text-sm font-medium">{{ t('settings.llm') }}</span>
+                                    </div>
+                                    <select :value="ex.ai_strategy_id || ''"
+                                            @change="setExchangeAIStrategy(ex.exchange, $event.target.value)"
+                                            class="input-style text-sm py-1.5 flex-1 max-w-xs">
+                                        <option value="">{{ t('settings.noLlm') }}</option>
+                                        <option v-for="strategy in aiStrategies" :key="strategy.id" :value="strategy.id">
+                                            {{ strategy.name }}
+                                        </option>
+                                    </select>
+                                    <span v-if="ex.ai_strategy_id && getStrategyInfo(ex.ai_strategy_id)" class="text-xs text-slate-500">
+                                        {{ getStrategyInfo(ex.ai_strategy_id)?.llm_provider }} · {{ getStrategyInfo(ex.ai_strategy_id)?.llm_model || t('settings.defaultModel') }}
+                                    </span>
+                                </div>
+                                <p v-if="aiStrategies.length === 0" class="text-xs text-slate-500 mt-2">
+                                    {{ t('settings.createLlmConfigFirst') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 未配置API的提示 -->
+                        <div v-else-if="!ex.is_configured" class="border-t border-slate-700/50 p-4 bg-slate-900/30">
+                            <div class="text-slate-500 text-sm flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ t('settings.configureApiFirst') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 其他配置区域 - 两列布局 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+                <!-- 通知配置 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in" style="animation-delay: 0.32s;">
+                    <h2 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        {{ t('settings.notificationConfig') }}
+                    </h2>
+                    <div class="space-y-3 md:space-y-4">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative">
+                                <input
+                                    v-model="notificationConfig.telegram_enabled"
+                                    type="checkbox"
+                                    class="sr-only"
+                                >
+                                <div :class="['w-10 h-6 rounded-full transition-colors', notificationConfig.telegram_enabled ? 'bg-blue-500' : 'bg-slate-600']"></div>
+                                <div :class="['absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform', notificationConfig.telegram_enabled ? 'translate-x-4' : '']"></div>
+                            </div>
+                            <span class="text-slate-400 group-hover:text-white transition-colors">{{ t('settings.enableTelegram') }}</span>
+                        </label>
+                        <p class="text-xs text-slate-500 -mt-2">
+                            {{ t('settings.telegramBotDesc') }}
+                        </p>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">{{ t('settings.chatId') }} <span class="text-red-400">*</span></label>
+                            <input
+                                v-model="notificationConfig.telegram_chat_id"
+                                type="text"
+                                class="input-style"
+                                :placeholder="config.has_telegram_chat_id ? t('settings.configuredOverwrite') : t('settings.chatIdPlaceholder')"
+                            >
+                            <p class="text-xs text-slate-500 mt-1">
+                                {{ t('settings.chatIdStep1') }} <a href="https://t.me/Hotfuturesbot" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">{{ t('settings.chatIdStep1Link') }}</a> {{ t('settings.chatIdStep1End') }}
+                            </p>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                {{ t('settings.chatIdStep2') }} <a href="https://t.me/userinfobot" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">{{ t('settings.chatIdStep2Link') }}</a> {{ t('settings.chatIdStep2End') }}
+                            </p>
+                            <p class="text-xs text-yellow-500/80 mt-0.5">
+                                ⚠️ {{ t('settings.chatIdWarning') }}
+                            </p>
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">
+                                {{ t('settings.topicId') }} <span class="text-slate-500">{{ t('settings.topicIdOptional') }}</span>
+                            </label>
+                            <input
+                                v-model="notificationConfig.telegram_topic_id"
+                                type="text"
+                                class="input-style"
+                                :placeholder="config.has_telegram_topic_id ? t('settings.configuredOverwrite') : t('settings.topicIdPlaceholder')"
+                            >
+                            <p class="text-xs text-slate-500 mt-1">
+                                {{ t('settings.topicIdHint') }}
+                            </p>
+                        </div>
+                        <button
+                            @click="saveNotificationConfig"
+                            class="btn-primary w-full"
+                        >
+                            {{ t('settings.saveNotificationConfig') }}
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 公开仪表盘设置 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in" style="animation-delay: 0.35s;">
+                    <h2 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                        </svg>
+                        {{ t('settings.publicDashboardTitle') }}
+                    </h2>
+                    <div class="space-y-3 md:space-y-4">
+                        <p class="text-xs md:text-sm text-slate-400">
+                            {{ t('settings.publicDashboardDesc') }}
+                        </p>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <div class="relative">
+                                <input
+                                    v-model="publicDashboard.enabled"
+                                    type="checkbox"
+                                    class="sr-only"
+                                    @change="togglePublicDashboard"
+                                >
+                                <div :class="['w-10 h-6 rounded-full transition-colors', publicDashboard.enabled ? 'bg-green-500' : 'bg-slate-600']"></div>
+                                <div :class="['absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform', publicDashboard.enabled ? 'translate-x-4' : '']"></div>
+                            </div>
+                            <span class="text-slate-400 group-hover:text-white transition-colors">
+                                {{ publicDashboard.enabled ? t('settings.opened') : t('settings.closed') }}
+                            </span>
+                            <span v-if="publicDashboard.saving" class="text-slate-500 text-xs ml-2">{{ t('settings.saving') }}</span>
+                        </label>
+                        
+                        <!-- 公开链接 -->
+                        <div v-if="publicDashboard.enabled && publicDashboard.link" class="bg-slate-800/50 rounded-lg p-3">
+                            <label class="block text-slate-400 text-xs mb-2">{{ t('settings.yourPublicLink') }}</label>
+                            <div class="flex items-center gap-2">
+                                <input
+                                    :value="publicDashboardFullLink"
+                                    type="text"
+                                    readonly
+                                    class="input-style flex-1 text-xs md:text-sm bg-slate-900/50"
+                                >
+                                <button
+                                    @click="copyPublicLink"
+                                    class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs transition-colors flex-shrink-0"
+                                >
+                                    {{ publicDashboard.copied ? t('settings.copied') : t('settings.copy') }}
+                                </button>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">
+                                {{ t('settings.shareLink') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 数据管理 -->
+                <div class="glass-card rounded-xl md:rounded-2xl p-4 md:p-6 animate-fade-in" style="animation-delay: 0.4s;">
+                    <h2 class="text-base md:text-lg font-semibold text-white mb-3 md:mb-4 flex items-center gap-2">
+                        <svg class="w-4 h-4 md:w-5 md:h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                        </svg>
+                        {{ t('settings.dataManagement') }}
+                    </h2>
+
+                    <!-- 数据统计 -->
+                    <div v-if="redisStats" class="mb-3 md:mb-4 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+                        <div class="bg-slate-800/50 rounded-lg p-2 md:p-3 text-center">
+                            <div class="text-slate-400 text-[10px] md:text-xs">{{ t('settings.tradeRecords') }}</div>
+                            <div class="text-white font-semibold text-sm md:text-base">{{ redisStats.trades_count || 0 }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-2 md:p-3 text-center">
+                            <div class="text-slate-400 text-[10px] md:text-xs">{{ t('settings.closedTrades') }}</div>
+                            <div class="text-white font-semibold text-sm md:text-base">{{ redisStats.closed_trades_count || 0 }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-2 md:p-3 text-center">
+                            <div class="text-slate-400 text-[10px] md:text-xs">{{ t('settings.aiHistory') }}</div>
+                            <div class="text-white font-semibold text-sm md:text-base">{{ redisStats.ai_history_count || 0 }}</div>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-lg p-2 md:p-3 text-center">
+                            <div class="text-slate-400 text-[10px] md:text-xs">{{ t('settings.dataSize') }}</div>
+                            <div class="text-white font-semibold text-sm md:text-base">{{ formatDataSize(redisStats.data_size) }}</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 md:space-y-4">
+                        <!-- 选择性重置 -->
+                        <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-3 md:p-4 space-y-3 md:space-y-4">
+                            <!-- 交易所选择 -->
+                            <div>
+                                <label class="block text-slate-400 text-xs md:text-sm mb-1.5 md:mb-2">{{ t('settings.selectExchange') }}</label>
+                                <select v-model="resetOptions.exchange" @change="onExchangeChange" class="input-style text-xs md:text-sm">
+                                    <option value="all">{{ t('settings.allExchanges') }}</option>
+                                    <option value="binance">Binance</option>
+                                    <option value="okx">OKX</option>
+                                    <option value="bitget">Bitget</option>
+                                    <option value="hyperliquid">Hyperliquid</option>
+                                </select>
+                            </div>
+
+                            <!-- 数据类型选择 -->
+                            <div>
+                                <label class="block text-slate-400 text-xs md:text-sm mb-1.5 md:mb-2">{{ t('settings.selectDataTypes') }}</label>
+                                <div class="grid grid-cols-2 gap-1.5 md:gap-2">
+                                    <!-- 按交易所分的数据 -->
+                                    <label class="flex items-center gap-1.5 md:gap-2 cursor-pointer bg-slate-700/50 rounded-lg px-2 md:px-3 py-1.5 md:py-2 hover:bg-slate-700 transition-colors">
+                                        <input type="checkbox" v-model="resetOptions.dataTypes" value="positions" class="rounded border-slate-500 bg-slate-700 text-red-500 focus:ring-red-500 w-3.5 h-3.5 md:w-4 md:h-4">
+                                        <span class="text-slate-300 text-xs md:text-sm">{{ t('settings.positionRecords') }}</span>
+                                    </label>
+                                    <label class="flex items-center gap-1.5 md:gap-2 cursor-pointer bg-slate-700/50 rounded-lg px-2 md:px-3 py-1.5 md:py-2 hover:bg-slate-700 transition-colors">
+                                        <input type="checkbox" v-model="resetOptions.dataTypes" value="closed_trades" class="rounded border-slate-500 bg-slate-700 text-red-500 focus:ring-red-500 w-3.5 h-3.5 md:w-4 md:h-4">
+                                        <span class="text-slate-300 text-xs md:text-sm">{{ t('settings.closedTradesData') }}</span>
+                                    </label>
+                                    <label class="flex items-center gap-1.5 md:gap-2 cursor-pointer bg-slate-700/50 rounded-lg px-2 md:px-3 py-1.5 md:py-2 hover:bg-slate-700 transition-colors">
+                                        <input type="checkbox" v-model="resetOptions.dataTypes" value="cache" class="rounded border-slate-500 bg-slate-700 text-red-500 focus:ring-red-500 w-3.5 h-3.5 md:w-4 md:h-4">
+                                        <span class="text-slate-300 text-xs md:text-sm">{{ t('settings.cacheData') }}</span>
+                                    </label>
+                                    <!-- 全局数据（不分交易所，只在选择"全部交易所"时可用） -->
+                                    <label :class="[
+                                        'flex items-center gap-1.5 md:gap-2 rounded-lg px-2 md:px-3 py-1.5 md:py-2 transition-colors',
+                                        resetOptions.exchange === 'all' 
+                                            ? 'cursor-pointer bg-slate-700/50 hover:bg-slate-700' 
+                                            : 'cursor-not-allowed bg-slate-800/30 opacity-50'
+                                    ]" :title="resetOptions.exchange !== 'all' ? t('settings.globalDataHint') : ''">
+                                        <input type="checkbox" v-model="resetOptions.dataTypes" value="ai_history" 
+                                               :disabled="resetOptions.exchange !== 'all'"
+                                               class="rounded border-slate-500 bg-slate-700 text-red-500 focus:ring-red-500 w-3.5 h-3.5 md:w-4 md:h-4 disabled:opacity-50">
+                                        <span class="text-slate-300 text-xs md:text-sm">{{ t('settings.aiHistoryData') }}</span>
+                                        <span v-if="resetOptions.exchange !== 'all'" class="text-amber-400 text-[10px]">{{ t('settings.global') }}</span>
+                                    </label>
+                                    <label :class="[
+                                        'flex items-center gap-1.5 md:gap-2 rounded-lg px-2 md:px-3 py-1.5 md:py-2 transition-colors',
+                                        resetOptions.exchange === 'all' 
+                                            ? 'cursor-pointer bg-slate-700/50 hover:bg-slate-700' 
+                                            : 'cursor-not-allowed bg-slate-800/30 opacity-50'
+                                    ]" :title="resetOptions.exchange !== 'all' ? t('settings.globalDataHint') : ''">
+                                        <input type="checkbox" v-model="resetOptions.dataTypes" value="notifications" 
+                                               :disabled="resetOptions.exchange !== 'all'"
+                                               class="rounded border-slate-500 bg-slate-700 text-red-500 focus:ring-red-500 w-3.5 h-3.5 md:w-4 md:h-4 disabled:opacity-50">
+                                        <span class="text-slate-300 text-xs md:text-sm">{{ t('settings.notificationRecords') }}</span>
+                                        <span v-if="resetOptions.exchange !== 'all'" class="text-amber-400 text-[10px]">{{ t('settings.global') }}</span>
+                                    </label>
+                                    <label :class="[
+                                        'flex items-center gap-1.5 md:gap-2 rounded-lg px-2 md:px-3 py-1.5 md:py-2 transition-colors',
+                                        resetOptions.exchange === 'all' 
+                                            ? 'cursor-pointer bg-slate-700/50 hover:bg-slate-700' 
+                                            : 'cursor-not-allowed bg-slate-800/30 opacity-50'
+                                    ]" :title="resetOptions.exchange !== 'all' ? t('settings.globalDataHint') : ''">
+                                        <input type="checkbox" v-model="resetOptions.dataTypes" value="decision_feedback" 
+                                               :disabled="resetOptions.exchange !== 'all'"
+                                               class="rounded border-slate-500 bg-slate-700 text-red-500 focus:ring-red-500 w-3.5 h-3.5 md:w-4 md:h-4 disabled:opacity-50">
+                                        <span class="text-slate-300 text-xs md:text-sm">{{ t('settings.decisionFeedback') }}</span>
+                                        <span v-if="resetOptions.exchange !== 'all'" class="text-amber-400 text-[10px]">{{ t('settings.global') }}</span>
+                                    </label>
+                                </div>
+                                <!-- 全局数据提示 -->
+                                <p v-if="resetOptions.exchange !== 'all'" class="text-amber-400/70 text-[10px] md:text-xs mt-2">
+                                    {{ t('settings.globalDataHint') }}
+                                </p>
+                            </div>
+
+                            <!-- 快捷按钮 -->
+                            <div class="flex gap-2">
+                                <button @click="selectAllDataTypes" class="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors">
+                                    {{ t('settings.selectAll') }}
+                                </button>
+                                <button @click="clearAllDataTypes" class="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 md:py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors">
+                                    {{ t('settings.clear') }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 重置按钮 -->
+                        <div class="bg-red-500/10 border border-red-500/30 rounded-lg md:rounded-xl p-3 md:p-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <div class="text-red-400 font-medium text-xs md:text-sm">
+                                        {{ resetOptions.exchange === 'all' ? t('settings.allExchanges') : resetOptions.exchange.toUpperCase() }}
+                                        · {{ resetOptions.dataTypes.length }} {{ t('settings.dataItems') }}
+                                    </div>
+                                    <p class="text-slate-500 text-[10px] md:text-xs mt-0.5 md:mt-1">{{ t('settings.irreversible') }}</p>
+                                </div>
+                                <button
+                                    @click="confirmResetRedisData"
+                                    :disabled="resettingRedis || resetOptions.dataTypes.length === 0"
+                                    class="btn-danger text-xs md:text-sm flex items-center justify-center gap-1.5 md:gap-2 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
+                                >
+                                    <svg v-if="resettingRedis" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    {{ resettingRedis ? t('settings.resetting') : t('settings.resetSelectedData') }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- 关闭 v-else div -->
+
+        <!-- 数据重置确认弹窗 -->
+        <Transition name="modal">
+            <div v-if="resetConfirmModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                <div class="bg-slate-800 rounded-2xl w-full max-w-sm border border-slate-700 shadow-2xl overflow-hidden animate-fade-in">
+                    <!-- 头部 -->
+                    <div class="bg-gradient-to-r from-red-500/20 to-orange-500/20 px-5 py-4 border-b border-slate-700/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+                                <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-semibold">{{ t('settings.confirmResetData') }}</h3>
+                                <p class="text-slate-400 text-xs">{{ t('settings.irreversible') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 内容 -->
+                    <div class="px-5 py-4">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between py-2 border-b border-slate-700/50">
+                                <span class="text-slate-400 text-sm">{{ t('settings.exchange') }}</span>
+                                <span class="text-white font-medium text-sm">{{ resetConfirmModal.exchangeText }}</span>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-slate-400 text-sm block mb-2">{{ t('settings.dataType') }}</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    <span v-for="type in resetConfirmModal.dataTypesArray" :key="type"
+                                          class="px-2 py-1 bg-red-500/10 text-red-400 text-xs rounded-lg border border-red-500/20">
+                                        {{ type }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-red-500/10 rounded-xl border border-red-500/20">
+                            <p class="text-red-400 text-xs flex items-start gap-2">
+                                <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                <span>{{ t('settings.deleteWarning') }}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 按钮 -->
+                    <div class="px-5 py-4 bg-slate-800/50 border-t border-slate-700/50 flex gap-3">
+                        <button @click="resetConfirmModal.show = false"
+                                class="flex-1 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-sm font-medium transition-colors">
+                            {{ t('common.cancel') }}
+                        </button>
+                        <button @click="executeResetRedisData"
+                                :disabled="resettingRedis"
+                                class="flex-1 px-4 py-2.5 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 disabled:opacity-50">
+                            <svg v-if="resettingRedis" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            {{ resettingRedis ? t('settings.resetting') : t('settings.confirmReset') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </Transition>
+
+        <!-- 交易所 API 配置弹窗 -->
+        <div v-if="exchangeModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4">
+            <div class="bg-slate-800 rounded-xl md:rounded-2xl p-4 md:p-6 w-full max-w-md border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+                <div class="flex items-center justify-between mb-4 md:mb-6">
+                    <h3 class="text-base md:text-lg font-semibold text-white flex items-center gap-2">
+                        <div :class="[
+                            'w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-[10px] md:text-xs font-bold',
+                            exchangeModal.exchange === 'binance' ? 'bg-yellow-500/20 text-yellow-400' :
+                            exchangeModal.exchange === 'okx' ? 'bg-blue-500/20 text-blue-400' :
+                            exchangeModal.exchange === 'bitget' ? 'bg-cyan-500/20 text-cyan-400' :
+                            'bg-green-500/20 text-green-400'
+                        ]">
+                            {{ exchangeModal.exchange === 'binance' ? 'BN' : exchangeModal.exchange === 'okx' ? 'OKX' : exchangeModal.exchange === 'bitget' ? 'BG' : 'HL' }}
+                        </div>
+                        <span class="text-sm md:text-base">{{ exchangeModal.displayName }} API</span>
+                    </h3>
+                    <button @click="closeExchangeModal" class="text-slate-400 hover:text-white p-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="space-y-3 md:space-y-4">
+                    <!-- API Key -->
+                    <div>
+                        <label class="block text-slate-400 text-xs md:text-sm mb-1.5 md:mb-2">
+                            {{ exchangeModal.exchange === 'hyperliquid' ? t('settings.privateKey') : t('settings.apiKey') }}
+                        </label>
+                        <input v-model="exchangeModal.form.api_key" type="password" class="input-style text-sm"
+                               :placeholder="exchangeModal.hasKey ? t('settings.configuredOverwrite') : t('settings.enterValue')">
+                    </div>
+
+                    <!-- API Secret (非 Hyperliquid) -->
+                    <div v-if="exchangeModal.exchange !== 'hyperliquid'">
+                        <label class="block text-slate-400 text-sm mb-2">{{ t('settings.apiSecret') }}</label>
+                        <input v-model="exchangeModal.form.api_secret" type="password" class="input-style"
+                               :placeholder="exchangeModal.hasKey ? t('settings.configuredOverwrite') : t('settings.enterValue')">
+                    </div>
+
+                    <!-- Passphrase (OKX, Bitget) -->
+                    <div v-if="exchangeModal.exchange === 'okx' || exchangeModal.exchange === 'bitget'">
+                        <label class="block text-slate-400 text-sm mb-2">API Passphrase</label>
+                        <input v-model="exchangeModal.form.passphrase" type="password" class="input-style"
+                               :placeholder="exchangeModal.exchange === 'okx' ? t('settings.okxPassphrase') : t('settings.bitgetPassphrase')">
+                    </div>
+
+                    <!-- 钱包地址 (Hyperliquid) -->
+                    <div v-if="exchangeModal.exchange === 'hyperliquid'">
+                        <label class="block text-slate-400 text-sm mb-2">
+                            {{ t('settings.walletAddress') }} <span class="text-slate-500">{{ t('settings.walletAddressOptional') }}</span>
+                        </label>
+                        <input v-model="exchangeModal.form.wallet_address" type="text" class="input-style"
+                               :placeholder="t('settings.walletAddressPlaceholder')">
+                    </div>
+
+                    <!-- 测试网开关（仅管理员可见） -->
+                    <div v-if="exchangeModal.hasTestnet && isAdmin" class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <div class="relative">
+                                <input v-model="exchangeModal.form.is_testnet" type="checkbox" class="sr-only">
+                                <div :class="['w-10 h-6 rounded-full transition-colors', exchangeModal.form.is_testnet ? 'bg-amber-500' : 'bg-slate-600']"></div>
+                                <div :class="['absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform', exchangeModal.form.is_testnet ? 'translate-x-4' : '']"></div>
+                            </div>
+                            <div>
+                                <span class="text-amber-400 font-medium">{{ t('settings.useTestnet') }}</span>
+                                <p class="text-amber-400/70 text-xs mt-0.5">{{ t('settings.testnetAdminOnly') }}</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- 启用开关 -->
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <div class="relative">
+                            <input v-model="exchangeModal.form.is_enabled" type="checkbox" class="sr-only">
+                            <div :class="['w-10 h-6 rounded-full transition-colors', exchangeModal.form.is_enabled ? 'bg-green-500' : 'bg-slate-600']"></div>
+                            <div :class="['absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform', exchangeModal.form.is_enabled ? 'translate-x-4' : '']"></div>
+                        </div>
+                        <span class="text-slate-400">{{ t('settings.enableExchange') }}</span>
+                    </label>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button @click="testExchangeConnection"
+                            :disabled="exchangeModal.testing"
+                            class="btn-secondary flex-1 flex items-center justify-center gap-2">
+                        <svg v-if="exchangeModal.testing" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        {{ exchangeModal.testing ? t('settings.testing') : t('settings.testConnection') }}
+                    </button>
+                    <button @click="saveExchangeConfig"
+                            :disabled="exchangeModal.saving"
+                            class="btn-primary flex-1">
+                        {{ exchangeModal.saving ? t('settings.saving') : t('settings.saveConfig') }}
+                    </button>
+                </div>
+
+                <!-- 删除配置按钮（仅已配置时显示） -->
+                <div v-if="exchangeModal.hasKey" class="mt-4 pt-4 border-t border-slate-700">
+                    <button @click="deleteExchangeConfig"
+                            :disabled="exchangeModal.deleting"
+                            class="w-full px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <svg v-if="exchangeModal.deleting" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        {{ exchangeModal.deleting ? t('settings.deleting') : t('settings.deleteApiConfig') }}
+                    </button>
+                    <p class="text-xs text-slate-500 mt-2 text-center">
+                        {{ t('settings.deleteApiConfigHint') }}
+                    </p>
+                </div>
+
+                <!-- 测试结果 -->
+                <div v-if="exchangeModal.testResult"
+                     :class="['mt-4 p-3 rounded-lg text-sm', exchangeModal.testResult.success ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400']">
+                    {{ exchangeModal.testResult.message }}
+                </div>
+            </div>
+        </div>
+
+        <!-- 预设编辑器弹窗 -->
+        <div v-if="presetEditorModal.show" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-4">
+            <div class="bg-slate-800 rounded-xl md:rounded-2xl w-full max-w-2xl border border-slate-700 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+                <!-- 头部 -->
+                <div class="flex items-center justify-between px-5 py-4 bg-slate-800/80 border-b border-slate-700/50 flex-shrink-0">
+                    <h3 class="text-base font-semibold text-white flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        {{ presetEditorModal.isEdit ? t('settings.editPreset') : t('settings.newPreset') }}
+                    </h3>
+                    <button @click="closePresetEditor" class="text-slate-400 hover:text-white transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- 内容区域 - 可滚动 -->
+                <div class="p-5 space-y-4 overflow-y-auto flex-1">
+                    <!-- 预设名称和描述 -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">{{ t('settings.presetName') }} <span class="text-red-400">*</span></label>
+                            <input v-model="presetEditorModal.form.name" type="text" class="input-style"
+                                   :disabled="presetEditorModal.isEdit"
+                                   :placeholder="t('settings.presetNamePlaceholder')">
+                        </div>
+                        <div>
+                            <label class="block text-slate-400 text-sm mb-2">{{ t('settings.description') }} <span class="text-slate-500">{{ t('settings.optional') }}</span></label>
+                            <input v-model="presetEditorModal.form.description" type="text" class="input-style"
+                                   :placeholder="t('settings.descriptionPlaceholder')">
+                        </div>
+                    </div>
+
+                    <!-- 从系统预设复制 -->
+                    <div class="flex items-center gap-2 text-xs">
+                        <span class="text-slate-500">{{ t('settings.copyFromSystemPreset') }}</span>
+                        <button v-for="preset in systemPresets" :key="preset.name"
+                                @click="copyFromSystemPreset(preset.name)"
+                                class="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded transition-colors">
+                            {{ getPresetDisplayName(preset.name) }}
+                        </button>
+                    </div>
+
+                    <!-- 7 个类别折叠面板 -->
+                    <div class="border border-slate-700 rounded-lg overflow-hidden">
+                        <div class="divide-y divide-slate-700">
+                            <!-- 1. Role - 交易风格 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'role' ? null : 'role'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">1</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.tradingStyle') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.role" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'role' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'role'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.role" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.tradingStylePlaceholder')"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 2. Risk Rules - 风险规则 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'risk_rules' ? null : 'risk_rules'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">2</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.riskRules') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.risk_rules" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'risk_rules' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'risk_rules'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.risk_rules" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.riskRulesPlaceholder')"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 3. Entry Conditions - 开仓条件 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'entry_conditions' ? null : 'entry_conditions'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">3</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.entryConditions') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.entry_conditions" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'entry_conditions' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'entry_conditions'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.entry_conditions" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.entryConditionsPlaceholder')"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 4. Exit Conditions - 平仓条件 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'exit_conditions' ? null : 'exit_conditions'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-orange-500/20 text-orange-400 px-1.5 py-0.5 rounded">4</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.exitConditions') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.exit_conditions" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'exit_conditions' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'exit_conditions'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.exit_conditions" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.exitConditionsPlaceholder')"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 5. Position Sizing - 仓位大小 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'position_sizing' ? null : 'position_sizing'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-purple-500/20 text-purple-400 px-1.5 py-0.5 rounded">5</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.positionSizing') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.position_sizing" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'position_sizing' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'position_sizing'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.position_sizing" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.positionSizingPlaceholder')"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 6. Market Preferences - 市场偏好 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'market_preferences' ? null : 'market_preferences'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-cyan-500/20 text-cyan-400 px-1.5 py-0.5 rounded">6</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.marketPreferences') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.market_preferences" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'market_preferences' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'market_preferences'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.market_preferences" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.marketPreferencesPlaceholder')"></textarea>
+                                </div>
+                            </div>
+
+                            <!-- 7. Adaptive Rules - 自适应规则 -->
+                            <div>
+                                <button @click="presetEditorModal.activePanel = presetEditorModal.activePanel === 'adaptive_rules' ? null : 'adaptive_rules'"
+                                        class="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-slate-800/30 transition-colors">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs font-mono bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">7</span>
+                                        <span class="text-sm text-slate-300">{{ t('settings.adaptiveRules') }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span v-if="presetEditorModal.form.adaptive_rules" class="text-xs text-green-400">{{ t('settings.filled') }}</span>
+                                        <svg :class="['w-4 h-4 text-slate-400 transition-transform', presetEditorModal.activePanel === 'adaptive_rules' ? 'rotate-180' : '']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </div>
+                                </button>
+                                <div v-show="presetEditorModal.activePanel === 'adaptive_rules'" class="px-4 pb-4">
+                                    <textarea v-model="presetEditorModal.form.adaptive_rules" rows="4"
+                                              class="input-style resize-none font-mono text-xs"
+                                              :placeholder="t('settings.adaptiveRulesPlaceholder')"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部按钮 -->
+                <div class="px-5 py-4 bg-slate-800/50 border-t border-slate-700/50 flex gap-3 flex-shrink-0">
+                    <button @click="closePresetEditor" class="btn-secondary flex-1">{{ t('common.cancel') }}</button>
+                    <button @click="savePresetFromEditor"
+                            :disabled="!presetEditorModal.form.name || presetEditorModal.saving"
+                            class="btn-primary flex-1 disabled:opacity-50">
+                        {{ presetEditorModal.saving ? t('settings.saving') : (presetEditorModal.isEdit ? t('settings.saveChanges') : t('settings.createPreset')) }}
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 消息提示 -->
+        <Transition
+            enter-active-class="transition ease-out duration-300"
+            enter-from-class="opacity-0 translate-y-2"
+            enter-to-class="opacity-100 translate-y-0"
+            leave-active-class="transition ease-in duration-200"
+            leave-from-class="opacity-100 translate-y-0"
+            leave-to-class="opacity-0 translate-y-2"
+        >
+            <div v-if="message" :class="[
+                'fixed bottom-6 right-6 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 z-50',
+                messageType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            ]">
+                <svg v-if="messageType === 'success'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ message }}
+            </div>
+        </Transition>
+    </div>
+
+    <script>
+    const { createApp, ref, computed, onMounted, watch } = Vue;
+    
+    // 等待 i18n 初始化完成后再创建 Vue app
+    // 这样可以确保模板中的 t() 调用能正确获取翻译
+    // 注意：i18n 已在页面顶部初始化，这里只需等待加载完成
+    (async function() {
+        // 等待 i18n 加载完成（最多等待 3 秒）
+        const maxWait = 3000;
+        const startTime = Date.now();
+        
+        while (!I18n.loaded[I18n.locale] && (Date.now() - startTime) < maxWait) {
+            await new Promise(resolve => setTimeout(resolve, 50));
+        }
+        
+        // 如果超时仍未加载，尝试手动初始化
+        if (!I18n.loaded[I18n.locale]) {
+            if (window.SafeLog) SafeLog.warn('[Settings] I18n not loaded after timeout, initializing...');
+            try {
+                await I18n.init({ onLocaleChange: () => window.location.reload() });
+            } catch (e) {
+                if (window.SafeLog) SafeLog.error('[Settings] I18n fallback init failed:', e);
+            }
+        }
+        
+        createApp({
+        setup() {
+            // 从 localStorage 读取用户信息（仅用于显示）
+            // 实际认证通过 HttpOnly Cookie 完成
+            const user = Auth.getUser();
+            const uid = user?.uid || '';
+            const username = user?.username || '';
+
+            // 判断是否是管理员
+            const isAdmin = ref(false);
+            
+            // 通过 API 验证管理员身份（在 onMounted 中调用）
+            const checkAdminStatus = async () => {
+                try {
+                    // 使用 Auth.apiRequest 自动携带 Cookie 认证
+                    const response = await Auth.apiRequest('/api/admin/verify');
+                    isAdmin.value = response.ok;
+                    if (window.SafeLog) SafeLog.log('[Settings] Admin check:', response.ok, 'username:', username);
+                } catch (e) {
+                    // apiRequest 会在 401 时跳转登录，403 是非管理员
+                    if (window.SafeLog) SafeLog.log('[Settings] Admin check: not admin');
+                    isAdmin.value = false;
+                }
+            };
+
+            const loading = ref(true);
+            const message = ref('');
+            const messageType = ref('success');
+            
+            // 新手引导
+            const showGuide = ref(false);
+            const dontShowGuideAgain = ref(false);
+
+            const config = ref({});
+            const status = ref(null);
+            const quickSymbols = ['BTCUSDT', 'ETHUSDT', 'SOLUSDT', 'BNBUSDT', 'DOGEUSDT', 'LTCUSDT', 'ADAUSDT'];
+            const llmConfig = ref({
+                ai_enabled: false,
+                llm_provider: 'anthropic',
+                llm_model: '',
+                llm_api_key: '',
+                llm_base_url: '',
+                system_prompt: '',
+                temperature: 0.01,
+                max_tokens: 8000,
+            });
+            const tradingConfig = ref({
+                max_positions: 30,
+                position_size_pct: 3,
+                default_leverage: 30,
+                ai500_enabled: false,
+                // 执行约束配置
+                min_rr_ratio: 3,
+                limit_order_min_distance_pct: 3,
+            });
+            const notificationConfig = ref({
+                telegram_enabled: false,
+                telegram_chat_id: '',
+                telegram_topic_id: '',
+            });
+
+            // 执行约束保存状态
+            const savingConstraints = ref(false);
+
+            // 公开仪表盘设置
+            const publicDashboard = ref({
+                enabled: false,
+                token: null,
+                link: null,
+                saving: false,
+                copied: false,
+            });
+
+            // 多交易所配置
+            const exchangeConfigs = ref([]);
+            const exchangeModal = ref({
+                show: false,
+                exchange: '',
+                displayName: '',
+                hasTestnet: true,
+                hasKey: false,
+                testing: false,
+                saving: false,
+                deleting: false,
+                testResult: null,
+                form: {
+                    api_key: '',
+                    api_secret: '',
+                    passphrase: '',
+                    wallet_address: '',
+                    is_testnet: false,
+                    is_enabled: true,
+                },
+            });
+
+            // 交易所交易状态（运行中/已停止）
+            const exchangeTradingStatus = ref({});
+            // 交易所操作加载状态
+            const exchangeActionLoading = ref({});
+
+            // AI 策略管理
+            const aiStrategies = ref([]);
+
+            // Redis 数据管理
+            const redisStats = ref(null);
+            const resettingRedis = ref(false);
+            const resetOptions = ref({
+                exchange: 'all',  // 'all' | 'binance' | 'okx' | 'bitget' | 'hyperliquid'
+                dataTypes: [],    // ['positions', 'closed_trades', 'ai_history', 'notifications', 'cache', 'decision_feedback']
+            });
+
+            // 重置确认弹窗
+            const resetConfirmModal = ref({
+                show: false,
+                exchangeText: '',
+                dataTypesArray: [],
+            });
+
+            const strategyModal = ref({
+                show: false,
+                isEdit: false,
+                editId: null,
+                saving: false,
+                testing: false,      // 是否正在测试连接
+                testResult: null,    // 测试结果 {success, message}
+                activePanel: null,  // 当前展开的面板: 'role' | 'risk_rules' | ... | null
+                form: {
+                    name: '',
+                    llm_provider: 'anthropic',
+                    llm_model: '',
+                    llm_api_key: '',
+                    llm_base_url: '',
+                    // LLM 参数
+                    temperature: null,
+                    top_p: null,
+                    max_tokens: null,
+                    // v5.0: 策略配置
+                    strategy_preset: 'default',
+                    // 7 个类别覆盖
+                    role: '',
+                    risk_rules: '',
+                    entry_conditions: '',
+                    exit_conditions: '',
+                    position_sizing: '',
+                    market_preferences: '',
+                    adaptive_rules: '',
+                    has_api_key: false,
+                },
+            });
+
+            // v5.0: 预设列表和类别定义 - 简化版
+            const strategyPresets = ref([]);
+            const strategyCategories = ref([]);
+            const loadingPresets = ref(false);
+            
+            // v5.1: 可用 LLM 模型列表（从数据库加载）
+            const availableLLMModels = ref([]);
+            const loadingLLMModels = ref(false);
+            
+            // 预设编辑器弹窗
+            const presetEditorModal = ref({
+                show: false,
+                isEdit: false,
+                editName: null,
+                saving: false,
+                activePanel: null,
+                form: {
+                    name: '',
+                    description: '',
+                    role: '',
+                    risk_rules: '',
+                    entry_conditions: '',
+                    exit_conditions: '',
+                    position_sizing: '',
+                    market_preferences: '',
+                    adaptive_rules: '',
+                },
+            });
+            
+            // 计算属性：分离系统预设和用户预设
+            const systemPresets = computed(() => strategyPresets.value.filter(p => !p.is_user_preset));
+            const userPresets = computed(() => strategyPresets.value.filter(p => p.is_user_preset));
+
+
+            const showMessage = (msg, type = 'success') => {
+                message.value = msg;
+                messageType.value = type;
+                setTimeout(() => { message.value = ''; }, 3000);
+            };
+
+            // 使用 Auth.apiRequest 的包装函数
+            const apiRequest = async (url, method = 'GET', body = null) => {
+                const options = { method };
+                if (body) options.body = JSON.stringify(body);
+                
+                const resp = await Auth.apiRequest(url, options);
+                
+                // 处理非 JSON 响应
+                const text = await resp.text();
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    if (!resp.ok) {
+                        throw new Error(text || t('settings.requestFailed') + ` (${resp.status})`);
+                    }
+                    throw new Error(t('settings.serverFormatError'));
+                }
+
+                if (!resp.ok) {
+                    throw new Error(data.detail || t('settings.requestFailed'));
+                }
+                return data;
+            };
+
+            const loadConfig = async () => {
+                try {
+                    // 并行加载用户配置和交易所配置
+                    const [data, exchangeData, strategiesData] = await Promise.all([
+                        apiRequest('/api/user/config'),
+                        apiRequest('/api/user/exchanges'),
+                        apiRequest('/api/user/ai-strategies')
+                    ]);
+                    
+                    config.value = data;
+
+                    llmConfig.value = {
+                        ai_enabled: data.ai_enabled || false,
+                        llm_provider: data.llm_provider || 'anthropic',
+                        llm_model: data.llm_model || '',
+                        llm_api_key: '',
+                        llm_base_url: data.llm_base_url || '',
+                        system_prompt: data.system_prompt || '',
+                        temperature: data.temperature ?? 0.01,
+                        max_tokens: data.max_tokens || 8000,
+                    };
+                    tradingConfig.value = {
+                        max_positions: data.max_positions ?? 30,
+                        position_size_pct: data.position_size_pct ?? 3,
+                        default_leverage: data.default_leverage ?? 30,
+                        ai500_enabled: data.ai500_enabled || false,
+                        // 执行约束配置
+                        min_rr_ratio: data.min_rr_ratio ?? 3,
+                        limit_order_min_distance_pct: data.limit_order_min_distance_pct ?? 3,
+                    };
+                    notificationConfig.value = {
+                        telegram_enabled: data.telegram_enabled || false,
+                        telegram_bot_token: '',  // 敏感信息不从后端加载，只用于提交
+                        telegram_chat_id: '',    // 敏感信息不从后端加载，只用于提交
+                        telegram_topic_id: '',   // 敏感信息不从后端加载，只用于提交
+                    };
+
+                    // 设置交易所配置和策略（已并行加载）
+                    exchangeConfigs.value = exchangeData.exchanges || [];
+                    aiStrategies.value = strategiesData.strategies || [];
+
+                    // 并行加载剩余数据
+                    const promises = [loadExchangeTradingStatus()];
+                    if (data.is_running) {
+                        promises.push(refreshStatus());
+                    }
+                    await Promise.all(promises);
+                } catch (e) {
+                    // 401 已经在 apiRequest 中处理
+                    showMessage(e.message, 'error');
+                } finally {
+                    loading.value = false;
+                }
+            };
+
+            const refreshStatus = async () => {
+                try {
+                    const data = await apiRequest('/api/user/status');
+                    status.value = data;
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('Failed to load status:', e);
+                }
+            };
+
+            const saveLLMConfig = async () => {
+                try {
+                    const data = { ...llmConfig.value };
+                    // 移除 temperature 和 max_tokens，使用后端硬编码值
+                    delete data.temperature;
+                    delete data.max_tokens;
+                    // 删除空值，但保留 system_prompt（允许用户清空提示词）
+                    Object.keys(data).forEach(k => {
+                        if (data[k] === '' && k !== 'system_prompt') delete data[k];
+                    });
+                    await apiRequest('/api/user/llm-config', 'PUT', data);
+                    showMessage(t('settings.aiConfigSaved'));
+                    await loadConfig();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                }
+            };
+
+            // 校验 Telegram Chat ID 格式
+            const validateTelegramChatId = (chatId) => {
+                if (!chatId) return { valid: true };
+                
+                const trimmed = chatId.trim();
+                
+                // 检查是否误填了 Bot Token（包含冒号）
+                if (trimmed.includes(':')) {
+                    return { 
+                        valid: false, 
+                        error: t('settings.chatIdFormatError')
+                    };
+                }
+                
+                // 检查是否为纯数字（可带负号）
+                if (!/^-?\d+$/.test(trimmed)) {
+                    return { 
+                        valid: false, 
+                        error: t('settings.chatIdFormatErrorNumeric')
+                    };
+                }
+                
+                return { valid: true };
+            };
+            
+            // 校验 Topic ID 格式
+            const validateTelegramTopicId = (topicId) => {
+                if (!topicId) return { valid: true };
+                
+                const trimmed = topicId.trim();
+                
+                // Topic ID 应该是纯数字
+                if (!/^\d+$/.test(trimmed)) {
+                    return { 
+                        valid: false, 
+                        error: t('settings.topicIdFormatError')
+                    };
+                }
+                
+                return { valid: true };
+            };
+
+            const saveNotificationConfig = async () => {
+                try {
+                    // 校验 Chat ID
+                    const chatIdValidation = validateTelegramChatId(notificationConfig.value.telegram_chat_id);
+                    if (!chatIdValidation.valid) {
+                        showMessage(chatIdValidation.error, 'error');
+                        return;
+                    }
+                    
+                    // 校验 Topic ID
+                    const topicIdValidation = validateTelegramTopicId(notificationConfig.value.telegram_topic_id);
+                    if (!topicIdValidation.valid) {
+                        showMessage(topicIdValidation.error, 'error');
+                        return;
+                    }
+                    
+                    const data = {
+                        telegram_enabled: notificationConfig.value.telegram_enabled
+                    };
+                    // 只有当用户输入了新值时才发送这些字段
+                    if (notificationConfig.value.telegram_chat_id) {
+                        data.telegram_chat_id = notificationConfig.value.telegram_chat_id.trim();
+                    }
+                    // Topic ID: 如果用户已配置但现在清空了，发送空字符串表示清除
+                    // 如果用户输入了新值，发送新值
+                    // 如果用户未配置且未输入，不发送
+                    if (notificationConfig.value.telegram_topic_id) {
+                        data.telegram_topic_id = notificationConfig.value.telegram_topic_id.trim();
+                    } else if (config.value.has_telegram_topic_id) {
+                        // 用户已配置但现在清空了，发送空字符串表示清除
+                        data.telegram_topic_id = '';
+                    }
+                    await apiRequest('/api/user/notification-config', 'PUT', data);
+                    // 保存后清空输入框，保留开关状态
+                    notificationConfig.value.telegram_chat_id = '';
+                    notificationConfig.value.telegram_topic_id = '';
+                    showMessage(t('settings.notificationConfigSaved'));
+                    await loadConfig();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                }
+            };
+
+            // 保存执行约束配置
+            const saveExecutionConstraints = async () => {
+                savingConstraints.value = true;
+                try {
+                    const data = {
+                        max_positions: tradingConfig.value.max_positions,
+                        default_leverage: tradingConfig.value.default_leverage,
+                        position_size_pct: tradingConfig.value.position_size_pct,
+                        min_rr_ratio: tradingConfig.value.min_rr_ratio,
+                        limit_order_min_distance_pct: tradingConfig.value.limit_order_min_distance_pct,
+                    };
+                    await apiRequest('/api/user/trading-config', 'PUT', data);
+                    showMessage(t('settings.executionConstraintsSaved'));
+                    await loadConfig();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    savingConstraints.value = false;
+                }
+            };
+
+            // 公开仪表盘相关
+            const loadPublicDashboardSettings = async () => {
+                try {
+                    const data = await apiRequest('/api/user/public-dashboard/settings');
+                    publicDashboard.value.enabled = data.enabled;
+                    publicDashboard.value.token = data.token;
+                    publicDashboard.value.link = data.public_link;
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载公开仪表盘设置失败:', e);
+                }
+            };
+
+            const togglePublicDashboard = async () => {
+                publicDashboard.value.saving = true;
+                try {
+                    const enabled = publicDashboard.value.enabled;
+                    const data = await apiRequest(`/api/user/public-dashboard/settings?enabled=${enabled}`, 'PUT');
+                    publicDashboard.value.token = data.token;
+                    publicDashboard.value.link = data.public_link;
+                    showMessage(enabled ? t('settings.publicDashboardOpened') : t('settings.publicDashboardClosed'));
+                } catch (e) {
+                    // 恢复原状态
+                    publicDashboard.value.enabled = !publicDashboard.value.enabled;
+                    showMessage(e.message, 'error');
+                } finally {
+                    publicDashboard.value.saving = false;
+                }
+            };
+
+            const publicDashboardFullLink = computed(() => {
+                if (!publicDashboard.value.link) return '';
+                return window.location.origin + publicDashboard.value.link;
+            });
+
+            const copyPublicLink = async () => {
+                try {
+                    await navigator.clipboard.writeText(publicDashboardFullLink.value);
+                    publicDashboard.value.copied = true;
+                    setTimeout(() => { publicDashboard.value.copied = false; }, 2000);
+                } catch (e) {
+                    showMessage(t('settings.copyFailed'), 'error');
+                }
+            };
+
+            // 加载交易所配置列表
+            const loadExchangeConfigs = async () => {
+                try {
+                    const data = await apiRequest('/api/user/exchanges');
+                    exchangeConfigs.value = data.exchanges || [];
+                    // 同时加载交易状态和 AI 策略
+                    await Promise.all([
+                        loadExchangeTradingStatus(),
+                        loadAIStrategies()
+                    ]);
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载交易所配置失败:', e);
+                }
+            };
+
+            // 打开交易所配置弹窗（仅API密钥配置）
+            const openExchangeModal = async (exchange) => {
+                const ex = exchangeConfigs.value.find(e => e.exchange === exchange);
+
+                exchangeModal.value = {
+                    show: true,
+                    exchange: exchange,
+                    displayName: ex?.display_name || exchange,
+                    hasTestnet: ex?.has_testnet ?? true,
+                    hasKey: ex?.is_configured ?? false,
+                    testing: false,
+                    saving: false,
+                    testResult: null,
+                    form: {
+                        api_key: '',
+                        api_secret: '',
+                        passphrase: '',
+                        wallet_address: ex?.wallet_address || '',
+                        is_testnet: ex?.is_testnet ?? false,
+                        is_enabled: ex?.is_enabled ?? true,
+                    },
+                };
+            };
+
+            // 关闭交易所配置弹窗
+            const closeExchangeModal = () => {
+                exchangeModal.value.show = false;
+                exchangeModal.value.testResult = null;
+            };
+
+            // 保存交易所配置
+            const saveExchangeConfig = async () => {
+                const modal = exchangeModal.value;
+                modal.saving = true;
+                modal.testResult = null;
+
+                try {
+                    // 1. 保存 API 密钥配置
+                    const data = {
+                        is_testnet: modal.form.is_testnet,
+                        is_enabled: modal.form.is_enabled,
+                    };
+
+                    // 只有输入了新值才发送（自动去除前后空格）
+                    if (modal.form.api_key) data.api_key = modal.form.api_key.trim();
+                    if (modal.form.api_secret) data.api_secret = modal.form.api_secret.trim();
+                    if (modal.form.passphrase) data.passphrase = modal.form.passphrase.trim();
+                    if (modal.form.wallet_address) data.wallet_address = modal.form.wallet_address.trim();
+
+                    await apiRequest(`/api/user/exchanges/${modal.exchange}`, 'PUT', data);
+
+                    showMessage(t('settings.apiConfigSaved', { name: modal.displayName }));
+                    closeExchangeModal();
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    modal.saving = false;
+                }
+            };
+
+            // 测试交易所连接
+            const testExchangeConnection = async () => {
+                const modal = exchangeModal.value;
+                modal.testing = true;
+                modal.testResult = null;
+
+                try {
+                    // 如果有新输入的密钥或 passphrase，先保存
+                    if (modal.form.api_key || modal.form.api_secret || modal.form.passphrase) {
+                        await saveExchangeConfig();
+                        modal.show = true; // 保存后重新打开弹窗
+                    }
+
+                    const result = await apiRequest(`/api/user/exchanges/${modal.exchange}/test`, 'POST');
+                    modal.testResult = {
+                        success: result.success,
+                        message: result.message
+                    };
+                } catch (e) {
+                    modal.testResult = {
+                        success: false,
+                        message: e.message
+                    };
+                } finally {
+                    modal.testing = false;
+                }
+            };
+
+            // 删除交易所配置
+            const deleteExchangeConfig = async () => {
+                const modal = exchangeModal.value;
+                
+                // 确认删除
+                if (!confirm(t('settings.confirmDeleteApi', { name: modal.displayName }))) {
+                    return;
+                }
+                
+                modal.deleting = true;
+                
+                try {
+                    await apiRequest(`/api/user/exchanges/${modal.exchange}`, 'DELETE');
+                    showMessage(t('settings.apiConfigDeleted', { name: modal.displayName }));
+                    closeExchangeModal();
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    modal.deleting = false;
+                }
+            };
+
+            // 切换交易所启用状态
+            const toggleExchange = async (exchange, enabled) => {
+                try {
+                    await apiRequest(`/api/user/exchanges/${exchange}/enable?enabled=${enabled}`, 'PUT');
+                    await loadExchangeConfigs();
+                    // 如果禁用了交易所，也需要刷新交易状态
+                    if (!enabled) {
+                        await loadExchangeTradingStatus();
+                    }
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs(); // 刷新以恢复正确状态
+                }
+            };
+
+            // 加载交易所交易状态
+            const loadExchangeTradingStatus = async () => {
+                try {
+                    const data = await apiRequest('/api/user/exchanges/trading-status');
+                    const statusMap = {};
+                    for (const ex of (data.exchanges || [])) {
+                        statusMap[ex.exchange] = ex;
+                    }
+                    exchangeTradingStatus.value = statusMap;
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载交易所交易状态失败:', e);
+                }
+            };
+
+            // 启动单个交易所交易
+            const startExchangeTrading = async (exchange) => {
+                // 检查是否配置了 AI 策略
+                const ex = exchangeConfigs.value.find(e => e.exchange === exchange);
+                if (!ex) {
+                    showMessage(t('settings.exchangeNotFound'), 'error');
+                    return;
+                }
+                if (!ex.ai_strategy_id) {
+                    showMessage(t('settings.selectAiStrategyFirst'), 'error');
+                    return;
+                }
+                if (!hasExchangeMonitorConfig(ex)) {
+                    showMessage(t('settings.enableAi500First'), 'error');
+                    return;
+                }
+
+                exchangeActionLoading.value[exchange] = true;
+                try {
+                    const result = await apiRequest(`/api/user/exchanges/${exchange}/start`, 'POST');
+                    showMessage(result.message);
+                    // 刷新交易状态
+                    await loadExchangeTradingStatus();
+                    // 刷新整体配置
+                    await loadConfig();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    exchangeActionLoading.value[exchange] = false;
+                }
+            };
+
+            // 停止单个交易所交易
+            const stopExchangeTrading = async (exchange) => {
+                exchangeActionLoading.value[exchange] = true;
+                try {
+                    const result = await apiRequest(`/api/user/exchanges/${exchange}/stop`, 'POST');
+                    showMessage(result.message);
+                    // 刷新交易状态
+                    await loadExchangeTradingStatus();
+                    // 刷新整体配置
+                    await loadConfig();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    exchangeActionLoading.value[exchange] = false;
+                }
+            };
+
+            // 检查交易所是否有监控配置
+            const hasExchangeMonitorConfig = (ex) => {
+                return ex.ai500_enabled || (ex.monitor_symbols && ex.monitor_symbols.length > 0);
+            };
+
+            // 检查交易所是否可以启动交易（需要监控配置 + AI 策略）
+            const canStartTrading = (ex) => {
+                return hasExchangeMonitorConfig(ex) && ex.ai_strategy_id;
+            };
+
+            // 切换交易所 AI500 开关
+            const toggleExchangeAI500 = async (exchange, enabled) => {
+                try {
+                    const ex = exchangeConfigs.value.find(e => e.exchange === exchange);
+                    await apiRequest(`/api/user/exchanges/${exchange}/monitor-config`, 'PUT', {
+                        monitor_symbols: ex?.monitor_symbols || [],
+                        ai500_enabled: enabled,
+                    });
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs();
+                }
+            };
+
+            // 更新交易所监控币种（从输入框）
+            const updateExchangeSymbols = async (exchange, symbolsText) => {
+                try {
+                    const symbols = symbolsText
+                        .split(/[,，\s]+/)
+                        .map(s => s.trim().toUpperCase())
+                        .filter(s => s.length > 0);
+
+                    if (symbols.length > 20) {
+                        showMessage(t('settings.maxSymbolsWarning'), 'error');
+                        return;
+                    }
+
+                    const ex = exchangeConfigs.value.find(e => e.exchange === exchange);
+                    const result = await apiRequest(`/api/user/exchanges/${exchange}/monitor-config`, 'PUT', {
+                        monitor_symbols: symbols,
+                        ai500_enabled: ex?.ai500_enabled || false,
+                    });
+                    
+                    // 显示无效币种警告（如果有）
+                    if (result.warning) {
+                        showMessage(result.warning, 'error');
+                    }
+                    
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs();
+                }
+            };
+
+            // 快捷切换单个币种
+            const toggleExchangeSymbol = async (exchange, symbol) => {
+                try {
+                    const ex = exchangeConfigs.value.find(e => e.exchange === exchange);
+                    const currentSymbols = ex?.monitor_symbols || [];
+                    let newSymbols;
+
+                    if (currentSymbols.includes(symbol)) {
+                        newSymbols = currentSymbols.filter(s => s !== symbol);
+                    } else {
+                        if (currentSymbols.length >= 20) {
+                            showMessage(t('settings.maxSymbolsError'), 'error');
+                            return;
+                        }
+                        newSymbols = [...currentSymbols, symbol];
+                    }
+
+                    const result = await apiRequest(`/api/user/exchanges/${exchange}/monitor-config`, 'PUT', {
+                        monitor_symbols: newSymbols,
+                        ai500_enabled: ex?.ai500_enabled || false,
+                    });
+                    
+                    // 显示无效币种警告（如果有）
+                    if (result.warning) {
+                        showMessage(result.warning, 'error');
+                    }
+                    
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs();
+                }
+            };
+
+            // 计算运行中的交易所数量
+            const runningExchangeCount = computed(() => {
+                return Object.values(exchangeTradingStatus.value).filter(ex => ex.is_running).length;
+            });
+
+            // 计算启用的交易所数量
+            const enabledExchangeCount = computed(() => {
+                return exchangeConfigs.value.filter(ex => ex.is_configured && ex.is_enabled).length;
+            });
+
+            // 切换交易所 AI 启用状态
+            const toggleExchangeAI = async (exchange, enabled) => {
+                try {
+                    await apiRequest(`/api/user/exchanges/${exchange}/ai-config`, 'PUT', {
+                        ai_enabled: enabled,
+                    });
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs();
+                }
+            };
+
+            // 更新交易所 AI 配置（单个字段）
+            const updateExchangeAIConfig = async (exchange, field, value) => {
+                // 空值不更新（避免失焦时无意义的请求）
+                if (value === '' && field !== 'system_prompt') {
+                    return;
+                }
+
+                try {
+                    const data = {};
+                    data[field] = value;
+                    await apiRequest(`/api/user/exchanges/${exchange}/ai-config`, 'PUT', data);
+                    await loadExchangeConfigs();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs();
+                }
+            };
+
+            // ==================== AI 策略池管理 ====================
+
+            // 加载 AI 策略列表
+            const loadAIStrategies = async () => {
+                try {
+                    const data = await apiRequest('/api/user/ai-strategies');
+                    aiStrategies.value = data.strategies || [];
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载 AI 策略失败:', e);
+                    aiStrategies.value = [];
+                }
+            };
+
+            // 打开策略编辑弹窗
+            const openStrategyModal = async (strategy = null) => {
+                // 先加载预设列表和 LLM 模型列表
+                await Promise.all([
+                    loadStrategyPresets(),
+                    loadAvailableLLMModels()
+                ]);
+                
+                // 获取有效的预设名称（如果当前预设不可用，使用第一个可用的）
+                const getValidPreset = (currentPreset) => {
+                    const availablePresets = strategyPresets.value.map(p => p.name);
+                    if (availablePresets.includes(currentPreset)) {
+                        return currentPreset;
+                    }
+                    // 优先使用 default，否则使用第一个可用的
+                    if (availablePresets.includes('default')) {
+                        return 'default';
+                    }
+                    return availablePresets[0] || 'default';
+                };
+                
+                if (strategy) {
+                    // 编辑模式 - 需要从 API 获取完整数据
+                    try {
+                        const data = await apiRequest(`/api/user/ai-strategies/${strategy.id}`);
+                        const overrides = data.strategy_overrides || {};
+                        const validPreset = getValidPreset(data.strategy_preset || 'default');
+                        
+                        strategyModal.value = {
+                            show: true,
+                            isEdit: true,
+                            editId: strategy.id,
+                            saving: false,
+                            testing: false,
+                            testResult: null,
+                            form: {
+                                name: data.name,
+                                llm_provider: data.llm_provider || 'anthropic',
+                                llm_model: data.llm_model || '',
+                                llm_api_key: '',
+                                llm_base_url: data.llm_base_url || '',
+                                // LLM 参数
+                                temperature: data.temperature ?? null,
+                                top_p: data.top_p ?? null,
+                                max_tokens: data.max_tokens ?? null,
+                                // v5.0: 策略配置 - 简化版只保留预设选择
+                                strategy_preset: validPreset,
+                                has_api_key: data.has_api_key || false,
+                            },
+                        };
+                        
+                        // 如果预设被切换了，提示用户
+                        if (validPreset !== (data.strategy_preset || 'default')) {
+                            showMessage(t('settings.presetDisabledSwitched', { old: data.strategy_preset, new: validPreset }), 'warning');
+                        }
+                    } catch (e) {
+                        showMessage(t('settings.loadStrategyFailed') + ': ' + e.message, 'error');
+                        return;
+                    }
+                } else {
+                    // 创建模式
+                    const validPreset = getValidPreset('default');
+                    
+                    strategyModal.value = {
+                        show: true,
+                        isEdit: false,
+                        editId: null,
+                        saving: false,
+                        testing: false,
+                        testResult: null,
+                        form: {
+                            name: '',
+                            llm_provider: 'anthropic',
+                            llm_model: '',
+                            llm_api_key: '',
+                            llm_base_url: '',
+                            // LLM 参数
+                            temperature: null,
+                            top_p: null,
+                            max_tokens: null,
+                            // v5.0: 策略配置 - 简化版只保留预设选择
+                            strategy_preset: validPreset,
+                            has_api_key: false,
+                        },
+                    };
+                }
+            };
+
+            // 关闭策略弹窗
+            const closeStrategyModal = () => {
+                strategyModal.value.show = false;
+                strategyModal.value.testResult = null;  // 清除测试结果
+            };
+
+            // v5.0: 加载预设列表和类别定义
+            const loadStrategyPresets = async () => {
+                if (strategyPresets.value.length > 0) return;  // 已加载
+                
+                loadingPresets.value = true;
+                try {
+                    const data = await apiRequest('/api/user/ai-strategies/presets');
+                    strategyPresets.value = data.presets || [];
+                    strategyCategories.value = data.categories || [];
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载预设列表失败:', e);
+                } finally {
+                    loadingPresets.value = false;
+                }
+            };
+
+            // v5.1: 加载可用 LLM 模型列表
+            const loadAvailableLLMModels = async () => {
+                if (availableLLMModels.value.length > 0) return;  // 已加载
+                
+                loadingLLMModels.value = true;
+                try {
+                    const data = await apiRequest('/api/user/llm-models');
+                    availableLLMModels.value = data.models || [];
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载 LLM 模型列表失败:', e);
+                    availableLLMModels.value = [];
+                } finally {
+                    loadingLLMModels.value = false;
+                }
+            };
+            
+            // v5.1: 根据当前选择的提供商过滤模型
+            const filteredLLMModels = computed(() => {
+                const provider = strategyModal.value.form.llm_provider;
+                if (!provider || provider === 'custom') return [];
+                
+                const models = availableLLMModels.value.filter(m => m.provider === provider);
+                
+                // 编辑模式下，如果当前模型不在列表中，添加一个占位选项
+                const currentModel = strategyModal.value.form.llm_model;
+                if (currentModel && strategyModal.value.isEdit) {
+                    const exists = models.some(m => m.model_id === currentModel);
+                    if (!exists) {
+                        // 在列表开头添加当前模型（标记为不可用）
+                        models.unshift({
+                            provider: provider,
+                            model_id: currentModel,
+                            display_name: `${currentModel} (当前)`,
+                            is_recommended: false,
+                            _is_current: true,  // 标记为当前值
+                        });
+                    }
+                }
+                
+                return models;
+            });
+            
+            // v5.1: 当提供商变化时自动选择推荐模型
+            const onProviderChange = () => {
+                const models = filteredLLMModels.value.filter(m => !m._is_current);  // 排除当前值占位
+                if (models.length > 0) {
+                    // 优先选择推荐模型，否则选择第一个
+                    const recommended = models.find(m => m.is_recommended);
+                    strategyModal.value.form.llm_model = recommended ? recommended.model_id : models[0].model_id;
+                    // 自动填充参数
+                    onModelChange();
+                } else {
+                    strategyModal.value.form.llm_model = '';
+                }
+            };
+            
+            // v5.1: 当模型变化时自动填充默认参数
+            const onModelChange = (forceUpdate = false) => {
+                const modelId = strategyModal.value.form.llm_model;
+                if (!modelId) return;
+                
+                // 从模型列表中找到当前选择的模型
+                const model = availableLLMModels.value.find(m => m.model_id === modelId);
+                if (model) {
+                    // 用户手动选择模型时强制更新参数，提供商变化时仅填充空值
+                    if (forceUpdate) {
+                        strategyModal.value.form.temperature = model.temperature;
+                        strategyModal.value.form.top_p = model.top_p;
+                        strategyModal.value.form.max_tokens = model.max_tokens;
+                    } else {
+                        // 仅当当前值为空或 null 时填充
+                        if (strategyModal.value.form.temperature === null || strategyModal.value.form.temperature === '') {
+                            strategyModal.value.form.temperature = model.temperature;
+                        }
+                        if (strategyModal.value.form.top_p === null || strategyModal.value.form.top_p === '') {
+                            strategyModal.value.form.top_p = model.top_p;
+                        }
+                        if (strategyModal.value.form.max_tokens === null || strategyModal.value.form.max_tokens === '') {
+                            strategyModal.value.form.max_tokens = model.max_tokens;
+                        }
+                    }
+                }
+            };
+
+            // v5.0: 获取预设显示名称
+            const getPresetDisplayName = (name) => {
+                const displayNames = {
+                    'default': t('settings.presetDefault'),
+                    'conservative': t('settings.presetConservative'),
+                    'aggressive': t('settings.presetAggressive'),
+                    'trend_following': t('settings.presetTrendFollowing'),
+                    'mean_reversion': t('settings.presetMeanReversion')
+                };
+                return displayNames[name] || name;
+            };
+
+            // 预设文件输入引用
+            const presetFileInput = ref(null);
+
+            // 导出预设
+            const exportPreset = async (presetName) => {
+                try {
+                    const data = await apiRequest(`/api/user/ai-strategies/presets/${encodeURIComponent(presetName)}`);
+                    
+                    const exportData = {
+                        name: presetName,
+                        description: data.description || '',
+                        categories: data.templates || {},
+                        exportedAt: new Date().toISOString(),
+                        version: '1.0'
+                    };
+                    
+                    // 明确指定 UTF-8 编码，避免 Unicode 字符乱码
+                    const jsonString = JSON.stringify(exportData, null, 2);
+                    const blob = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `preset_${presetName.replace(/[^a-zA-Z0-9_\u4e00-\u9fa5]/g, '_')}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    showMessage(t('settings.presetExported', { name: presetName }));
+                } catch (e) {
+                    showMessage(t('settings.exportPresetFailed') + ': ' + e.message, 'error');
+                }
+            };
+
+            // 触发导入文件选择
+            const importPreset = () => {
+                if (userPresets.value.length >= 5) {
+                    showMessage(t('settings.presetLimitReached'), 'error');
+                    return;
+                }
+                presetFileInput.value?.click();
+            };
+
+            // 处理导入文件
+            const handlePresetFileImport = async (event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+                
+                try {
+                    // 使用 UTF-8 解码文件内容
+                    let text = await file.text();
+                    
+                    // 移除可能的 BOM (Byte Order Mark)
+                    if (text.charCodeAt(0) === 0xFEFF) {
+                        text = text.slice(1);
+                    }
+                    
+                    // 检测并修复常见的 UTF-8 乱码（被错误解码为 Latin-1 的情况）
+                    // 例如: â€" → —, â†' → →, Â± → ±, â‰¥ → ≥
+                    // 使用正则表达式检测常见乱码模式
+                    const garbledPattern = /\u00e2\u0080[\u0090-\u009f]|\u00c2[\u00a0-\u00bf]|\u00e2[\u0080-\u00bf][\u0080-\u00bf]/;
+                    if (garbledPattern.test(text)) {
+                        // 尝试重新解码：将错误的 Latin-1 解码转回 UTF-8
+                        try {
+                            const decoder = new TextDecoder('utf-8');
+                            // 将字符串按 Latin-1 编码为字节，然后按 UTF-8 解码
+                            const bytes = new Uint8Array([...text].map(c => c.charCodeAt(0) & 0xFF));
+                            text = decoder.decode(bytes);
+                        } catch (e) {
+                            if (window.SafeLog) SafeLog.warn('Failed to fix encoding, using original text');
+                        }
+                    }
+                    
+                    const data = JSON.parse(text);
+                    
+                    // 验证数据格式
+                    if (!data.name || !data.categories) {
+                        throw new Error(t('settings.invalidPresetFormat'));
+                    }
+                    
+                    // 检查名称是否已存在
+                    const existingNames = userPresets.value.map(p => p.name);
+                    let newName = data.name;
+                    if (existingNames.includes(newName)) {
+                        // 添加后缀
+                        let suffix = 1;
+                        while (existingNames.includes(`${data.name}_${suffix}`)) {
+                            suffix++;
+                        }
+                        newName = `${data.name}_${suffix}`;
+                    }
+                    
+                    // 创建预设
+                    await apiRequest('/api/user/ai-strategies/user-presets', 'POST', {
+                        preset_name: newName,
+                        description: data.description || t('settings.importedPresetDesc'),
+                        categories: data.categories
+                    });
+                    
+                    showMessage(t('settings.presetImported', { name: newName }));
+                    
+                    // 刷新预设列表
+                    strategyPresets.value = [];
+                    await loadStrategyPresets();
+                } catch (e) {
+                    if (e instanceof SyntaxError) {
+                        showMessage(t('settings.invalidJsonFormat'), 'error');
+                    } else {
+                        showMessage(e.message, 'error');
+                    }
+                } finally {
+                    // 清空文件输入，允许重复选择同一文件
+                    event.target.value = '';
+                }
+            };
+
+            // v5.0: 直接删除用户预设（从预设管理区域调用）
+            const deleteUserPresetDirect = async (presetName) => {
+                if (!confirm(t('settings.confirmDeletePreset', { name: presetName }))) return;
+                
+                try {
+                    await apiRequest(`/api/user/ai-strategies/user-presets/${encodeURIComponent(presetName)}`, 'DELETE');
+                    showMessage(t('settings.presetDeleted', { name: presetName }));
+                    
+                    // 刷新预设列表
+                    strategyPresets.value = [];
+                    await loadStrategyPresets();
+                } catch (e) {
+                    showMessage(t('settings.loadPresetFailed') + ': ' + e.message, 'error');
+                }
+            };
+
+            // v5.0: 打开预设编辑器
+            const openPresetEditor = async (presetName = null) => {
+                // 确保预设列表已加载
+                await loadStrategyPresets();
+                
+                if (presetName) {
+                    // 编辑模式 - 加载现有预设
+                    try {
+                        const data = await apiRequest(`/api/user/ai-strategies/presets/${encodeURIComponent(presetName)}`);
+                        const templates = data.templates || {};
+                        
+                        presetEditorModal.value = {
+                            show: true,
+                            isEdit: true,
+                            editName: presetName,
+                            saving: false,
+                            activePanel: null,
+                            form: {
+                                name: presetName,
+                                description: data.description || '',  // 从 API 响应加载 description
+                                role: templates.role || '',
+                                risk_rules: templates.risk_rules || '',
+                                entry_conditions: templates.entry_conditions || '',
+                                exit_conditions: templates.exit_conditions || '',
+                                position_sizing: templates.position_sizing || '',
+                                market_preferences: templates.market_preferences || '',
+                                adaptive_rules: templates.adaptive_rules || '',
+                            },
+                        };
+                    } catch (e) {
+                        showMessage(t('settings.loadPresetFailed') + ': ' + e.message, 'error');
+                    }
+                } else {
+                    // 新建模式
+                    presetEditorModal.value = {
+                        show: true,
+                        isEdit: false,
+                        editName: null,
+                        saving: false,
+                        activePanel: null,
+                        form: {
+                            name: '',
+                            description: '',
+                            role: '',
+                            risk_rules: '',
+                            entry_conditions: '',
+                            exit_conditions: '',
+                            position_sizing: '',
+                            market_preferences: '',
+                            adaptive_rules: '',
+                        },
+                    };
+                }
+            };
+
+            // v5.0: 关闭预设编辑器
+            const closePresetEditor = () => {
+                presetEditorModal.value.show = false;
+            };
+
+            // v5.0: 保存预设（从编辑器）
+            const savePresetFromEditor = async () => {
+                const modal = presetEditorModal.value;
+                const form = modal.form;
+                
+                if (!form.name || !form.name.trim()) {
+                    showMessage(t('settings.enterPresetName'), 'error');
+                    return;
+                }
+                
+                const categories = {
+                    role: form.role || '',
+                    risk_rules: form.risk_rules || '',
+                    entry_conditions: form.entry_conditions || '',
+                    exit_conditions: form.exit_conditions || '',
+                    position_sizing: form.position_sizing || '',
+                    market_preferences: form.market_preferences || '',
+                    adaptive_rules: form.adaptive_rules || '',
+                };
+                
+                // 检查是否有内容
+                const hasContent = Object.values(categories).some(v => v.trim());
+                if (!hasContent) {
+                    showMessage(t('settings.fillAtLeastOneCategory'), 'error');
+                    return;
+                }
+                
+                modal.saving = true;
+                try {
+                    if (modal.isEdit) {
+                        // 更新
+                        await apiRequest(`/api/user/ai-strategies/user-presets/${encodeURIComponent(modal.editName)}`, 'PUT', {
+                            preset_name: form.name.trim(),
+                            description: form.description || t('settings.userPresetDefaultDesc', { date: new Date().toLocaleDateString() }),
+                            categories: categories
+                        });
+                        showMessage(t('settings.presetUpdated', { name: form.name }));
+                    } else {
+                        // 创建
+                        await apiRequest('/api/user/ai-strategies/user-presets', 'POST', {
+                            preset_name: form.name.trim(),
+                            description: form.description || t('settings.userPresetDefaultDesc', { date: new Date().toLocaleDateString() }),
+                            categories: categories
+                        });
+                        showMessage(t('settings.presetCreated', { name: form.name }));
+                    }
+                    
+                    // 刷新预设列表
+                    strategyPresets.value = [];
+                    await loadStrategyPresets();
+                    
+                    // 关闭弹窗
+                    modal.show = false;
+                } catch (e) {
+                    showMessage(t('settings.savePresetFailed') + ': ' + e.message, 'error');
+                } finally {
+                    modal.saving = false;
+                }
+            };
+
+            // v5.0: 从系统预设复制到编辑器
+            const copyFromSystemPreset = async (presetName) => {
+                try {
+                    const data = await apiRequest(`/api/user/ai-strategies/presets/${encodeURIComponent(presetName)}`);
+                    const templates = data.templates || {};
+                    
+                    const form = presetEditorModal.value.form;
+                    form.role = templates.role || '';
+                    form.risk_rules = templates.risk_rules || '';
+                    form.entry_conditions = templates.entry_conditions || '';
+                    form.exit_conditions = templates.exit_conditions || '';
+                    form.position_sizing = templates.position_sizing || '';
+                    form.market_preferences = templates.market_preferences || '';
+                    form.adaptive_rules = templates.adaptive_rules || '';
+                    
+                    showMessage(t('settings.copiedFromPreset', { name: presetName }));
+                } catch (e) {
+                    showMessage(t('settings.copyPresetFailed') + ': ' + e.message, 'error');
+                }
+            };
+
+            // 是否可以测试连接（需要填写模型和 API Key）
+            const canTestConnection = computed(() => {
+                const form = strategyModal.value.form;
+                const hasModel = form.llm_model && form.llm_model.trim();
+                const hasApiKey = form.llm_api_key || form.has_api_key;
+                // 自定义提供商还需要 Base URL
+                if (form.llm_provider === 'custom') {
+                    return hasModel && hasApiKey && form.llm_base_url;
+                }
+                return hasModel && hasApiKey;
+            });
+
+            // 测试 LLM 连接
+            const testLLMConnection = async () => {
+                const modal = strategyModal.value;
+                const form = modal.form;
+
+                // 检查必要字段
+                if (!form.llm_model || !form.llm_model.trim()) {
+                    showMessage(t('settings.enterModelName'), 'error');
+                    return;
+                }
+
+                // 获取 API Key（优先使用新输入的，否则需要从服务器获取）
+                let apiKey = form.llm_api_key;
+                if (!apiKey && form.has_api_key && modal.isEdit) {
+                    // 编辑模式且没有输入新 key，需要提示用户
+                    showMessage(t('settings.enterApiKeyToTest'), 'error');
+                    return;
+                }
+
+                if (!apiKey) {
+                    showMessage(t('settings.enterApiKey'), 'error');
+                    return;
+                }
+
+                modal.testing = true;
+                modal.testResult = null;
+
+                try {
+                    const resp = await apiRequest('/api/user/ai-strategies/test-connection', 'POST', {
+                        llm_provider: form.llm_provider,
+                        llm_model: form.llm_model.trim(),
+                        llm_api_key: apiKey.trim(),
+                        llm_base_url: form.llm_base_url ? form.llm_base_url.trim() : null,
+                    });
+
+                    modal.testResult = {
+                        success: resp.success,
+                        message: resp.message,
+                    };
+                } catch (e) {
+                    modal.testResult = {
+                        success: false,
+                        message: e.message || t('settings.testFailed'),
+                    };
+                } finally {
+                    modal.testing = false;
+                }
+            };
+
+            // 保存策略
+            const saveStrategy = async () => {
+                const modal = strategyModal.value;
+                if (!modal.form.name.trim()) {
+                    showMessage(t('settings.enterStrategyName'), 'error');
+                    return;
+                }
+
+                modal.saving = true;
+
+                try {
+                    // 先加载选中预设的完整内容
+                    const presetName = modal.form.strategy_preset || 'default';
+                    let strategyOverrides = null;
+                    
+                    try {
+                        const presetData = await apiRequest(`/api/user/ai-strategies/presets/${encodeURIComponent(presetName)}`);
+                        if (presetData.templates && Object.keys(presetData.templates).length > 0) {
+                            strategyOverrides = presetData.templates;
+                        }
+                    } catch (e) {
+                        // 如果加载预设失败，继续保存但不设置 overrides
+                        if (window.SafeLog) SafeLog.warn('加载预设内容失败:', e);
+                    }
+                    
+                    const data = {
+                        name: modal.form.name.trim(),
+                        llm_provider: modal.form.llm_provider,
+                        llm_model: modal.form.llm_model ? modal.form.llm_model.trim() : '',
+                        llm_base_url: modal.form.llm_base_url ? modal.form.llm_base_url.trim() : '',
+                        // LLM 参数（空值或非数字时传 null，表示使用默认值）
+                        temperature: (modal.form.temperature !== '' && modal.form.temperature !== null && !isNaN(modal.form.temperature)) ? Number(modal.form.temperature) : null,
+                        top_p: (modal.form.top_p !== '' && modal.form.top_p !== null && !isNaN(modal.form.top_p)) ? Number(modal.form.top_p) : null,
+                        max_tokens: (modal.form.max_tokens !== '' && modal.form.max_tokens !== null && !isNaN(modal.form.max_tokens)) ? Number(modal.form.max_tokens) : null,
+                        strategy_preset: presetName,  // 记录选择的预设名称（用于显示）
+                        strategy_overrides: strategyOverrides,  // 保存预设的完整内容
+                    };
+
+                    // 只有输入了新的 API Key 才传递（自动去除前后空格）
+                    if (modal.form.llm_api_key) {
+                        data.llm_api_key = modal.form.llm_api_key.trim();
+                    }
+
+                    if (modal.isEdit) {
+                        await apiRequest(`/api/user/ai-strategies/${modal.editId}`, 'PUT', data);
+                        showMessage(t('settings.strategyUpdated'));
+                    } else {
+                        await apiRequest('/api/user/ai-strategies', 'POST', data);
+                        showMessage(t('settings.strategyCreated'));
+                    }
+
+                    closeStrategyModal();
+                    await loadAIStrategies();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    modal.saving = false;
+                }
+            };
+
+            // 删除策略
+            const deleteStrategy = async (strategyId) => {
+                // 检查是否有交易所在使用
+                const usageCount = getStrategyUsageCount(strategyId);
+                if (usageCount > 0) {
+                    showMessage(t('settings.strategyInUseError', { count: usageCount }), 'error');
+                    return;
+                }
+
+                if (!confirm(t('settings.confirmDeleteStrategy'))) {
+                    return;
+                }
+
+                try {
+                    await apiRequest(`/api/user/ai-strategies/${strategyId}`, 'DELETE');
+                    showMessage(t('settings.strategyDeleted'));
+                    await loadAIStrategies();
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                }
+            };
+
+            // 重载策略缓存
+            const reloadStrategy = async (strategyId) => {
+                const strategy = aiStrategies.value.find(s => s.id === strategyId);
+                if (!strategy) return;
+                
+                strategy.reloading = true;
+                try {
+                    await apiRequest(`/api/user/ai-strategies/${strategyId}/reload`, 'POST');
+                    showMessage(t('settings.strategyReloaded'));
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    strategy.reloading = false;
+                }
+            };
+
+            // 获取策略信息
+            const getStrategyInfo = (strategyId) => {
+                if (!strategyId) return null;
+                return aiStrategies.value.find(s => s.id === strategyId);
+            };
+
+            // 获取策略使用数量
+            const getStrategyUsageCount = (strategyId) => {
+                return exchangeConfigs.value.filter(ex => ex.ai_strategy_id === strategyId).length;
+            };
+
+            // 设置交易所的 AI 策略
+            const setExchangeAIStrategy = async (exchange, strategyId) => {
+                try {
+                    const result = await apiRequest(`/api/user/exchanges/${exchange}/ai-strategy`, 'PUT', {
+                        strategy_id: strategyId || null
+                    });
+                    
+                    // 刷新配置和交易状态
+                    await loadExchangeConfigs();
+                    await loadExchangeTradingStatus();
+
+                    // 使用后端返回的消息，包含是否自动停止交易的信息
+                    showMessage(result.message || (strategyId 
+                        ? `${exchange} 已设置使用策略` 
+                        : `${exchange} 已停用 AI`));
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                    await loadExchangeConfigs();
+                }
+            };
+
+            // ==================== Redis 数据管理 ====================
+
+            // 加载 Redis 数据统计
+            const loadRedisStats = async () => {
+                try {
+                    const data = await apiRequest('/api/user/redis-stats');
+                    // 后端返回 { success: true, stats: {...} }
+                    redisStats.value = data.stats || data;
+                } catch (e) {
+                    if (window.SafeLog) SafeLog.error('加载 Redis 统计失败:', e);
+                    redisStats.value = null;
+                }
+            };
+
+            // 格式化数据大小
+            const formatDataSize = (bytes) => {
+                if (!bytes || bytes === 0) return '0 B';
+                const units = ['B', 'KB', 'MB', 'GB'];
+                let i = 0;
+                let size = bytes;
+                while (size >= 1024 && i < units.length - 1) {
+                    size /= 1024;
+                    i++;
+                }
+                return `${size.toFixed(1)} ${units[i]}`;
+            };
+
+            // 数据类型名称映射 - 使用函数返回以支持 i18n
+            const getDataTypeName = (type) => {
+                const names = {
+                    positions: t('settings.positionRecords'),
+                    closed_trades: t('settings.closedTradesData'),
+                    ai_history: t('settings.aiHistoryData'),
+                    notifications: t('settings.notificationRecords'),
+                    cache: t('settings.cacheData'),
+                    decision_feedback: t('settings.decisionFeedback'),
+                };
+                return names[type] || type;
+            };
+            
+            // 保留原对象用于获取所有类型的 key
+            const dataTypeNames = {
+                positions: 'positions',
+                closed_trades: 'closed_trades',
+                ai_history: 'ai_history',
+                notifications: 'notifications',
+                cache: 'cache',
+                decision_feedback: 'decision_feedback',
+            };
+
+            // 全局数据类型（不分交易所）
+            const globalDataTypes = ['ai_history', 'notifications', 'decision_feedback'];
+            // 按交易所分的数据类型
+            const exchangeDataTypes = ['positions', 'closed_trades', 'cache'];
+
+            // 全选数据类型（根据当前选择的交易所）
+            const selectAllDataTypes = () => {
+                if (resetOptions.value.exchange === 'all') {
+                    // 全部交易所：可以选择所有数据类型
+                    resetOptions.value.dataTypes = Object.keys(dataTypeNames);
+                } else {
+                    // 指定交易所：只能选择按交易所分的数据类型
+                    resetOptions.value.dataTypes = [...exchangeDataTypes];
+                }
+            };
+
+            // 清空数据类型
+            const clearAllDataTypes = () => {
+                resetOptions.value.dataTypes = [];
+            };
+
+            // 监听交易所选择变化，自动取消勾选被禁用的全局数据选项
+            const onExchangeChange = () => {
+                if (resetOptions.value.exchange !== 'all') {
+                    // 切换到指定交易所时，移除全局数据类型的选择
+                    resetOptions.value.dataTypes = resetOptions.value.dataTypes.filter(
+                        t => !globalDataTypes.includes(t)
+                    );
+                }
+            };
+
+            // 确认重置 Redis 数据 - 显示自定义弹窗
+            const confirmResetRedisData = () => {
+                const opts = resetOptions.value;
+
+                if (opts.dataTypes.length === 0) {
+                    showMessage(t('settings.selectDataTypeFirst'), 'error');
+                    return;
+                }
+
+                // 构建确认信息并显示弹窗
+                const exchangeText = opts.exchange === 'all' ? t('settings.allExchanges') : opts.exchange.toUpperCase();
+                const dataTypesArray = opts.dataTypes.map(type => getDataTypeName(type));
+
+                resetConfirmModal.value = {
+                    show: true,
+                    exchangeText,
+                    dataTypesArray,
+                };
+            };
+
+            // 执行重置 Redis 数据
+            const executeResetRedisData = async () => {
+                const opts = resetOptions.value;
+
+                resettingRedis.value = true;
+                try {
+                    const result = await apiRequest('/api/user/reset-redis-data', 'POST', {
+                        exchange: opts.exchange,
+                        data_types: opts.dataTypes,
+                    });
+                    showMessage(result.message || t('settings.dataReset'));
+                    // 关闭弹窗
+                    resetConfirmModal.value.show = false;
+                    // 重新加载统计
+                    await loadRedisStats();
+                    // 重置选项
+                    resetOptions.value.dataTypes = [];
+                } catch (e) {
+                    showMessage(e.message, 'error');
+                } finally {
+                    resettingRedis.value = false;
+                }
+            };
+
+            const formatDuration = (seconds) => {
+                if (!seconds) return '0' + t('settings.seconds');
+                const h = Math.floor(seconds / 3600);
+                const m = Math.floor((seconds % 3600) / 60);
+                if (h > 0) return t('settings.hourMinute', { h, m });
+                return m + t('settings.minutes');
+            };
+
+            const logout = () => {
+                Auth.logout();
+            };
+            
+            // 关闭新手引导
+            const dismissGuide = () => {
+                showGuide.value = false;
+                if (dontShowGuideAgain.value) {
+                    localStorage.setItem('settings_guide_hidden', '1');
+                }
+            };
+
+            onMounted(async () => {
+                // 显示页面内容（移除加载遮罩）
+                I18n.showContent();
+                
+                // 检查是否显示新手引导
+                const guideHidden = localStorage.getItem('settings_guide_hidden');
+                if (!guideHidden) {
+                    showGuide.value = true;
+                }
+                
+                // 验证登录状态（通过 Cookie 认证）
+                const isLoggedIn = await Auth.checkAuth();
+                if (!isLoggedIn) {
+                    Auth.clearUser();
+                    window.location.href = '/login.html';
+                    return;
+                }
+                // 并行加载所有数据 + 检查管理员状态
+                await Promise.all([
+                    loadConfig(),
+                    loadRedisStats(),
+                    loadPublicDashboardSettings(),
+                    checkAdminStatus(),  // 检查管理员身份
+                    loadStrategyPresets()  // 加载策略预设（用于显示用户预设列表）
+                ]);
+            });
+
+            return {
+                t,  // i18n translation function
+                uid,
+                username,
+                isAdmin,
+                loading,
+                message,
+                messageType,
+                // 新手引导
+                showGuide,
+                dontShowGuideAgain,
+                dismissGuide,
+                config,
+                status,
+                quickSymbols,
+                llmConfig,
+                tradingConfig,
+                notificationConfig,
+                publicDashboard,
+                publicDashboardFullLink,
+                togglePublicDashboard,
+                copyPublicLink,
+                saveLLMConfig,
+                saveNotificationConfig,
+                savingConstraints,
+                saveExecutionConstraints,
+                refreshStatus,
+                formatDuration,
+                logout,
+                // 交易所配置
+                exchangeConfigs,
+                exchangeModal,
+                openExchangeModal,
+                closeExchangeModal,
+                saveExchangeConfig,
+                testExchangeConnection,
+                deleteExchangeConfig,
+                toggleExchange,
+                // 交易所交易状态控制
+                exchangeTradingStatus,
+                exchangeActionLoading,
+                startExchangeTrading,
+                stopExchangeTrading,
+                // 展开式监控配置
+                hasExchangeMonitorConfig,
+                canStartTrading,
+                toggleExchangeAI500,
+                updateExchangeSymbols,
+                toggleExchangeSymbol,
+                runningExchangeCount,
+                enabledExchangeCount,
+                // 交易所 AI 配置（旧版）
+                toggleExchangeAI,
+                updateExchangeAIConfig,
+                // AI 策略池
+                aiStrategies,
+                strategyModal,
+                openStrategyModal,
+                closeStrategyModal,
+                saveStrategy,
+                deleteStrategy,
+                reloadStrategy,
+                canTestConnection,
+                testLLMConnection,
+                getStrategyInfo,
+                getStrategyUsageCount,
+                setExchangeAIStrategy,
+                // v5.0: 预设和类别 - 简化版
+                strategyPresets,
+                strategyCategories,
+                loadingPresets,
+                systemPresets,
+                userPresets,
+                loadStrategyPresets,
+                getPresetDisplayName,
+                // v5.1: LLM 模型选择
+                availableLLMModels,
+                loadingLLMModels,
+                filteredLLMModels,
+                onProviderChange,
+                onModelChange,
+                // Redis 数据管理
+                redisStats,
+                resettingRedis,
+                resetOptions,
+                resetConfirmModal,
+                loadRedisStats,
+                formatDataSize,
+                getDataTypeName,
+                confirmResetRedisData,
+                executeResetRedisData,
+                selectAllDataTypes,
+                clearAllDataTypes,
+                onExchangeChange,
+                // 预设编辑器
+                presetEditorModal,
+                presetFileInput,
+                openPresetEditor,
+                closePresetEditor,
+                savePresetFromEditor,
+                copyFromSystemPreset,
+                deleteUserPresetDirect,
+                exportPreset,
+                importPreset,
+                handlePresetFileImport,
+            };
+        }
+    }).mount('#app');
+    })(); // end async IIFE
+    </script>
+</body>
+</html>

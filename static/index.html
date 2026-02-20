@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AIBTC.VIP - AI Crypto Trading Bot</title>
+  
+  <!-- SEO Meta Tags (will be updated by i18n) -->
+  <meta name="description" content="Professional AI-powered cryptocurrency automated trading system. Supports Binance, OKX, Bitget and other major exchanges.">
+  <meta name="keywords" content="AI trading, crypto bot, cryptocurrency trading, automated trading, Bitcoin, BTC, ETH, Binance, OKX, Bitget">
+  <meta name="author" content="AIBTC.VIP">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://aibtc.vip/">
+  <meta property="og:title" content="AIBTC.VIP - AI Crypto Trading Bot">
+  <meta property="og:description" content="Professional AI-powered crypto trading system. Multi-exchange support, smart strategies, real-time risk control.">
+  <meta property="og:image" content="https://aibtc.vip/static/og-image.png">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://aibtc.vip/">
+  <meta property="twitter:title" content="AIBTC.VIP - AI Crypto Trading Bot">
+  <meta property="twitter:description" content="Professional AI-powered crypto trading system. Multi-exchange support, smart strategies, real-time risk control.">
+  <meta property="twitter:image" content="https://aibtc.vip/static/og-image.png">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://aibtc.vip/">
+  
+  <!-- Hreflang for multi-language SEO -->
+  <link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/?lang=zh-CN">
+  <link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/?lang=zh-TW">
+  <link rel="alternate" hreflang="en-US" href="https://aibtc.vip/?lang=en-US">
+  <link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/?lang=ja-JP">
+  <link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/?lang=ko-KR">
+  <link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/?lang=es-ES">
+  <link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/?lang=pt-BR">
+  <link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/?lang=ru-RU">
+  <link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/?lang=ar-SA">
+  <link rel="alternate" hreflang="x-default" href="https://aibtc.vip/">
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  
+  <!-- JSON-LD Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "AIBTC.VIP",
+    "description": "Professional AI-powered cryptocurrency automated trading system",
+    "url": "https://aibtc.vip",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "AIBTC.VIP",
+      "url": "https://aibtc.vip"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "1000"
+    }
+  }
+  </script>
+  
+  <!-- Security -->
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  
+  <link rel="icon" href="/static/favicon.png" type="image/png">
+  
+  <!-- Anti-FOUC: Inline critical CSS (renders before any external resource loads) -->
+  <style>
+    html, body { background-color: #0f172a; margin: 0; }
+    body { background-image: linear-gradient(to bottom right, #0f172a, #1e293b, #0f172a); min-height: 100vh; }
+    .i18n-loading { opacity: 0 !important; visibility: hidden !important; }
+    .i18n-ready { opacity: 1; visibility: visible; transition: opacity 0.15s ease-in; }
+    [v-cloak] { display: none !important; }
+  </style>
+  
+  <!-- Common CSS -->
+  <link rel="stylesheet" href="/static/css/common.css">
+  
+  <!-- 集中版本管理（必须最先加载） -->
+  <script src="/static/js/version.js"></script>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/static/vendor/vue.global.prod.js" as="script">
+  <link rel="preload" href="/static/js/i18n.js" as="script">
+  <link rel="preload" href="/static/js/auth.js" as="script">
+  <!-- 智能预加载语言包（由 version.js 自动处理） -->
+  
+  <!-- Non-critical CSS/JS will be loaded with defer -->
+  <script src="/static/vendor/tailwind.min.js" defer></script>
+
+  <!-- Common CSS already includes animations -->
+</head>
+
+<body class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 min-h-screen i18n-loading">
+  <!-- app.js 会渲染完整的导航栏和内容 -->
+  <div id="app" v-cloak class="container mx-auto px-4 py-8 max-w-7xl"></div>
+  
+  <!-- Fallback for users with JavaScript disabled -->
+  <noscript>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;color:#94a3b8;text-align:center;padding:2rem;">
+      <h1 style="font-size:1.5rem;color:#fff;margin-bottom:1rem;">JavaScript Required</h1>
+      <p>This application requires JavaScript to function properly.</p>
+      <p style="margin-top:0.5rem;">Please enable JavaScript in your browser settings.</p>
+    </div>
+  </noscript>
+
+  <!-- Vue 全局版本 - 本地文件 -->
+  <script src="/static/vendor/vue.global.prod.js"></script>
+
+  <!-- Chart.js - 本地文件 (defer for non-blocking load) -->
+  <script src="/static/vendor/chart.umd.min.js" defer></script>
+
+  <!-- 国际化模块 -->
+  <script src="/static/js/i18n.js"></script>
+
+  <!-- 认证工具 -->
+  <script src="/static/js/auth.js"></script>
+  
+  <!-- 共享导航组件 -->
+  <script src="/static/js/nav.js"></script>
+  
+  <!-- 用户认证脚本 -->
+  <script>
+    // 异步检查认证状态
+    (async function() {
+      // 并行执行：初始化国际化 + 检查本地用户
+      const i18nPromise = I18n.init({
+        defaultLocale: 'zh-CN',
+        onLocaleChange: () => {
+          // 语言变更时刷新页面
+          window.location.reload();
+        }
+      }).catch((e) => {
+        if (window.SafeLog) SafeLog.error('[Index] I18n init failed:', e);
+      });
+      
+      // 先检查本地用户信息（不阻塞 i18n）
+      let user = Auth.getUser();
+      
+      // 等待 i18n 初始化完成
+      await i18nPromise;
+      
+      // 更新 SEO 元标签
+      I18n.updateSeoMeta('index');
+      
+      if (!user || !user.uid) {
+        // 本地没有用户信息，检查 Cookie 是否有效
+        try {
+          const resp = await fetch('/api/user/config', { credentials: 'include' });
+          if (resp.ok) {
+            // Cookie 有效，获取用户信息并保存
+            const data = await resp.json();
+            if (data.uid && data.username) {
+              Auth.saveUser(data.uid, data.username);
+              user = { uid: data.uid, username: data.username };
+            }
+          }
+        } catch (e) {
+          if (window.SafeLog) SafeLog.error('Auth check failed:', e);
+        }
+      }
+      
+      if (!user || !user.uid) {
+        // Cookie 也无效，跳转登录
+        window.location.href = '/login.html';
+        return;
+      }
+      
+      // 传递用户信息给 app.js（不包含 token）
+      window.CURRENT_USER = { 
+        username: user.username || '', 
+        uid: user.uid || '' 
+      };
+      
+      // 加载业务代码（使用集中版本号）
+      loadVersionedScript('/static/app.js');
+    })();
+
+    function logout() {
+      Auth.logout();
+    }
+  </script>
+</body>
+</html>

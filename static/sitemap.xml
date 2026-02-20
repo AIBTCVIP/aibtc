@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <!-- Homepage / Dashboard -->
+  <url>
+    <loc>https://aibtc.vip/</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/?lang=zh-CN"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/?lang=zh-TW"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://aibtc.vip/?lang=en-US"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/?lang=ja-JP"/>
+    <xhtml:link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/?lang=ko-KR"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/?lang=es-ES"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/?lang=pt-BR"/>
+    <xhtml:link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/?lang=ru-RU"/>
+    <xhtml:link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/?lang=ar-SA"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://aibtc.vip/"/>
+  </url>
+  
+  <!-- Login Page -->
+  <url>
+    <loc>https://aibtc.vip/login.html</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/login.html?lang=zh-CN"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/login.html?lang=zh-TW"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://aibtc.vip/login.html?lang=en-US"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/login.html?lang=ja-JP"/>
+    <xhtml:link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/login.html?lang=ko-KR"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/login.html?lang=es-ES"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/login.html?lang=pt-BR"/>
+    <xhtml:link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/login.html?lang=ru-RU"/>
+    <xhtml:link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/login.html?lang=ar-SA"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://aibtc.vip/login.html"/>
+  </url>
+  
+  <!-- Leaderboard - Public, frequently updated -->
+  <url>
+    <loc>https://aibtc.vip/leaderboard.html</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/leaderboard.html?lang=zh-CN"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/leaderboard.html?lang=zh-TW"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://aibtc.vip/leaderboard.html?lang=en-US"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/leaderboard.html?lang=ja-JP"/>
+    <xhtml:link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/leaderboard.html?lang=ko-KR"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/leaderboard.html?lang=es-ES"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/leaderboard.html?lang=pt-BR"/>
+    <xhtml:link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/leaderboard.html?lang=ru-RU"/>
+    <xhtml:link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/leaderboard.html?lang=ar-SA"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://aibtc.vip/leaderboard.html"/>
+  </url>
+  
+  <!-- Public Dashboard - Dynamic content -->
+  <url>
+    <loc>https://aibtc.vip/public.html</loc>
+    <lastmod>2026-02-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://aibtc.vip/public.html?lang=zh-CN"/>
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://aibtc.vip/public.html?lang=zh-TW"/>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://aibtc.vip/public.html?lang=en-US"/>
+    <xhtml:link rel="alternate" hreflang="ja-JP" href="https://aibtc.vip/public.html?lang=ja-JP"/>
+    <xhtml:link rel="alternate" hreflang="ko-KR" href="https://aibtc.vip/public.html?lang=ko-KR"/>
+    <xhtml:link rel="alternate" hreflang="es-ES" href="https://aibtc.vip/public.html?lang=es-ES"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://aibtc.vip/public.html?lang=pt-BR"/>
+    <xhtml:link rel="alternate" hreflang="ru-RU" href="https://aibtc.vip/public.html?lang=ru-RU"/>
+    <xhtml:link rel="alternate" hreflang="ar-SA" href="https://aibtc.vip/public.html?lang=ar-SA"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://aibtc.vip/public.html"/>
+  </url>
+  
+</urlset>
