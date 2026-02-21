@@ -98,4 +98,9 @@ pip install -r requirements.txt
 
 # 开发模式启动
 python main_async.py
+
+管理员账号名称:
+
+aibtcvip (自行注册一个账号)
+
 ```
