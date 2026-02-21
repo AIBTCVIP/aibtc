@@ -1,3 +1,10 @@
+<img width="1918" height="910" alt="395d276fb726828d1f72c8e03e85b1d4" src="https://github.com/user-attachments/assets/5ffaec8c-03c0-4a26-8224-d9cd587aaf61" />
+
+<img width="1918" height="910" alt="80e810d35bc58edd2adbc86cd5cf1c34" src="https://github.com/user-attachments/assets/515a6961-0c73-407b-ab6f-e8cddbca9acd" />
+
+<img width="920" height="778" alt="image" src="https://github.com/user-attachments/assets/7226572f-c95a-4dbe-b3eb-d96dfc2e165a" />
+
+
 # AIBTC
 
 多用户 AI 量化交易系统，支持多交易所、多策略的自动化交易。
